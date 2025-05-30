@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FileImage, Calendar, MapPin, Ruler, Palette, Plus, Edit } from "lucide-react";
+import { FileImage, Calendar, MapPin, Ruler, Palette, Plus, Edit, Weight } from "lucide-react";
 
 interface SlabDetailsProps {
   slab: any;
@@ -12,12 +12,14 @@ interface SlabDetailsProps {
 const SlabDetails = ({ slab }: SlabDetailsProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "In Stock":
+      case "available":
         return "bg-green-100 text-green-800 border-green-200";
-      case "Processing":
+      case "processing":
         return "bg-orange-100 text-orange-800 border-orange-200";
-      case "Reserved":
+      case "reserved":
         return "bg-blue-100 text-blue-800 border-blue-200";
+      case "sold":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -28,7 +30,7 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{slab.name}</CardTitle>
+            <CardTitle className="text-lg">{slab.current_design}</CardTitle>
             <Badge className={getStatusColor(slab.status)}>
               {slab.status}
             </Badge>
@@ -43,21 +45,34 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
           {/* Basic Info */}
           <div className="space-y-3">
             <div className="flex items-center space-x-2 text-sm">
-              <span className="font-medium text-slate-600">ID:</span>
-              <span className="text-slate-800">{slab.id}</span>
+              <span className="font-medium text-slate-600">Slab ID:</span>
+              <span className="text-slate-800">{slab.slab_id}</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
-              <span className="font-medium text-slate-600">Pattern:</span>
-              <span className="text-slate-800">{slab.pattern}</span>
+              <span className="font-medium text-slate-600">Original Design:</span>
+              <span className="text-slate-800">{slab.original_design}</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm">
+              <span className="font-medium text-slate-600">Current Design:</span>
+              <span className="text-slate-800">{slab.current_design}</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <Ruler className="h-4 w-4 text-slate-500" />
               <span className="font-medium text-slate-600">Dimensions:</span>
-              <span className="text-slate-800">{slab.dimensions}</span>
+              <span className="text-slate-800">{slab.width} x {slab.height}mm</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <span className="font-medium text-slate-600">Thickness:</span>
-              <span className="text-slate-800">{slab.thickness}</span>
+              <span className="text-slate-800">{slab.thickness}mm</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm">
+              <Weight className="h-4 w-4 text-slate-500" />
+              <span className="font-medium text-slate-600">Weight:</span>
+              <span className="text-slate-800">{slab.weight}kg</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm">
+              <span className="font-medium text-slate-600">Quality Grade:</span>
+              <span className="text-slate-800">{slab.quality_grade}</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <MapPin className="h-4 w-4 text-slate-500" />
@@ -82,23 +97,34 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
             </div>
             
             <div className="space-y-2">
-              {slab.modifications.map((mod: any, index: number) => (
-                <div key={index} className="p-3 bg-slate-50 rounded-lg border">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm text-slate-800">{mod.type}</div>
-                      <div className="text-sm text-slate-600 mt-1">{mod.description}</div>
-                      <div className="flex items-center space-x-1 text-xs text-slate-500 mt-2">
-                        <Calendar className="h-3 w-3" />
-                        <span>{mod.date}</span>
+              {slab.modifications && slab.modifications.length > 0 ? (
+                slab.modifications.map((mod: any, index: number) => (
+                  <div key={index} className="p-3 bg-slate-50 rounded-lg border">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm text-slate-800">{mod.modification_type}</div>
+                        <div className="text-sm text-slate-600 mt-1">{mod.description}</div>
+                        {mod.performed_by && (
+                          <div className="text-xs text-slate-500 mt-1">
+                            Performed by: {mod.performed_by}
+                          </div>
+                        )}
+                        <div className="flex items-center space-x-1 text-xs text-slate-500 mt-2">
+                          <Calendar className="h-3 w-3" />
+                          <span>{new Date(mod.performed_at).toLocaleDateString()}</span>
+                        </div>
                       </div>
+                      <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                        <Edit className="h-3 w-3" />
+                      </Button>
                     </div>
-                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                      <Edit className="h-3 w-3" />
-                    </Button>
                   </div>
+                ))
+              ) : (
+                <div className="p-3 bg-slate-50 rounded-lg border border-dashed text-center text-slate-500">
+                  No modifications recorded
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

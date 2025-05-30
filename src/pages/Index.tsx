@@ -9,11 +9,44 @@ import { Plus, Search, Database, FileImage, Layers } from "lucide-react";
 import SlabInventory from "@/components/SlabInventory";
 import SlabDetails from "@/components/SlabDetails";
 import AddSlabDialog from "@/components/AddSlabDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
   const [selectedSlab, setSelectedSlab] = useState(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Fetch statistics for the analytics tab
+  const { data: stats } = useQuery({
+    queryKey: ['slab-stats'],
+    queryFn: async () => {
+      console.log('Fetching slab statistics...');
+      
+      const { data: slabs, error } = await supabase
+        .from('slabs')
+        .select('status, modifications(id)');
+      
+      if (error) {
+        console.error('Error fetching stats:', error);
+        throw error;
+      }
+
+      const totalSlabs = slabs.length;
+      const inStock = slabs.filter(s => s.status === 'available').length;
+      const processing = slabs.filter(s => s.status === 'processing').length;
+      const reserved = slabs.filter(s => s.status === 'reserved').length;
+      const modifiedSlabs = slabs.filter(s => s.modifications && s.modifications.length > 0).length;
+
+      return {
+        totalSlabs,
+        inStock,
+        processing,
+        reserved,
+        modifiedSlabs
+      };
+    }
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -104,9 +137,9 @@ const Index = () => {
                   <Database className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">1,247</div>
+                  <div className="text-2xl font-bold">{stats?.totalSlabs || 0}</div>
                   <p className="text-xs text-muted-foreground">
-                    +12% from last month
+                    In inventory system
                   </p>
                 </CardContent>
               </Card>
@@ -116,21 +149,21 @@ const Index = () => {
                   <Layers className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">342</div>
+                  <div className="text-2xl font-bold">{stats?.modifiedSlabs || 0}</div>
                   <p className="text-xs text-muted-foreground">
-                    +8% from last month
+                    With recorded modifications
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">In Stock</CardTitle>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">Active</Badge>
+                  <CardTitle className="text-sm font-medium">Available</CardTitle>
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">In Stock</Badge>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">1,089</div>
+                  <div className="text-2xl font-bold">{stats?.inStock || 0}</div>
                   <p className="text-xs text-muted-foreground">
-                    Available for processing
+                    Ready for processing
                   </p>
                 </CardContent>
               </Card>
@@ -140,7 +173,7 @@ const Index = () => {
                   <Badge variant="secondary" className="bg-orange-100 text-orange-800">In Progress</Badge>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">158</div>
+                  <div className="text-2xl font-bold">{stats?.processing || 0}</div>
                   <p className="text-xs text-muted-foreground">
                     Currently being modified
                   </p>
@@ -160,16 +193,16 @@ const Index = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-medium">Pattern Type</label>
+                    <label className="text-sm font-medium">Design Pattern</label>
                     <Input placeholder="e.g., Calacatta, Carrara" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Vein Intensity</label>
-                    <Input placeholder="e.g., Subtle, Bold, Dense" />
+                    <label className="text-sm font-medium">Quality Grade</label>
+                    <Input placeholder="e.g., A, B, C" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Color Modification</label>
-                    <Input placeholder="e.g., Warmer tone, Cooler tone" />
+                    <label className="text-sm font-medium">Modification Type</label>
+                    <Input placeholder="e.g., Vein Enhancement" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Thickness</label>
@@ -177,11 +210,11 @@ const Index = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium">Status</label>
-                    <Input placeholder="e.g., In Stock, Processing" />
+                    <Input placeholder="e.g., available, processing" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Date Range</label>
-                    <Input placeholder="e.g., Last 30 days" />
+                    <label className="text-sm font-medium">Location</label>
+                    <Input placeholder="e.g., Warehouse A" />
                   </div>
                 </div>
                 <Button className="mt-4 bg-blue-600 hover:bg-blue-700">

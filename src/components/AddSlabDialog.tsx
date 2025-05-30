@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddSlabDialogProps {
   open: boolean;
@@ -15,32 +18,97 @@ interface AddSlabDialogProps {
 
 const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
   const [formData, setFormData] = useState({
-    name: "",
-    pattern: "",
+    slab_id: "",
+    original_design: "",
+    current_design: "",
     thickness: "",
-    dimensions: "",
+    width: "",
+    height: "",
+    weight: "",
+    quality_grade: "",
     location: "",
-    description: ""
+    notes: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Adding new slab:", formData);
-    onOpenChange(false);
-    // Reset form
-    setFormData({
-      name: "",
-      pattern: "",
-      thickness: "",
-      dimensions: "",
-      location: "",
-      description: ""
-    });
+    setIsSubmitting(true);
+
+    try {
+      console.log("Creating new slab:", formData);
+      
+      const { data, error } = await supabase
+        .from('slabs')
+        .insert([
+          {
+            slab_id: formData.slab_id,
+            original_design: formData.original_design,
+            current_design: formData.current_design || formData.original_design,
+            thickness: parseFloat(formData.thickness),
+            width: parseFloat(formData.width),
+            height: parseFloat(formData.height),
+            weight: parseFloat(formData.weight),
+            quality_grade: formData.quality_grade,
+            location: formData.location,
+            status: 'available'
+          }
+        ])
+        .select();
+
+      if (error) {
+        console.error('Error creating slab:', error);
+        toast({
+          title: "Error",
+          description: "Failed to create slab. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Slab created successfully:', data);
+      
+      // Refresh the slabs list
+      queryClient.invalidateQueries({ queryKey: ['slabs'] });
+      
+      toast({
+        title: "Success",
+        description: "Slab created successfully!",
+      });
+      
+      onOpenChange(false);
+      
+      // Reset form
+      setFormData({
+        slab_id: "",
+        original_design: "",
+        current_design: "",
+        thickness: "",
+        width: "",
+        height: "",
+        weight: "",
+        quality_grade: "",
+        location: "",
+        notes: ""
+      });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Slab</DialogTitle>
           <DialogDescription>
@@ -51,97 +119,133 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Slab Name</Label>
+              <Label htmlFor="slab_id">Slab ID</Label>
               <Input
-                id="name"
-                placeholder="e.g., Calacatta Gold Premium"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                id="slab_id"
+                placeholder="e.g., LE-004"
+                value={formData.slab_id}
+                onChange={(e) => setFormData({ ...formData, slab_id: e.target.value })}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pattern">Pattern Type</Label>
-              <Select value={formData.pattern} onValueChange={(value) => setFormData({ ...formData, pattern: value })}>
+              <Label htmlFor="quality_grade">Quality Grade</Label>
+              <Select value={formData.quality_grade} onValueChange={(value) => setFormData({ ...formData, quality_grade: value })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select pattern" />
+                  <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="calacatta">Calacatta</SelectItem>
-                  <SelectItem value="carrara">Carrara</SelectItem>
-                  <SelectItem value="dramatic">Dramatic</SelectItem>
-                  <SelectItem value="subtle">Subtle</SelectItem>
-                  <SelectItem value="veined">Veined</SelectItem>
-                  <SelectItem value="solid">Solid</SelectItem>
+                  <SelectItem value="A">Grade A</SelectItem>
+                  <SelectItem value="B">Grade B</SelectItem>
+                  <SelectItem value="C">Grade C</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="thickness">Thickness</Label>
-              <Select value={formData.thickness} onValueChange={(value) => setFormData({ ...formData, thickness: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select thickness" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="20mm">20mm</SelectItem>
-                  <SelectItem value="30mm">30mm</SelectItem>
-                  <SelectItem value="40mm">40mm</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="dimensions">Dimensions</Label>
-              <Input
-                id="dimensions"
-                placeholder="e.g., 3200x1600mm"
-                value={formData.dimensions}
-                onChange={(e) => setFormData({ ...formData, dimensions: e.target.value })}
-                required
-              />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Storage Location</Label>
+            <Label htmlFor="original_design">Original Design</Label>
             <Input
-              id="location"
-              placeholder="e.g., Warehouse A-12"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              id="original_design"
+              placeholder="e.g., Calacatta Gold"
+              value={formData.original_design}
+              onChange={(e) => setFormData({ ...formData, original_design: e.target.value })}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="current_design">Current Design (Optional)</Label>
+            <Input
+              id="current_design"
+              placeholder="Leave empty if same as original"
+              value={formData.current_design}
+              onChange={(e) => setFormData({ ...formData, current_design: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="thickness">Thickness (mm)</Label>
+              <Input
+                id="thickness"
+                type="number"
+                step="0.1"
+                placeholder="e.g., 30"
+                value={formData.thickness}
+                onChange={(e) => setFormData({ ...formData, thickness: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="width">Width (mm)</Label>
+              <Input
+                id="width"
+                type="number"
+                step="0.1"
+                placeholder="e.g., 3200"
+                value={formData.width}
+                onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="height">Height (mm)</Label>
+              <Input
+                id="height"
+                type="number"
+                step="0.1"
+                placeholder="e.g., 1600"
+                value={formData.height}
+                onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="weight">Weight (kg)</Label>
+              <Input
+                id="weight"
+                type="number"
+                step="0.1"
+                placeholder="e.g., 850.5"
+                value={formData.weight}
+                onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location">Storage Location</Label>
+              <Input
+                id="location"
+                placeholder="e.g., Warehouse A-12"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes (Optional)</Label>
             <Textarea
-              id="description"
+              id="notes"
               placeholder="Additional notes about this slab..."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Upload Image (Optional)</Label>
-            <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors cursor-pointer">
-              <Upload className="h-8 w-8 mx-auto mb-2 text-slate-400" />
-              <p className="text-sm text-slate-600">Click to upload or drag and drop</p>
-              <p className="text-xs text-slate-500">PNG, JPG up to 10MB</p>
-            </div>
-          </div>
-
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Slab
+              {isSubmitting ? "Adding..." : "Add Slab"}
             </Button>
           </DialogFooter>
         </form>
