@@ -1,15 +1,19 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FileImage, Calendar, MapPin, Palette, Plus, Edit, Package } from "lucide-react";
+import AddModificationDialog from "./AddModificationDialog";
 
 interface SlabDetailsProps {
   slab: any;
 }
 
 const SlabDetails = ({ slab }: SlabDetailsProps) => {
+  const [isAddModificationOpen, setIsAddModificationOpen] = useState(false);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "in_stock":
@@ -125,7 +129,11 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
                 <Palette className="h-4 w-4" />
                 <span>Modifications</span>
               </h4>
-              <Button size="sm" variant="outline">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => setIsAddModificationOpen(true)}
+              >
                 <Plus className="h-3 w-3 mr-1" />
                 Add
               </Button>
@@ -178,6 +186,12 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
           </div>
         </CardContent>
       </Card>
+
+      <AddModificationDialog
+        open={isAddModificationOpen}
+        onOpenChange={setIsAddModificationOpen}
+        slabId={slab.id}
+      />
     </div>
   );
 };
