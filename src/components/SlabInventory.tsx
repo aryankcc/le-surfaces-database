@@ -10,15 +10,15 @@ import { useQuery } from "@tanstack/react-query";
 interface Slab {
   id: string;
   slab_id: string;
-  original_design: string;
-  current_design: string;
-  thickness: number;
-  width: number;
-  height: number;
-  weight: number;
-  quality_grade: string;
+  family: string;
+  formulation: string;
+  version: string | null;
+  received_date: string;
+  notes: string | null;
+  image_url: string | null;
+  sent_to_location: string | null;
+  sent_to_date: string | null;
   status: string;
-  location: string;
   created_at: string;
   updated_at: string;
   modifications?: any[];
@@ -54,20 +54,21 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab }: SlabInventory
   });
 
   const filteredSlabs = slabs.filter(slab =>
-    slab.current_design.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    slab.original_design.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    slab.family.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    slab.formulation.toLowerCase().includes(searchTerm.toLowerCase()) ||
     slab.slab_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    slab.location.toLowerCase().includes(searchTerm.toLowerCase())
+    (slab.version && slab.version.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (slab.sent_to_location && slab.sent_to_location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "available":
+      case "in_stock":
         return "bg-green-100 text-green-800 border-green-200";
-      case "processing":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "reserved":
+      case "sent":
         return "bg-blue-100 text-blue-800 border-blue-200";
+      case "reserved":
+        return "bg-orange-100 text-orange-800 border-orange-200";
       case "sold":
         return "bg-red-100 text-red-800 border-red-200";
       default:
@@ -131,9 +132,9 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab }: SlabInventory
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="font-semibold text-lg text-slate-800">{slab.current_design}</h3>
+                    <h3 className="font-semibold text-lg text-slate-800">{slab.family}</h3>
                     <Badge className={getStatusColor(slab.status)}>
-                      {slab.status}
+                      {slab.status.replace('_', ' ')}
                     </Badge>
                   </div>
                   
@@ -142,21 +143,23 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab }: SlabInventory
                       <span className="font-medium">ID:</span> {slab.slab_id}
                     </div>
                     <div>
-                      <span className="font-medium">Original:</span> {slab.original_design}
+                      <span className="font-medium">Formulation:</span> {slab.formulation}
                     </div>
-                    <div>
-                      <span className="font-medium">Thickness:</span> {slab.thickness}mm
-                    </div>
-                    <div>
-                      <span className="font-medium">Dimensions:</span> {slab.width}x{slab.height}mm
-                    </div>
-                    <div>
-                      <span className="font-medium">Location:</span> {slab.location}
-                    </div>
+                    {slab.version && (
+                      <div>
+                        <span className="font-medium">Version:</span> {slab.version}
+                      </div>
+                    )}
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-3 w-3" />
-                      <span className="font-medium">Created:</span> {new Date(slab.created_at).toLocaleDateString()}
+                      <span className="font-medium">Received:</span> {new Date(slab.received_date).toLocaleDateString()}
                     </div>
+                    {slab.sent_to_location && (
+                      <div className="col-span-2">
+                        <span className="font-medium">Sent to:</span> {slab.sent_to_location}
+                        {slab.sent_to_date && ` (${new Date(slab.sent_to_date).toLocaleDateString()})`}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-4">
@@ -179,7 +182,15 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab }: SlabInventory
                 
                 <div className="ml-4">
                   <div className="w-20 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
-                    <FileImage className="h-8 w-8 text-slate-400" />
+                    {slab.image_url ? (
+                      <img 
+                        src={slab.image_url} 
+                        alt={slab.family}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <FileImage className="h-8 w-8 text-slate-400" />
+                    )}
                   </div>
                 </div>
               </div>

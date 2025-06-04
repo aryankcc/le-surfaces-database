@@ -9,44 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      inventory_movements: {
-        Row: {
-          from_location: string | null
-          id: string
-          moved_at: string
-          moved_by: string | null
-          reason: string | null
-          slab_id: string
-          to_location: string
-        }
-        Insert: {
-          from_location?: string | null
-          id?: string
-          moved_at?: string
-          moved_by?: string | null
-          reason?: string | null
-          slab_id: string
-          to_location: string
-        }
-        Update: {
-          from_location?: string | null
-          id?: string
-          moved_at?: string
-          moved_by?: string | null
-          reason?: string | null
-          slab_id?: string
-          to_location?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "inventory_movements_slab_id_fkey"
-            columns: ["slab_id"]
-            isOneToOne: false
-            referencedRelation: "slabs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       modifications: {
         Row: {
           after_image_url: string | null
@@ -94,48 +56,48 @@ export type Database = {
       slabs: {
         Row: {
           created_at: string
-          current_design: string
-          height: number | null
+          family: string
+          formulation: string
           id: string
-          location: string | null
-          original_design: string
-          quality_grade: string | null
+          image_url: string | null
+          notes: string | null
+          received_date: string
+          sent_to_date: string | null
+          sent_to_location: string | null
           slab_id: string
           status: string
-          thickness: number | null
           updated_at: string
-          weight: number | null
-          width: number | null
+          version: string | null
         }
         Insert: {
           created_at?: string
-          current_design: string
-          height?: number | null
+          family: string
+          formulation: string
           id?: string
-          location?: string | null
-          original_design: string
-          quality_grade?: string | null
+          image_url?: string | null
+          notes?: string | null
+          received_date: string
+          sent_to_date?: string | null
+          sent_to_location?: string | null
           slab_id: string
           status?: string
-          thickness?: number | null
           updated_at?: string
-          weight?: number | null
-          width?: number | null
+          version?: string | null
         }
         Update: {
           created_at?: string
-          current_design?: string
-          height?: number | null
+          family?: string
+          formulation?: string
           id?: string
-          location?: string | null
-          original_design?: string
-          quality_grade?: string | null
+          image_url?: string | null
+          notes?: string | null
+          received_date?: string
+          sent_to_date?: string | null
+          sent_to_location?: string | null
           slab_id?: string
           status?: string
-          thickness?: number | null
           updated_at?: string
-          weight?: number | null
-          width?: number | null
+          version?: string | null
         }
         Relationships: []
       }

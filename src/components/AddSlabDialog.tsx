@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Plus } from "lucide-react";
+import { Upload, Plus, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -19,15 +19,13 @@ interface AddSlabDialogProps {
 const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
   const [formData, setFormData] = useState({
     slab_id: "",
-    original_design: "",
-    current_design: "",
-    thickness: "",
-    width: "",
-    height: "",
-    weight: "",
-    quality_grade: "",
-    location: "",
-    notes: ""
+    family: "",
+    formulation: "",
+    version: "",
+    received_date: "",
+    notes: "",
+    sent_to_location: "",
+    sent_to_date: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -41,22 +39,21 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
     try {
       console.log("Creating new slab:", formData);
       
+      const slabData = {
+        slab_id: formData.slab_id,
+        family: formData.family,
+        formulation: formData.formulation,
+        version: formData.version || null,
+        received_date: formData.received_date,
+        notes: formData.notes || null,
+        sent_to_location: formData.sent_to_location || null,
+        sent_to_date: formData.sent_to_date || null,
+        status: formData.sent_to_location ? 'sent' : 'in_stock'
+      };
+
       const { data, error } = await supabase
         .from('slabs')
-        .insert([
-          {
-            slab_id: formData.slab_id,
-            original_design: formData.original_design,
-            current_design: formData.current_design || formData.original_design,
-            thickness: parseFloat(formData.thickness),
-            width: parseFloat(formData.width),
-            height: parseFloat(formData.height),
-            weight: parseFloat(formData.weight),
-            quality_grade: formData.quality_grade,
-            location: formData.location,
-            status: 'available'
-          }
-        ])
+        .insert([slabData])
         .select();
 
       if (error) {
@@ -73,6 +70,7 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
       
       // Refresh the slabs list
       queryClient.invalidateQueries({ queryKey: ['slabs'] });
+      queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
       
       toast({
         title: "Success",
@@ -84,15 +82,13 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
       // Reset form
       setFormData({
         slab_id: "",
-        original_design: "",
-        current_design: "",
-        thickness: "",
-        width: "",
-        height: "",
-        weight: "",
-        quality_grade: "",
-        location: "",
-        notes: ""
+        family: "",
+        formulation: "",
+        version: "",
+        received_date: "",
+        notes: "",
+        sent_to_location: "",
+        sent_to_date: ""
       });
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -108,7 +104,7 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Slab</DialogTitle>
           <DialogDescription>
@@ -117,9 +113,10 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Basic Information */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="slab_id">Slab ID</Label>
+              <Label htmlFor="slab_id">Slab ID *</Label>
               <Input
                 id="slab_id"
                 placeholder="e.g., LE-004"
@@ -129,107 +126,54 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="quality_grade">Quality Grade</Label>
-              <Select value={formData.quality_grade} onValueChange={(value) => setFormData({ ...formData, quality_grade: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select grade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="A">Grade A</SelectItem>
-                  <SelectItem value="B">Grade B</SelectItem>
-                  <SelectItem value="C">Grade C</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="received_date">Received Date *</Label>
+              <Input
+                id="received_date"
+                type="date"
+                value={formData.received_date}
+                onChange={(e) => setFormData({ ...formData, received_date: e.target.value })}
+                required
+              />
             </div>
           </div>
 
+          {/* Family & Formulation */}
           <div className="space-y-2">
-            <Label htmlFor="original_design">Original Design</Label>
+            <Label htmlFor="family">Family *</Label>
             <Input
-              id="original_design"
-              placeholder="e.g., Calacatta Gold"
-              value={formData.original_design}
-              onChange={(e) => setFormData({ ...formData, original_design: e.target.value })}
+              id="family"
+              placeholder="e.g., Calacatta, Carrara, Statuario"
+              value={formData.family}
+              onChange={(e) => setFormData({ ...formData, family: e.target.value })}
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="current_design">Current Design (Optional)</Label>
-            <Input
-              id="current_design"
-              placeholder="Leave empty if same as original"
-              value={formData.current_design}
-              onChange={(e) => setFormData({ ...formData, current_design: e.target.value })}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="thickness">Thickness (mm)</Label>
-              <Input
-                id="thickness"
-                type="number"
-                step="0.1"
-                placeholder="e.g., 30"
-                value={formData.thickness}
-                onChange={(e) => setFormData({ ...formData, thickness: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="width">Width (mm)</Label>
-              <Input
-                id="width"
-                type="number"
-                step="0.1"
-                placeholder="e.g., 3200"
-                value={formData.width}
-                onChange={(e) => setFormData({ ...formData, width: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="height">Height (mm)</Label>
-              <Input
-                id="height"
-                type="number"
-                step="0.1"
-                placeholder="e.g., 1600"
-                value={formData.height}
-                onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="weight">Weight (kg)</Label>
+              <Label htmlFor="formulation">Formulation (Sub-family) *</Label>
               <Input
-                id="weight"
-                type="number"
-                step="0.1"
-                placeholder="e.g., 850.5"
-                value={formData.weight}
-                onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                id="formulation"
+                placeholder="e.g., Gold, White Classic, Premium White"
+                value={formData.formulation}
+                onChange={(e) => setFormData({ ...formData, formulation: e.target.value })}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="location">Storage Location</Label>
+              <Label htmlFor="version">Version</Label>
               <Input
-                id="location"
-                placeholder="e.g., Warehouse A-12"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                required
+                id="version"
+                placeholder="e.g., Premium, Standard, Luxury"
+                value={formData.version}
+                onChange={(e) => setFormData({ ...formData, version: e.target.value })}
               />
             </div>
           </div>
 
+          {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
               placeholder="Additional notes about this slab..."
@@ -237,6 +181,31 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
             />
+          </div>
+
+          {/* Shipping Information */}
+          <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+            <h4 className="font-medium text-slate-800">Shipping Information (Optional)</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="sent_to_location">Sent To Location</Label>
+                <Input
+                  id="sent_to_location"
+                  placeholder="e.g., Project Site A - Downtown Office"
+                  value={formData.sent_to_location}
+                  onChange={(e) => setFormData({ ...formData, sent_to_location: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sent_to_date">Sent Date</Label>
+                <Input
+                  id="sent_to_date"
+                  type="date"
+                  value={formData.sent_to_date}
+                  onChange={(e) => setFormData({ ...formData, sent_to_date: e.target.value })}
+                />
+              </div>
+            </div>
           </div>
 
           <DialogFooter>

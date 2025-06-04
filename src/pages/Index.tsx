@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -35,16 +36,18 @@ const Index = () => {
       }
 
       const totalSlabs = slabs.length;
-      const inStock = slabs.filter(s => s.status === 'available').length;
-      const processing = slabs.filter(s => s.status === 'processing').length;
+      const inStock = slabs.filter(s => s.status === 'in_stock').length;
+      const sent = slabs.filter(s => s.status === 'sent').length;
       const reserved = slabs.filter(s => s.status === 'reserved').length;
+      const sold = slabs.filter(s => s.status === 'sold').length;
       const modifiedSlabs = slabs.filter(s => s.modifications && s.modifications.length > 0).length;
 
       return {
         totalSlabs,
         inStock,
-        processing,
+        sent,
         reserved,
+        sold,
         modifiedSlabs
       };
     }
@@ -169,6 +172,30 @@ const Index = () => {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">In Stock</CardTitle>
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">Available</Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats?.inStock || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Ready for use
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Sent</CardTitle>
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">Shipped</Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats?.sent || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Delivered to projects
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Modified Slabs</CardTitle>
                   <Layers className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -176,30 +203,6 @@ const Index = () => {
                   <div className="text-2xl font-bold">{stats?.modifiedSlabs || 0}</div>
                   <p className="text-xs text-muted-foreground">
                     With recorded modifications
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Available</CardTitle>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">In Stock</Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats?.inStock || 0}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Ready for processing
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Processing</CardTitle>
-                  <Badge variant="secondary" className="bg-orange-100 text-orange-800">In Progress</Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats?.processing || 0}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Currently being modified
                   </p>
                 </CardContent>
               </Card>
@@ -211,34 +214,34 @@ const Index = () => {
               <CardHeader>
                 <CardTitle>Advanced Search</CardTitle>
                 <CardDescription>
-                  Find slabs by specific modifications, patterns, or characteristics
+                  Find slabs by family, formulation, version, or shipping details
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-medium">Design Pattern</label>
+                    <label className="text-sm font-medium">Family</label>
                     <Input placeholder="e.g., Calacatta, Carrara" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Quality Grade</label>
-                    <Input placeholder="e.g., A, B, C" />
+                    <label className="text-sm font-medium">Formulation</label>
+                    <Input placeholder="e.g., Gold, White Classic" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Modification Type</label>
-                    <Input placeholder="e.g., Vein Enhancement" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Thickness</label>
-                    <Input placeholder="e.g., 20mm, 30mm" />
+                    <label className="text-sm font-medium">Version</label>
+                    <Input placeholder="e.g., Premium, Standard" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Status</label>
-                    <Input placeholder="e.g., available, processing" />
+                    <Input placeholder="e.g., in_stock, sent" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Location</label>
-                    <Input placeholder="e.g., Warehouse A" />
+                    <label className="text-sm font-medium">Sent To Location</label>
+                    <Input placeholder="e.g., Project Site A" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Received Date</label>
+                    <Input type="date" />
                   </div>
                 </div>
                 <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
