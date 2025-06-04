@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, FileImage, Calendar, Palette } from "lucide-react";
+import { Eye, Edit, FileImage, Calendar, Palette, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -28,9 +27,11 @@ interface SlabInventoryProps {
   searchTerm: string;
   onSlabSelect: (slab: Slab) => void;
   selectedSlab: Slab | null;
+  onEditSlab: (slab: Slab) => void;
+  onDeleteSlab: (slab: Slab) => void;
 }
 
-const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab }: SlabInventoryProps) => {
+const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onDeleteSlab }: SlabInventoryProps) => {
   const { data: slabs = [], isLoading, error } = useQuery({
     queryKey: ['slabs'],
     queryFn: async () => {
@@ -53,13 +54,16 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab }: SlabInventory
     }
   });
 
-  const filteredSlabs = slabs.filter(slab =>
-    slab.family.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    slab.formulation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    slab.slab_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (slab.version && slab.version.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (slab.sent_to_location && slab.sent_to_location.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredSlabs = slabs.filter(slab => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (slab.family || '').toLowerCase().includes(searchLower) ||
+      (slab.formulation || '').toLowerCase().includes(searchLower) ||
+      (slab.slab_id || '').toLowerCase().includes(searchLower) ||
+      (slab.version || '').toLowerCase().includes(searchLower) ||
+      (slab.sent_to_location || '').toLowerCase().includes(searchLower)
+    );
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -168,13 +172,41 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab }: SlabInventory
                       <span>{slab.modifications?.length || 0} modifications</span>
                     </div>
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" className="h-8">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSlabSelect(slab);
+                        }}
+                      >
                         <Eye className="h-3 w-3 mr-1" />
                         View
                       </Button>
-                      <Button size="sm" variant="outline" className="h-8">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditSlab(slab);
+                        }}
+                      >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8 text-red-600 hover:text-red-700 hover:border-red-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteSlab(slab);
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Delete
                       </Button>
                     </div>
                   </div>

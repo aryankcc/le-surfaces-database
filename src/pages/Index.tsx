@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -10,13 +9,36 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import SlabInventory from "@/components/SlabInventory";
 import SlabDetails from "@/components/SlabDetails";
 import AddSlabDialog from "@/components/AddSlabDialog";
+import EditSlabDialog from "@/components/EditSlabDialog";
+import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 
+interface Slab {
+  id: string;
+  slab_id: string;
+  family: string;
+  formulation: string;
+  version: string | null;
+  received_date: string;
+  notes: string | null;
+  image_url: string | null;
+  sent_to_location: string | null;
+  sent_to_date: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  modifications?: any[];
+}
+
 const Index = () => {
-  const [selectedSlab, setSelectedSlab] = useState(null);
+  const [selectedSlab, setSelectedSlab] = useState<Slab | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editingSlab, setEditingSlab] = useState<Slab | null>(null);
+  const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { user, signOut } = useAuth();
 
@@ -55,6 +77,16 @@ const Index = () => {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleEditSlab = (slab: Slab) => {
+    setEditingSlab(slab);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteSlab = (slab: Slab) => {
+    setDeletingSlab(slab);
+    setIsDeleteDialogOpen(true);
   };
 
   return (
@@ -137,6 +169,8 @@ const Index = () => {
                   searchTerm={searchTerm}
                   onSlabSelect={setSelectedSlab}
                   selectedSlab={selectedSlab}
+                  onEditSlab={handleEditSlab}
+                  onDeleteSlab={handleDeleteSlab}
                 />
               </div>
               <div className="lg:col-span-1">
@@ -257,6 +291,18 @@ const Index = () => {
       <AddSlabDialog 
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
+      />
+
+      <EditSlabDialog 
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        slab={editingSlab}
+      />
+
+      <DeleteSlabDialog 
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        slab={deletingSlab}
       />
     </div>
   );
