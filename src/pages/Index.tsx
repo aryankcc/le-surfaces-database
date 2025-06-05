@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import SlabDetails from "@/components/SlabDetails";
 import AddSlabDialog from "@/components/AddSlabDialog";
 import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
+import LowStockAlerts from "@/components/LowStockAlerts";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";

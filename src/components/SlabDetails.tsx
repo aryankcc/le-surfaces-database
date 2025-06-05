@@ -41,16 +41,42 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Image */}
-          <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center">
+          {/* Image with Box.com link */}
+          <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center relative group">
             {slab.image_url ? (
-              <img 
-                src={slab.image_url} 
-                alt={slab.family}
-                className="w-full h-full object-cover rounded-lg"
-              />
+              <>
+                <img 
+                  src={slab.image_url} 
+                  alt={slab.family}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+                {slab.box_url && (
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-all duration-200">
+                    <a
+                      href={slab.box_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="opacity-0 group-hover:opacity-100 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-700"
+                    >
+                      View on Box.com
+                    </a>
+                  </div>
+                )}
+              </>
             ) : (
-              <FileImage className="h-12 w-12 text-slate-400" />
+              <div className="text-center">
+                <FileImage className="h-12 w-12 text-slate-400 mx-auto mb-2" />
+                {slab.box_url && (
+                  <a
+                    href={slab.box_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    View on Box.com
+                  </a>
+                )}
+              </div>
             )}
           </div>
 

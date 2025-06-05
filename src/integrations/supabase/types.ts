@@ -9,52 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      modifications: {
+      slab_types: {
         Row: {
-          after_image_url: string | null
-          before_image_url: string | null
-          description: string
+          created_at: string
+          family: string
+          formulation: string
           id: string
-          modification_type: string
-          notes: string | null
-          performed_at: string
-          performed_by: string | null
-          slab_id: string
+          min_quantity: number
+          updated_at: string
+          version: string | null
         }
         Insert: {
-          after_image_url?: string | null
-          before_image_url?: string | null
-          description: string
+          created_at?: string
+          family: string
+          formulation: string
           id?: string
-          modification_type: string
-          notes?: string | null
-          performed_at?: string
-          performed_by?: string | null
-          slab_id: string
+          min_quantity?: number
+          updated_at?: string
+          version?: string | null
         }
         Update: {
-          after_image_url?: string | null
-          before_image_url?: string | null
-          description?: string
+          created_at?: string
+          family?: string
+          formulation?: string
           id?: string
-          modification_type?: string
-          notes?: string | null
-          performed_at?: string
-          performed_by?: string | null
-          slab_id?: string
+          min_quantity?: number
+          updated_at?: string
+          version?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "modifications_slab_id_fkey"
-            columns: ["slab_id"]
-            isOneToOne: false
-            referencedRelation: "slabs"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       slabs: {
         Row: {
+          box_url: string | null
           created_at: string
           family: string
           formulation: string
@@ -70,6 +57,7 @@ export type Database = {
           version: string | null
         }
         Insert: {
+          box_url?: string | null
           created_at?: string
           family: string
           formulation: string
@@ -85,6 +73,7 @@ export type Database = {
           version?: string | null
         }
         Update: {
+          box_url?: string | null
           created_at?: string
           family?: string
           formulation?: string
@@ -106,7 +95,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_low_stock_alerts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          family: string
+          formulation: string
+          version: string
+          current_count: number
+          min_quantity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

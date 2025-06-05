@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,7 @@ interface Slab {
   sent_to_location: string | null;
   sent_to_date: string | null;
   status: string;
+  box_url: string | null;
 }
 
 interface EditSlabDialogProps {
@@ -41,7 +41,8 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     notes: "",
     sent_to_location: "",
     sent_to_date: "",
-    status: "in_stock"
+    status: "in_stock",
+    box_url: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -60,7 +61,8 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         notes: slab.notes || "",
         sent_to_location: slab.sent_to_location || "",
         sent_to_date: slab.sent_to_date || "",
-        status: slab.status
+        status: slab.status,
+        box_url: slab.box_url || ""
       });
     }
   }, [slab]);
@@ -121,6 +123,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         sent_to_date: formData.sent_to_date || null,
         status: formData.sent_to_location ? 'sent' : formData.status,
         image_url: imageUrl,
+        box_url: formData.box_url || null,
         updated_at: new Date().toISOString()
       };
 
@@ -275,6 +278,19 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
                 <p className="text-xs text-slate-500 mt-1">Upload a new image to replace the current one</p>
               </div>
             </div>
+          </div>
+
+          {/* Box.com URL */}
+          <div className="space-y-2">
+            <Label htmlFor="box_url">Box.com URL</Label>
+            <Input
+              id="box_url"
+              type="url"
+              placeholder="https://app.box.com/..."
+              value={formData.box_url}
+              onChange={(e) => setFormData({ ...formData, box_url: e.target.value })}
+            />
+            <p className="text-xs text-slate-500">Link to the slab image on Box.com</p>
           </div>
 
           {/* Notes */}
