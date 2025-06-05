@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,7 @@ import LowStockAlerts from "@/components/LowStockAlerts";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { exportToExcel } from "@/utils/excelExport";
+import { exportInventoryToExcel } from "@/utils/excelExport";
 import { useToast } from "@/hooks/use-toast";
 
 interface Slab {
@@ -104,7 +103,7 @@ const Index = () => {
         description: "Preparing Excel file...",
       });
 
-      await exportToExcel();
+      await exportInventoryToExcel();
       
       toast({
         title: "Export Complete",
