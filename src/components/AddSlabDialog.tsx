@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ interface Slab {
   sent_to_date: string | null;
   status: string;
   box_url: string | null;
+  modifications?: any[];
 }
 
 interface Modification {
@@ -58,6 +60,13 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+    }
+  };
 
   const uploadImage = async (file: File, slabId: string): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();

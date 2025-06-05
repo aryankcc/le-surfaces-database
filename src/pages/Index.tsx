@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Database, FileImage, Layers, LogOut, User } from "lucide-react";
+import { Plus, Search, Database, FileImage, Layers, LogOut, User, Download } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SlabInventory from "@/components/SlabInventory";
 import SlabDetails from "@/components/SlabDetails";
@@ -16,6 +16,8 @@ import LowStockAlerts from "@/components/LowStockAlerts";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { exportToExcel } from "@/utils/excelExport";
+import { useToast } from "@/hooks/use-toast";
 
 interface Slab {
   id: string;
@@ -31,6 +33,7 @@ interface Slab {
   status: string;
   created_at: string;
   updated_at: string;
+  box_url: string | null;
   modifications?: any[];
 }
 
@@ -43,6 +46,7 @@ const Index = () => {
   const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { user, signOut } = useAuth();
+  const { toast } = useToast();
 
   // Fetch statistics for the analytics tab
   const { data: stats } = useQuery({
@@ -52,7 +56,7 @@ const Index = () => {
       
       const { data: slabs, error } = await supabase
         .from('slabs')
-        .select('status, modifications(id)');
+        .select('status, image_url, box_url, modifications(id)');
       
       if (error) {
         console.error('Error fetching stats:', error);
@@ -65,6 +69,7 @@ const Index = () => {
       const reserved = slabs.filter(s => s.status === 'reserved').length;
       const sold = slabs.filter(s => s.status === 'sold').length;
       const modifiedSlabs = slabs.filter(s => s.modifications && s.modifications.length > 0).length;
+      const slabsWithoutPictures = slabs.filter(s => !s.image_url && !s.box_url).length;
 
       return {
         totalSlabs,
@@ -72,7 +77,8 @@ const Index = () => {
         sent,
         reserved,
         sold,
-        modifiedSlabs
+        modifiedSlabs,
+        slabsWithoutPictures
       };
     }
   });
@@ -89,6 +95,29 @@ const Index = () => {
   const handleDeleteSlab = (slab: Slab) => {
     setDeletingSlab(slab);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleExportToExcel = async () => {
+    try {
+      toast({
+        title: "Export Started",
+        description: "Preparing Excel file...",
+      });
+
+      await exportToExcel();
+      
+      toast({
+        title: "Export Complete",
+        description: "Excel file has been downloaded successfully!",
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "There was an error exporting the data. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -116,6 +145,14 @@ const Index = () => {
                   className="pl-10 w-64"
                 />
               </div>
+              <Button 
+                onClick={handleExportToExcel}
+                variant="outline"
+                className="text-green-600 border-green-600 hover:bg-green-50"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Excel
+              </Button>
               <Button 
                 onClick={() => setIsAddDialogOpen(true)}
                 className="bg-blue-600 hover:bg-blue-700"
@@ -175,7 +212,8 @@ const Index = () => {
                   onDeleteSlab={handleDeleteSlab}
                 />
               </div>
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 space-y-6">
+                <LowStockAlerts />
                 {selectedSlab ? (
                   <SlabDetails slab={selectedSlab} />
                 ) : (
@@ -239,6 +277,18 @@ const Index = () => {
                   <div className="text-2xl font-bold">{stats?.modifiedSlabs || 0}</div>
                   <p className="text-xs text-muted-foreground">
                     With recorded modifications
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">No Pictures</CardTitle>
+                  <FileImage className="h-4 w-4 text-orange-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600">{stats?.slabsWithoutPictures || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Slabs without images
                   </p>
                 </CardContent>
               </Card>

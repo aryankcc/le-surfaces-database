@@ -20,6 +20,7 @@ interface Slab {
   status: string;
   created_at: string;
   updated_at: string;
+  box_url: string | null;
   modifications?: any[];
 }
 
