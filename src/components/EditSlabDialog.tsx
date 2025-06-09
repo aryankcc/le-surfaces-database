@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,21 +10,7 @@ import { Upload, Save, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-
-interface Slab {
-  id: string;
-  slab_id: string;
-  family: string;
-  formulation: string;
-  version: string | null;
-  received_date: string;
-  notes: string | null;
-  image_url: string | null;
-  sent_to_location: string | null;
-  sent_to_date: string | null;
-  status: string;
-  box_url: string | null;
-}
+import { Slab } from "@/types/slab";
 
 interface EditSlabDialogProps {
   open: boolean;
@@ -42,7 +29,9 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     sent_to_location: "",
     sent_to_date: "",
     status: "in_stock",
-    box_url: ""
+    box_url: "",
+    sku: "",
+    quantity: "1"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -62,7 +51,9 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         sent_to_location: slab.sent_to_location || "",
         sent_to_date: slab.sent_to_date || "",
         status: slab.status,
-        box_url: slab.box_url || ""
+        box_url: slab.box_url || "",
+        sku: slab.sku || "",
+        quantity: (slab.quantity || 1).toString()
       });
     }
   }, [slab]);
@@ -124,6 +115,8 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         status: formData.sent_to_location ? 'sent' : formData.status,
         image_url: imageUrl,
         box_url: formData.box_url || null,
+        sku: formData.sku || null,
+        quantity: parseInt(formData.quantity) || 1,
         updated_at: new Date().toISOString()
       };
 
@@ -239,6 +232,30 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
             </div>
           </div>
 
+          {/* SKU and Quantity */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="sku">SKU</Label>
+              <Input
+                id="sku"
+                placeholder="e.g., CAL-GOLD-001"
+                value={formData.sku}
+                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="quantity">Quantity</Label>
+              <Input
+                id="quantity"
+                type="number"
+                min="1"
+                placeholder="1"
+                value={formData.quantity}
+                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              />
+            </div>
+          </div>
+
           {/* Status */}
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
@@ -280,17 +297,17 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
             </div>
           </div>
 
-          {/* Box.com URL */}
+          {/* Box Widget Code */}
           <div className="space-y-2">
-            <Label htmlFor="box_url">Box.com URL</Label>
-            <Input
+            <Label htmlFor="box_url">Box Widget Code</Label>
+            <Textarea
               id="box_url"
-              type="url"
-              placeholder="https://app.box.com/..."
+              placeholder="Paste Box widget embed code here..."
               value={formData.box_url}
               onChange={(e) => setFormData({ ...formData, box_url: e.target.value })}
+              rows={3}
             />
-            <p className="text-xs text-slate-500">Link to the slab image on Box.com</p>
+            <p className="text-xs text-slate-500">Paste the Box widget embed code to display Box content</p>
           </div>
 
           {/* Notes */}

@@ -92,9 +92,11 @@ export type Database = {
           id: string
           image_url: string | null
           notes: string | null
+          quantity: number | null
           received_date: string
           sent_to_date: string | null
           sent_to_location: string | null
+          sku: string | null
           slab_id: string
           status: string
           updated_at: string
@@ -108,9 +110,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           notes?: string | null
+          quantity?: number | null
           received_date: string
           sent_to_date?: string | null
           sent_to_location?: string | null
+          sku?: string | null
           slab_id: string
           status?: string
           updated_at?: string
@@ -124,9 +128,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           notes?: string | null
+          quantity?: number | null
           received_date?: string
           sent_to_date?: string | null
           sent_to_location?: string | null
+          sku?: string | null
           slab_id?: string
           status?: string
           updated_at?: string
@@ -142,11 +148,8 @@ export type Database = {
       get_low_stock_alerts: {
         Args: Record<PropertyKey, never>
         Returns: {
-          family: string
-          formulation: string
-          version: string
-          current_count: number
-          min_quantity: number
+          product_id: number
+          alert_message: string
         }[]
       }
     }

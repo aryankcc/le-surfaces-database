@@ -20,24 +20,22 @@ export const exportInventoryToExcel = async () => {
       throw error;
     }
 
-    // Prepare data for Excel
+    // Prepare data for Excel matching the CSV structure:
+    // Slab ID, Family, Formulation, Version, Status, SKU, Quantity, Received Date, Sent To Location, Sent Date, Notes, Has Box Link, Box URL
     const excelData = slabs.map(slab => ({
       'Slab ID': slab.slab_id,
       'Family': slab.family,
       'Formulation': slab.formulation,
       'Version': slab.version || '',
       'Status': slab.status,
+      'SKU': slab.sku || '',
+      'Quantity': slab.quantity || 1,
       'Received Date': new Date(slab.received_date).toLocaleDateString(),
       'Sent To Location': slab.sent_to_location || '',
       'Sent Date': slab.sent_to_date ? new Date(slab.sent_to_date).toLocaleDateString() : '',
       'Notes': slab.notes || '',
-      'Has Image': slab.image_url ? 'Yes' : 'No',
       'Has Box Link': slab.box_url ? 'Yes' : 'No',
-      'Box URL': slab.box_url || '',
-      'Image URL': slab.image_url || '',
-      'Modifications Count': slab.modifications?.length || 0,
-      'Created Date': new Date(slab.created_at).toLocaleDateString(),
-      'Updated Date': new Date(slab.updated_at).toLocaleDateString()
+      'Box URL': slab.box_url || ''
     }));
 
     // Create workbook and worksheet

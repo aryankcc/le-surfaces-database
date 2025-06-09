@@ -2,27 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, FileImage, Calendar, Palette, Trash2 } from "lucide-react";
+import { Eye, Edit, FileImage, Calendar, Palette, Trash2, Hash, Archive } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-
-interface Slab {
-  id: string;
-  slab_id: string;
-  family: string;
-  formulation: string;
-  version: string | null;
-  received_date: string;
-  notes: string | null;
-  image_url: string | null;
-  sent_to_location: string | null;
-  sent_to_date: string | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  box_url: string | null;
-  modifications?: any[];
-}
+import { Slab } from "@/types/slab";
 
 interface SlabInventoryProps {
   searchTerm: string;
@@ -62,6 +45,7 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
       (slab.formulation || '').toLowerCase().includes(searchLower) ||
       (slab.slab_id || '').toLowerCase().includes(searchLower) ||
       (slab.version || '').toLowerCase().includes(searchLower) ||
+      (slab.sku || '').toLowerCase().includes(searchLower) ||
       (slab.sent_to_location || '').toLowerCase().includes(searchLower)
     );
   });
@@ -153,6 +137,18 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                     {slab.version && (
                       <div>
                         <span className="font-medium">Version:</span> {slab.version}
+                      </div>
+                    )}
+                    {slab.sku && (
+                      <div className="flex items-center space-x-1">
+                        <Hash className="h-3 w-3" />
+                        <span className="font-medium">SKU:</span> {slab.sku}
+                      </div>
+                    )}
+                    {slab.quantity && (
+                      <div className="flex items-center space-x-1">
+                        <Archive className="h-3 w-3" />
+                        <span className="font-medium">Qty:</span> {slab.quantity}
                       </div>
                     )}
                     <div className="flex items-center space-x-1">

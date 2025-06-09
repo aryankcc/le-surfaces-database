@@ -17,24 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { exportInventoryToExcel } from "@/utils/excelExport";
 import { useToast } from "@/hooks/use-toast";
-
-interface Slab {
-  id: string;
-  slab_id: string;
-  family: string;
-  formulation: string;
-  version: string | null;
-  received_date: string;
-  notes: string | null;
-  image_url: string | null;
-  sent_to_location: string | null;
-  sent_to_date: string | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  box_url: string | null;
-  modifications?: any[];
-}
+import { Slab } from "@/types/slab";
 
 const Index = () => {
   const [selectedSlab, setSelectedSlab] = useState<Slab | null>(null);

@@ -1,14 +1,15 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FileImage, Calendar, MapPin, Palette, Plus, Edit, Package } from "lucide-react";
+import { FileImage, Calendar, MapPin, Palette, Plus, Edit, Package, Hash, Archive } from "lucide-react";
 import AddModificationDialog from "./AddModificationDialog";
+import BoxWidget from "./BoxWidget";
+import { Slab } from "@/types/slab";
 
 interface SlabDetailsProps {
-  slab: any;
+  slab: Slab;
 }
 
 const SlabDetails = ({ slab }: SlabDetailsProps) => {
@@ -41,41 +42,24 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Image with Box.com link */}
-          <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center relative group">
-            {slab.image_url ? (
-              <>
+          {/* Image or Box Widget */}
+          <div className="w-full">
+            {slab.box_url ? (
+              <BoxWidget widgetCode={slab.box_url} slabName={slab.family} />
+            ) : slab.image_url ? (
+              <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center">
                 <img 
                   src={slab.image_url} 
                   alt={slab.family}
                   className="w-full h-full object-cover rounded-lg"
                 />
-                {slab.box_url && (
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-all duration-200">
-                    <a
-                      href={slab.box_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="opacity-0 group-hover:opacity-100 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-700"
-                    >
-                      View on Box.com
-                    </a>
-                  </div>
-                )}
-              </>
+              </div>
             ) : (
-              <div className="text-center">
-                <FileImage className="h-12 w-12 text-slate-400 mx-auto mb-2" />
-                {slab.box_url && (
-                  <a
-                    href={slab.box_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    View on Box.com
-                  </a>
-                )}
+              <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <FileImage className="h-12 w-12 text-slate-400 mx-auto mb-2" />
+                  <p className="text-slate-500">No image or Box content available</p>
+                </div>
               </div>
             )}
           </div>
@@ -98,6 +82,20 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
               <div className="flex items-center space-x-2 text-sm">
                 <span className="font-medium text-slate-600">Version:</span>
                 <span className="text-slate-800">{slab.version}</span>
+              </div>
+            )}
+            {slab.sku && (
+              <div className="flex items-center space-x-2 text-sm">
+                <Hash className="h-4 w-4 text-slate-500" />
+                <span className="font-medium text-slate-600">SKU:</span>
+                <span className="text-slate-800">{slab.sku}</span>
+              </div>
+            )}
+            {slab.quantity && (
+              <div className="flex items-center space-x-2 text-sm">
+                <Archive className="h-4 w-4 text-slate-500" />
+                <span className="font-medium text-slate-600">Quantity:</span>
+                <span className="text-slate-800">{slab.quantity}</span>
               </div>
             )}
             <div className="flex items-center space-x-2 text-sm">

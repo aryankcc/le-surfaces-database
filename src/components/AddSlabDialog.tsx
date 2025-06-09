@@ -6,35 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Save, X } from "lucide-react";
+import { Upload, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import SlabModificationForm from "./SlabModificationForm";
-
-interface Slab {
-  id: string;
-  slab_id: string;
-  family: string;
-  formulation: string;
-  version: string | null;
-  received_date: string;
-  notes: string | null;
-  image_url: string | null;
-  sent_to_location: string | null;
-  sent_to_date: string | null;
-  status: string;
-  box_url: string | null;
-  modifications?: any[];
-}
-
-interface Modification {
-  id: string;
-  modification_type: string;
-  description: string;
-  performed_by: string;
-  notes: string;
-}
 
 interface AddSlabDialogProps {
   open: boolean;
@@ -52,19 +27,19 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
     sent_to_location: "",
     sent_to_date: "",
     status: "in_stock",
-    box_url: ""
+    box_url: "",
+    sku: "",
+    quantity: "1"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [modifications, setModifications] = useState<Modification[]>([]);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
     }
   };
 
@@ -93,7 +68,7 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
     setIsSubmitting(true);
 
     try {
-      console.log("Creating new slab:", formData);
+      console.log("Adding new slab:", formData);
       
       let imageUrl = null;
       
@@ -113,52 +88,27 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         sent_to_date: formData.sent_to_date || null,
         status: formData.sent_to_location ? 'sent' : formData.status,
         image_url: imageUrl,
-        box_url: formData.box_url || null
+        box_url: formData.box_url || null,
+        sku: formData.sku || null,
+        quantity: parseInt(formData.quantity) || 1
       };
 
-      const { data: slab, error } = await supabase
+      const { data, error } = await supabase
         .from('slabs')
-        .insert(slabData)
-        .select()
-        .single();
+        .insert([slabData])
+        .select();
 
       if (error) {
-        console.error('Error creating slab:', error);
+        console.error('Error adding slab:', error);
         toast({
           title: "Error",
-          description: "Failed to create slab. Please try again.",
+          description: "Failed to add slab. Please try again.",
           variant: "destructive",
         });
         return;
       }
 
-      // Add modifications if any
-      if (modifications.length > 0) {
-        const modificationsData = modifications.map(mod => ({
-          slab_id: slab.id,
-          modification_type: mod.modification_type,
-          description: mod.description,
-          performed_by: mod.performed_by,
-          notes: mod.notes,
-          performed_at: new Date().toISOString()
-        }));
-
-        const { error: modError } = await supabase
-          .from('modifications')
-          .insert(modificationsData);
-
-        if (modError) {
-          console.error('Error adding modifications:', modError);
-          // Don't fail the whole operation, just warn
-          toast({
-            title: "Warning",
-            description: "Slab created but modifications could not be added.",
-            variant: "destructive",
-          });
-        }
-      }
-
-      console.log('Slab created successfully:', slab);
+      console.log('Slab added successfully:', data);
       
       // Refresh the slabs list
       queryClient.invalidateQueries({ queryKey: ['slabs'] });
@@ -166,7 +116,7 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
       
       toast({
         title: "Success",
-        description: "Slab created successfully!",
+        description: "Slab added successfully!",
       });
       
       // Reset form
@@ -180,10 +130,11 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         sent_to_location: "",
         sent_to_date: "",
         status: "in_stock",
-        box_url: ""
+        box_url: "",
+        sku: "",
+        quantity: "1"
       });
       setImageFile(null);
-      setModifications([]);
       onOpenChange(false);
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -203,7 +154,7 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         <DialogHeader>
           <DialogTitle>Add New Slab</DialogTitle>
           <DialogDescription>
-            Enter the details for the new slab including any modifications performed.
+            Enter the details for the new slab. Fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
         
@@ -266,6 +217,30 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
             </div>
           </div>
 
+          {/* SKU and Quantity */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="sku">SKU</Label>
+              <Input
+                id="sku"
+                placeholder="e.g., CAL-GOLD-001"
+                value={formData.sku}
+                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="quantity">Quantity</Label>
+              <Input
+                id="quantity"
+                type="number"
+                min="1"
+                placeholder="1"
+                value={formData.quantity}
+                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              />
+            </div>
+          </div>
+
           {/* Status */}
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
@@ -291,20 +266,20 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
               accept="image/*"
               onChange={handleImageChange}
             />
-            <p className="text-xs text-slate-500">Upload an image of the slab</p>
+            <p className="text-xs text-slate-500">Upload an image of the slab (optional)</p>
           </div>
 
-          {/* Box.com URL */}
+          {/* Box Widget Code */}
           <div className="space-y-2">
-            <Label htmlFor="box_url">Box.com URL</Label>
-            <Input
+            <Label htmlFor="box_url">Box Widget Code</Label>
+            <Textarea
               id="box_url"
-              type="url"
-              placeholder="https://app.box.com/..."
+              placeholder="Paste Box widget embed code here..."
               value={formData.box_url}
               onChange={(e) => setFormData({ ...formData, box_url: e.target.value })}
+              rows={3}
             />
-            <p className="text-xs text-slate-500">Link to the slab image on Box.com</p>
+            <p className="text-xs text-slate-500">Paste the Box widget embed code to display Box content</p>
           </div>
 
           {/* Notes */}
@@ -344,19 +319,13 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
             </div>
           </div>
 
-          {/* Modifications */}
-          <SlabModificationForm 
-            modifications={modifications}
-            onModificationsChange={setModifications}
-          />
-
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Cancel
             </Button>
             <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
               <Save className="h-4 w-4 mr-2" />
-              {isSubmitting ? "Creating..." : "Create Slab"}
+              {isSubmitting ? "Adding..." : "Add Slab"}
             </Button>
           </DialogFooter>
         </form>
