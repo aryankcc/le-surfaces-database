@@ -148,8 +148,11 @@ export type Database = {
       get_low_stock_alerts: {
         Args: Record<PropertyKey, never>
         Returns: {
-          product_id: number
-          alert_message: string
+          family: string
+          formulation: string
+          version: string
+          current_count: number
+          min_quantity: number
         }[]
       }
     }
