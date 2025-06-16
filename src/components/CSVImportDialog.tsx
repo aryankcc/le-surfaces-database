@@ -16,19 +16,7 @@ interface CSVImportDialogProps {
 }
 
 interface CSVRow {
-  'Slab ID': string;
-  'Family': string;
-  'Formulation': string;
-  'Version': string;
-  'Status': string;
-  'SKU': string;
-  'Quantity': string;
-  'Received Date': string;
-  'Sent To Location': string;
-  'Sent Date': string;
-  'Notes': string;
-  'Has Box Link': string;
-  'Box URL': string;
+  [key: string]: string;
 }
 
 const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
@@ -42,27 +30,37 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
   const queryClient = useQueryClient();
 
   const parseCSV = (csvText: string): CSVRow[] => {
-    const lines = csvText.split('\n').filter(line => line.trim());
+    const lines = csvText.trim().split('\n').filter(line => line.trim());
     if (lines.length < 2) return [];
 
-    // Handle both tab-separated and comma-separated values
-    const delimiter = lines[0].includes('\t') ? '\t' : ',';
-    const headers = lines[0].split(delimiter).map(h => h.trim());
+    // Determine delimiter - check for tabs first, then commas
+    const firstLine = lines[0];
+    const delimiter = firstLine.includes('\t') ? '\t' : ',';
+    
+    console.log('First line:', firstLine);
+    console.log('Using delimiter:', delimiter === '\t' ? 'TAB' : 'COMMA');
+    
+    // Parse headers
+    const headers = firstLine.split(delimiter).map(h => h.trim().replace(/"/g, ''));
+    console.log('Parsed headers:', headers);
+    
     const rows: CSVRow[] = [];
 
-    console.log('CSV Headers:', headers);
-    console.log('Using delimiter:', delimiter === '\t' ? 'tab' : 'comma');
-
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(delimiter).map(v => v.trim());
-      const row: any = {};
+      const line = lines[i].trim();
+      if (!line) continue;
       
+      // Split by delimiter and clean values
+      const values = line.split(delimiter).map(v => v.trim().replace(/"/g, ''));
+      console.log(`Row ${i} raw values:`, values);
+      
+      const row: CSVRow = {};
       headers.forEach((header, index) => {
         row[header] = values[index] || '';
       });
       
-      console.log(`Row ${i + 1}:`, row);
-      rows.push(row as CSVRow);
+      console.log(`Row ${i} parsed object:`, row);
+      rows.push(row);
     }
 
     return rows;
@@ -70,13 +68,13 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv'))) {
+    if (selectedFile && (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv') || selectedFile.type === 'text/tab-separated-values')) {
       setFile(selectedFile);
       setImportResults(null);
     } else {
       toast({
         title: "Invalid file type",
-        description: "Please select a CSV file.",
+        description: "Please select a CSV or TSV file.",
         variant: "destructive",
       });
     }
@@ -93,23 +91,39 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
       const csvText = await file.text();
       const rows = parseCSV(csvText);
 
-      console.log('Parsed CSV rows:', rows);
+      console.log('Total parsed rows:', rows.length);
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const rowNumber = i + 2; // +2 because we start from row 1 and skip header
 
         try {
-          // Get the actual field values, handling different possible header names
-          const slabId = row['Slab ID'] || row['slab_id'] || '';
+          // Get the actual field values with multiple possible header variations
+          const slabId = row['Slab ID'] || row['slab_id'] || row['SlabID'] || row['ID'] || '';
           const family = row['Family'] || row['family'] || '';
           const formulation = row['Formulation'] || row['formulation'] || '';
+          const version = row['Version'] || row['version'] || '';
+          const status = row['Status'] || row['status'] || 'in_stock';
+          const sku = row['SKU'] || row['sku'] || '';
+          const quantity = row['Quantity'] || row['quantity'] || '1';
+          const receivedDate = row['Received Date'] || row['received_date'] || row['ReceivedDate'] || '';
+          const sentToLocation = row['Sent To Location'] || row['sent_to_location'] || row['SentToLocation'] || '';
+          const sentDate = row['Sent Date'] || row['sent_date'] || row['SentDate'] || '';
+          const notes = row['Notes'] || row['notes'] || '';
+          const boxUrl = row['Box URL'] || row['box_url'] || row['BoxURL'] || '';
 
-          console.log(`Row ${rowNumber} - Slab ID: "${slabId}", Family: "${family}", Formulation: "${formulation}"`);
+          console.log(`Row ${rowNumber} extracted values:`, {
+            slabId, family, formulation, version, status, sku, quantity, receivedDate, sentToLocation, sentDate, notes, boxUrl
+          });
 
           // Validate required fields
           if (!slabId || !family || !formulation) {
-            errors.push(`Row ${rowNumber}: Missing required fields (Slab ID: "${slabId}", Family: "${family}", Formulation: "${formulation}")`);
+            const missingFields = [];
+            if (!slabId) missingFields.push('Slab ID');
+            if (!family) missingFields.push('Family');
+            if (!formulation) missingFields.push('Formulation');
+            
+            errors.push(`Row ${rowNumber}: Missing required fields: ${missingFields.join(', ')} (Found: Slab ID="${slabId}", Family="${family}", Formulation="${formulation}")`);
             continue;
           }
 
@@ -118,18 +132,18 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
             slab_id: slabId,
             family: family,
             formulation: formulation,
-            version: row['Version'] || row['version'] || null,
-            status: normalizeStatus(row['Status'] || row['status'] || 'in_stock'),
-            sku: row['SKU'] || row['sku'] || null,
-            quantity: row['Quantity'] || row['quantity'] ? parseInt(row['Quantity'] || row['quantity']) : 1,
-            received_date: parseCSVDate(row['Received Date'] || row['received_date']),
-            sent_to_location: row['Sent To Location'] || row['sent_to_location'] || null,
-            sent_to_date: (row['Sent Date'] || row['sent_date']) ? parseCSVDate(row['Sent Date'] || row['sent_date']) : null,
-            notes: row['Notes'] || row['notes'] || null,
-            box_url: extractBoxUrl(row['Box URL'] || row['box_url'])
+            version: version || null,
+            status: normalizeStatus(status),
+            sku: sku || null,
+            quantity: quantity ? parseInt(quantity) || 1 : 1,
+            received_date: parseCSVDate(receivedDate),
+            sent_to_location: sentToLocation || null,
+            sent_to_date: sentDate ? parseCSVDate(sentDate) : null,
+            notes: notes || null,
+            box_url: extractBoxUrl(boxUrl)
           };
 
-          console.log('Inserting slab data:', slabData);
+          console.log('Transformed slab data for insert:', slabData);
 
           const { error } = await supabase
             .from('slabs')
@@ -140,6 +154,7 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
             errors.push(`Row ${rowNumber}: ${error.message}`);
           } else {
             successCount++;
+            console.log(`Successfully inserted row ${rowNumber}`);
           }
         } catch (error) {
           console.error('Error processing row', rowNumber, ':', error);
@@ -197,12 +212,12 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
             <Input
               id="csv-file"
               type="file"
-              accept=".csv"
+              accept=".csv,.tsv,.txt"
               onChange={handleFileChange}
               className="mt-1"
             />
             <p className="text-xs text-slate-500 mt-1">
-              Expected format: Tab-separated or comma-separated values with headers
+              Supports CSV, TSV, or tab-separated files with headers
             </p>
           </div>
 
