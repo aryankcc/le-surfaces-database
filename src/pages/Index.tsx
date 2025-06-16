@@ -1,16 +1,18 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Database, FileImage, Layers, LogOut, User, Download } from "lucide-react";
+import { Plus, Search, Database, FileImage, Layers, LogOut, User, Download, Upload } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SlabInventory from "@/components/SlabInventory";
 import SlabDetails from "@/components/SlabDetails";
 import AddSlabDialog from "@/components/AddSlabDialog";
 import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
+import CSVImportDialog from "@/components/CSVImportDialog";
 import LowStockAlerts from "@/components/LowStockAlerts";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -24,6 +26,7 @@ const Index = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCSVImportOpen, setIsCSVImportOpen] = useState(false);
   const [editingSlab, setEditingSlab] = useState<Slab | null>(null);
   const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -127,6 +130,14 @@ const Index = () => {
                   className="pl-10 w-64"
                 />
               </div>
+              <Button 
+                onClick={() => setIsCSVImportOpen(true)}
+                variant="outline"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Import CSV
+              </Button>
               <Button 
                 onClick={handleExportToExcel}
                 variant="outline"
@@ -337,6 +348,11 @@ const Index = () => {
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         slab={deletingSlab}
+      />
+
+      <CSVImportDialog 
+        open={isCSVImportOpen}
+        onOpenChange={setIsCSVImportOpen}
       />
     </div>
   );
