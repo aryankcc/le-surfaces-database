@@ -45,17 +45,23 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
     const lines = csvText.split('\n').filter(line => line.trim());
     if (lines.length < 2) return [];
 
-    const headers = lines[0].split('\t').map(h => h.trim());
+    // Handle both tab-separated and comma-separated values
+    const delimiter = lines[0].includes('\t') ? '\t' : ',';
+    const headers = lines[0].split(delimiter).map(h => h.trim());
     const rows: CSVRow[] = [];
 
+    console.log('CSV Headers:', headers);
+    console.log('Using delimiter:', delimiter === '\t' ? 'tab' : 'comma');
+
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split('\t').map(v => v.trim());
+      const values = lines[i].split(delimiter).map(v => v.trim());
       const row: any = {};
       
       headers.forEach((header, index) => {
         row[header] = values[index] || '';
       });
       
+      console.log(`Row ${i + 1}:`, row);
       rows.push(row as CSVRow);
     }
 
@@ -94,26 +100,33 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
         const rowNumber = i + 2; // +2 because we start from row 1 and skip header
 
         try {
+          // Get the actual field values, handling different possible header names
+          const slabId = row['Slab ID'] || row['slab_id'] || '';
+          const family = row['Family'] || row['family'] || '';
+          const formulation = row['Formulation'] || row['formulation'] || '';
+
+          console.log(`Row ${rowNumber} - Slab ID: "${slabId}", Family: "${family}", Formulation: "${formulation}"`);
+
           // Validate required fields
-          if (!row['Slab ID'] || !row['Family'] || !row['Formulation']) {
-            errors.push(`Row ${rowNumber}: Missing required fields (Slab ID, Family, or Formulation)`);
+          if (!slabId || !family || !formulation) {
+            errors.push(`Row ${rowNumber}: Missing required fields (Slab ID: "${slabId}", Family: "${family}", Formulation: "${formulation}")`);
             continue;
           }
 
           // Transform the data
           const slabData = {
-            slab_id: row['Slab ID'],
-            family: row['Family'],
-            formulation: row['Formulation'],
-            version: row['Version'] || null,
-            status: normalizeStatus(row['Status'] || 'in_stock'),
-            sku: row['SKU'] || null,
-            quantity: row['Quantity'] ? parseInt(row['Quantity']) : 1,
-            received_date: parseCSVDate(row['Received Date']),
-            sent_to_location: row['Sent To Location'] || null,
-            sent_to_date: row['Sent Date'] ? parseCSVDate(row['Sent Date']) : null,
-            notes: row['Notes'] || null,
-            box_url: extractBoxUrl(row['Box URL'])
+            slab_id: slabId,
+            family: family,
+            formulation: formulation,
+            version: row['Version'] || row['version'] || null,
+            status: normalizeStatus(row['Status'] || row['status'] || 'in_stock'),
+            sku: row['SKU'] || row['sku'] || null,
+            quantity: row['Quantity'] || row['quantity'] ? parseInt(row['Quantity'] || row['quantity']) : 1,
+            received_date: parseCSVDate(row['Received Date'] || row['received_date']),
+            sent_to_location: row['Sent To Location'] || row['sent_to_location'] || null,
+            sent_to_date: (row['Sent Date'] || row['sent_date']) ? parseCSVDate(row['Sent Date'] || row['sent_date']) : null,
+            notes: row['Notes'] || row['notes'] || null,
+            box_url: extractBoxUrl(row['Box URL'] || row['box_url'])
           };
 
           console.log('Inserting slab data:', slabData);
@@ -189,7 +202,7 @@ const CSVImportDialog = ({ open, onOpenChange }: CSVImportDialogProps) => {
               className="mt-1"
             />
             <p className="text-xs text-slate-500 mt-1">
-              Expected format: Tab-separated values with headers matching your data
+              Expected format: Tab-separated or comma-separated values with headers
             </p>
           </div>
 
