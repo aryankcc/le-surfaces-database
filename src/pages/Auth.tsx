@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -202,7 +201,7 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <HCaptcha
-                      sitekey="10000000-ffff-ffff-ffff-000000000001"
+                      sitekey="544ceb28-ddae-4702-9c06-c75a005ca792"
                       onVerify={handleCaptchaVerify}
                       onExpire={handleCaptchaExpire}
                     />
@@ -282,7 +281,7 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <HCaptcha
-                      sitekey="10000000-ffff-ffff-ffff-000000000001"
+                      sitekey="544ceb28-ddae-4702-9c06-c75a005ca792"
                       onVerify={handleCaptchaVerify}
                       onExpire={handleCaptchaExpire}
                     />
