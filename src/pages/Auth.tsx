@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Layers, Mail, Lock, User, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,17 +17,39 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const handleCaptchaVerify = (token: string) => {
+    setCaptchaToken(token);
+  };
+
+  const handleCaptchaExpire = () => {
+    setCaptchaToken(null);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!captchaToken) {
+      toast({
+        title: "Captcha Required",
+        description: "Please complete the captcha verification.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          captchaToken,
+        },
       });
 
       if (error) {
@@ -50,6 +73,7 @@ const Auth = () => {
       });
     } finally {
       setIsLoading(false);
+      setCaptchaToken(null);
     }
   };
 
@@ -65,6 +89,15 @@ const Auth = () => {
       return;
     }
 
+    if (!captchaToken) {
+      toast({
+        title: "Captcha Required",
+        description: "Please complete the captcha verification.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -75,6 +108,7 @@ const Auth = () => {
           data: {
             full_name: fullName,
           },
+          captchaToken,
         },
       });
 
@@ -103,6 +137,7 @@ const Auth = () => {
       });
     } finally {
       setIsLoading(false);
+      setCaptchaToken(null);
     }
   };
 
@@ -165,7 +200,15 @@ const Auth = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <div className="space-y-2">
+                    <HCaptcha
+                      sitekey="10000000-ffff-ffff-ffff-000000000001"
+                      onVerify={handleCaptchaVerify}
+                      onExpire={handleCaptchaExpire}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={isLoading || !captchaToken}>
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
@@ -237,7 +280,15 @@ const Auth = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <div className="space-y-2">
+                    <HCaptcha
+                      sitekey="10000000-ffff-ffff-ffff-000000000001"
+                      onVerify={handleCaptchaVerify}
+                      onExpire={handleCaptchaExpire}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={isLoading || !captchaToken}>
                     {isLoading ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
@@ -249,7 +300,7 @@ const Auth = () => {
         <div className="mt-6 text-center text-sm text-slate-500">
           <div className="flex items-center justify-center space-x-1">
             <AlertCircle className="h-4 w-4" />
-            <span>For testing, email confirmation is disabled</span>
+            <span>Complete the captcha verification to proceed</span>
           </div>
         </div>
       </div>
