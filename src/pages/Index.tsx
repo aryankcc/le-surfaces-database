@@ -24,7 +24,7 @@ const Index = () => {
   const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch statistics for the analytics tab (removed modifications reference)
+  // Fetch statistics for the analytics tab
   const { data: stats } = useQuery({
     queryKey: ['slab-stats'],
     queryFn: async () => {

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +23,7 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
       console.log('Fetching slabs from database...');
       const { data, error } = await supabase
         .from('slabs')
-        .select(`
-          *,
-          modifications(*)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -164,10 +162,12 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                   </div>
 
                   <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1 text-sm text-slate-500">
-                      <Palette className="h-4 w-4" />
-                      <span>{slab.modifications?.length || 0} modifications</span>
-                    </div>
+                    {slab.notes && (
+                      <div className="flex items-center space-x-1 text-sm text-slate-500">
+                        <Palette className="h-4 w-4" />
+                        <span>Has notes</span>
+                      </div>
+                    )}
                     <div className="flex space-x-2">
                       <Button 
                         size="sm" 
