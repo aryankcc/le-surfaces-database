@@ -1,18 +1,20 @@
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FileImage, Calendar, MapPin, Edit, Package, Hash, Archive, StickyNote } from "lucide-react";
+import { FileImage, Calendar, MapPin, Edit, Package, Hash, Archive, StickyNote, LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
 import BoxWidget from "./BoxWidget";
 import { Slab } from "@/types/slab";
 
 interface SlabDetailsProps {
   slab: Slab;
+  onEditSlab: (slab: Slab) => void;
+  isAuthenticated: boolean;
 }
 
-const SlabDetails = ({ slab }: SlabDetailsProps) => {
+const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "in_stock":
@@ -26,6 +28,17 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    // Parse the date string and format it correctly
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-US', { 
+      timeZone: 'UTC',
+      month: 'numeric',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
 
   return (
@@ -99,7 +112,7 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
             <div className="flex items-center space-x-2 text-sm">
               <Calendar className="h-4 w-4 text-slate-500" />
               <span className="font-medium text-slate-600">Received:</span>
-              <span className="text-slate-800">{new Date(slab.received_date).toLocaleDateString()}</span>
+              <span className="text-slate-800">{formatDate(slab.received_date)}</span>
             </div>
           </div>
 
@@ -125,7 +138,7 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
                   <div className="flex items-center space-x-2 text-sm">
                     <Calendar className="h-4 w-4 text-blue-600" />
                     <span className="font-medium text-blue-800">Sent Date:</span>
-                    <span className="text-blue-700">{new Date(slab.sent_to_date).toLocaleDateString()}</span>
+                    <span className="text-blue-700">{formatDate(slab.sent_to_date)}</span>
                   </div>
                 )}
               </div>
@@ -160,14 +173,28 @@ const SlabDetails = ({ slab }: SlabDetailsProps) => {
 
           {/* Actions */}
           <div className="flex space-x-2">
-            <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Slab
-            </Button>
-            <Button variant="outline" className="flex-1">
-              <FileImage className="h-4 w-4 mr-2" />
-              Add Image
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={() => onEditSlab(slab)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Slab
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <FileImage className="h-4 w-4 mr-2" />
+                  Add Image
+                </Button>
+              </>
+            ) : (
+              <Link to="/auth" className="w-full">
+                <Button variant="outline" className="w-full">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign in to Edit
+                </Button>
+              </Link>
+            )}
           </div>
         </CardContent>
       </Card>

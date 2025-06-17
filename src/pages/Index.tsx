@@ -12,9 +12,13 @@ import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Slab } from "@/types/slab";
 
 const Index = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedSlab, setSelectedSlab] = useState<Slab | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -57,14 +61,38 @@ const Index = () => {
     }
   });
 
+  const checkAuthForAction = (action: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: `Please sign in to ${action}. You can browse the inventory without signing in.`,
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleEditSlab = (slab: Slab) => {
+    if (!checkAuthForAction("edit slabs")) return;
     setEditingSlab(slab);
     setIsEditDialogOpen(true);
   };
 
   const handleDeleteSlab = (slab: Slab) => {
+    if (!checkAuthForAction("delete slabs")) return;
     setDeletingSlab(slab);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleAddSlab = () => {
+    if (!checkAuthForAction("add slabs")) return;
+    setIsAddDialogOpen(true);
+  };
+
+  const handleCSVImport = () => {
+    if (!checkAuthForAction("import CSV data")) return;
+    setIsCSVImportOpen(true);
   };
 
   return (
@@ -72,8 +100,9 @@ const Index = () => {
       <Header
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        onAddSlab={() => setIsAddDialogOpen(true)}
-        onCSVImport={() => setIsCSVImportOpen(true)}
+        onAddSlab={handleAddSlab}
+        onCSVImport={handleCSVImport}
+        isAuthenticated={!!user}
       />
 
       <div className="container mx-auto px-6 py-8">
@@ -100,6 +129,7 @@ const Index = () => {
               onSlabSelect={setSelectedSlab}
               onEditSlab={handleEditSlab}
               onDeleteSlab={handleDeleteSlab}
+              isAuthenticated={!!user}
             />
           </TabsContent>
 
@@ -113,27 +143,31 @@ const Index = () => {
         </Tabs>
       </div>
 
-      <AddSlabDialog 
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-      />
+      {user && (
+        <>
+          <AddSlabDialog 
+            open={isAddDialogOpen}
+            onOpenChange={setIsAddDialogOpen}
+          />
 
-      <EditSlabDialog 
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        slab={editingSlab}
-      />
+          <EditSlabDialog 
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            slab={editingSlab}
+          />
 
-      <DeleteSlabDialog 
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        slab={deletingSlab}
-      />
+          <DeleteSlabDialog 
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+            slab={deletingSlab}
+          />
 
-      <CSVImportDialog 
-        open={isCSVImportOpen}
-        onOpenChange={setIsCSVImportOpen}
-      />
+          <CSVImportDialog 
+            open={isCSVImportOpen}
+            onOpenChange={setIsCSVImportOpen}
+          />
+        </>
+      )}
     </div>
   );
 };
