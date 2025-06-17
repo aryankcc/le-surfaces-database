@@ -24,7 +24,7 @@ const Index = () => {
   const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch statistics for the analytics tab
+  // Fetch statistics for the analytics tab (removed modifications reference)
   const { data: stats } = useQuery({
     queryKey: ['slab-stats'],
     queryFn: async () => {
@@ -32,7 +32,7 @@ const Index = () => {
       
       const { data: slabs, error } = await supabase
         .from('slabs')
-        .select('status, image_url, box_url, modifications(id)');
+        .select('status, image_url, box_url');
       
       if (error) {
         console.error('Error fetching stats:', error);
@@ -44,7 +44,6 @@ const Index = () => {
       const sent = slabs.filter(s => s.status === 'sent').length;
       const reserved = slabs.filter(s => s.status === 'reserved').length;
       const sold = slabs.filter(s => s.status === 'sold').length;
-      const modifiedSlabs = slabs.filter(s => s.modifications && s.modifications.length > 0).length;
       const slabsWithoutPictures = slabs.filter(s => !s.image_url && !s.box_url).length;
 
       return {
@@ -53,7 +52,6 @@ const Index = () => {
         sent,
         reserved,
         sold,
-        modifiedSlabs,
         slabsWithoutPictures
       };
     }
@@ -78,7 +76,6 @@ const Index = () => {
         onCSVImport={() => setIsCSVImportOpen(true)}
       />
 
-      {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="inventory" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
