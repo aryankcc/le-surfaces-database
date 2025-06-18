@@ -118,7 +118,7 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
           status: normalizeStatus(status),
           sku: sku || null,
           quantity: totalQuantity,
-          received_date: parseCSVDate(receivedDate),
+          received_date: receivedDate ? parseCSVDate(receivedDate) : new Date().toISOString().split('T')[0],
           sent_to_location: sentToLocation || null,
           sent_to_date: sentDate ? parseCSVDate(sentDate) : null,
           notes: notes || null,
