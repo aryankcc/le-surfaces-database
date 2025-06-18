@@ -20,9 +20,26 @@ export const useLowStockAlerts = () => {
     queryFn: async () => {
       console.log('Fetching low stock alerts...');
       
-      // First get the low stock types
+      // First, let's check what we have in slabs table
+      const { data: allSlabs, error: allSlabsError } = await supabase
+        .from('slabs')
+        .select('slab_id, family, formulation, version, quantity, status')
+        .eq('status', 'in_stock');
+      
+      console.log('All in-stock slabs:', allSlabs);
+      
+      // Check what we have in slab_types
+      const { data: slabTypes, error: slabTypesError } = await supabase
+        .from('slab_types')
+        .select('*');
+      
+      console.log('All slab types:', slabTypes);
+      
+      // First get the low stock types from the function
       const { data: lowStockTypes, error: typesError } = await supabase
         .rpc('get_low_stock_alerts');
+      
+      console.log('Low stock types from function:', lowStockTypes);
       
       if (typesError) {
         console.error('Error fetching low stock alerts:', typesError);
