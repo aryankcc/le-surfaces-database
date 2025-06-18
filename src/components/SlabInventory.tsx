@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +13,10 @@ interface SlabInventoryProps {
   selectedSlab: Slab | null;
   onEditSlab: (slab: Slab) => void;
   onDeleteSlab: (slab: Slab) => void;
+  isAuthenticated: boolean;
 }
 
-const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onDeleteSlab }: SlabInventoryProps) => {
+const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onDeleteSlab, isAuthenticated }: SlabInventoryProps) => {
   const { data: slabs = [], isLoading, error } = useQuery({
     queryKey: ['slabs'],
     queryFn: async () => {
@@ -181,30 +181,34 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                         <Eye className="h-3 w-3 mr-1" />
                         View
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-8"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditSlab(slab);
-                        }}
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Edit
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-8 text-red-600 hover:text-red-700 hover:border-red-300"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteSlab(slab);
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3 mr-1" />
-                        Delete
-                      </Button>
+                      {isAuthenticated && (
+                        <>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditSlab(slab);
+                            }}
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Edit
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8 text-red-600 hover:text-red-700 hover:border-red-300"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteSlab(slab);
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" />
+                            Delete
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
