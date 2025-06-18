@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,15 +42,6 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
 
   const openBoxInNewTab = () => {
     if (slab.box_url) {
-      // Extract URL from iframe if it's HTML
-      if (slab.box_url.includes('<iframe')) {
-        const srcMatch = slab.box_url.match(/src="([^"]+)"/);
-        if (srcMatch) {
-          window.open(srcMatch[1], '_blank');
-          return;
-        }
-      }
-      // If it's a direct URL
       window.open(slab.box_url, '_blank');
     }
   };
@@ -68,28 +58,26 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Image or Box Widget */}
+          {/* Image with Box URL click action */}
           <div className="w-full">
-            {slab.box_url ? (
+            {slab.image_url ? (
               <div className="relative cursor-pointer" onClick={openBoxInNewTab}>
-                <BoxWidget widgetCode={slab.box_url} slabName={slab.family} />
-                <div className="absolute top-2 right-2 bg-blue-600 text-white p-1 rounded">
-                  <ExternalLink className="h-4 w-4" />
-                </div>
-              </div>
-            ) : slab.image_url ? (
-              <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center">
                 <img 
                   src={slab.image_url} 
                   alt={slab.family}
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-48 object-cover rounded-lg"
                 />
+                {slab.box_url && (
+                  <div className="absolute top-2 right-2 bg-blue-600 text-white p-1 rounded">
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center">
                 <div className="text-center">
                   <FileImage className="h-12 w-12 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-500">No image or Box content available</p>
+                  <p className="text-slate-500">No image available</p>
                 </div>
               </div>
             )}
@@ -202,10 +190,12 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Slab
                 </Button>
-                <Button variant="outline" className="flex-1">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Add Box Widget
-                </Button>
+                {slab.box_url && (
+                  <Button variant="outline" className="flex-1" onClick={openBoxInNewTab}>
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open in Box
+                  </Button>
+                )}
               </>
             ) : (
               <Link to="/auth" className="w-full">

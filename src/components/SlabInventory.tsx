@@ -226,7 +226,7 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                 </div>
                 
                 <div className="ml-4">
-                  <div className="w-20 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
+                  <div className="w-20 h-20 bg-slate-200 rounded-lg flex items-center justify-center overflow-hidden">
                     {slab.image_url ? (
                       <img 
                         src={slab.image_url} 

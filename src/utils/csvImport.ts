@@ -28,22 +28,30 @@ export const extractBoxUrl = (boxData: string): string | null => {
     return boxData;
   }
   
-  // If it's an iframe HTML code, return the full iframe code
-  if (boxData.includes('<iframe') && boxData.includes('</iframe>')) {
-    return boxData;
-  }
-  
-  // If it's an iframe without closing tag, add it
-  if (boxData.includes('<iframe') && !boxData.includes('</iframe>')) {
-    return boxData + '</iframe>';
-  }
-  
   // If it's just "Y" or "Yes", we can't extract a URL
   if (boxData.toLowerCase() === 'y' || boxData.toLowerCase() === 'yes') {
     return null;
   }
   
   return boxData;
+};
+
+export const extractImageUrl = (imageData: string): string | null => {
+  if (!imageData || imageData.toLowerCase() === 'n' || imageData.toLowerCase() === 'no') {
+    return null;
+  }
+  
+  // If it's already a clean URL, return it
+  if (imageData.startsWith('http')) {
+    return imageData;
+  }
+  
+  // If it's just "Y" or "Yes", we can't extract a URL
+  if (imageData.toLowerCase() === 'y' || imageData.toLowerCase() === 'yes') {
+    return null;
+  }
+  
+  return imageData;
 };
 
 export const parseCSVDate = (dateStr: string): string => {
