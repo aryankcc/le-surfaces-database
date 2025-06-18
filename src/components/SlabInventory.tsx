@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +62,17 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    // Parse the date string and format it correctly in UTC
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-US', { 
+      timeZone: 'UTC',
+      month: 'numeric',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
 
   if (isLoading) {
@@ -151,12 +163,12 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                     )}
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-3 w-3" />
-                      <span className="font-medium">Received:</span> {new Date(slab.received_date).toLocaleDateString()}
+                      <span className="font-medium">Received:</span> {formatDate(slab.received_date)}
                     </div>
                     {slab.sent_to_location && (
                       <div className="col-span-2">
                         <span className="font-medium">Sent to:</span> {slab.sent_to_location}
-                        {slab.sent_to_date && ` (${new Date(slab.sent_to_date).toLocaleDateString()})`}
+                        {slab.sent_to_date && ` (${formatDate(slab.sent_to_date)})`}
                       </div>
                     )}
                   </div>

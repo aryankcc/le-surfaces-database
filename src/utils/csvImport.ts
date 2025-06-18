@@ -28,10 +28,14 @@ export const extractBoxUrl = (boxData: string): string | null => {
     return boxData;
   }
   
-  // If it's an iframe, extract the src URL
-  const iframeMatch = boxData.match(/src="([^"]+)"/);
-  if (iframeMatch) {
-    return iframeMatch[1];
+  // If it's an iframe HTML code, return the full iframe code
+  if (boxData.includes('<iframe') && boxData.includes('</iframe>')) {
+    return boxData;
+  }
+  
+  // If it's an iframe without closing tag, add it
+  if (boxData.includes('<iframe') && !boxData.includes('</iframe>')) {
+    return boxData + '</iframe>';
   }
   
   // If it's just "Y" or "Yes", we can't extract a URL

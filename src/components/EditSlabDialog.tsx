@@ -34,7 +34,6 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     quantity: "1"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -58,32 +57,6 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     }
   }, [slab]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-
-  const uploadImage = async (file: File, slabId: string): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${slabId}-${Date.now()}.${fileExt}`;
-    
-    const { data, error } = await supabase.storage
-      .from('slab-images')
-      .upload(fileName, file);
-
-    if (error) {
-      console.error('Error uploading image:', error);
-      return null;
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('slab-images')
-      .getPublicUrl(fileName);
-
-    return publicUrl;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!slab) return;
@@ -92,16 +65,6 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
 
     try {
       console.log("Updating slab:", formData);
-      
-      let imageUrl = slab.image_url;
-      
-      // Upload new image if one was selected
-      if (imageFile) {
-        const uploadedUrl = await uploadImage(imageFile, slab.slab_id);
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl;
-        }
-      }
 
       const slabData = {
         slab_id: formData.slab_id,
@@ -113,7 +76,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         sent_to_location: formData.sent_to_location || null,
         sent_to_date: formData.sent_to_date || null,
         status: formData.sent_to_location ? 'sent' : formData.status,
-        image_url: imageUrl,
+        image_url: slab.image_url, // Keep existing image_url
         box_url: formData.box_url || null,
         sku: formData.sku || null,
         quantity: parseInt(formData.quantity) || 1,
@@ -148,7 +111,6 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
       });
       
       onOpenChange(false);
-      setImageFile(null);
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -272,42 +234,17 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
             </Select>
           </div>
 
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <Label htmlFor="image">Slab Image</Label>
-            <div className="flex items-center space-x-4">
-              {slab.image_url && (
-                <div className="w-16 h-16 bg-slate-200 rounded-lg flex items-center justify-center">
-                  <img 
-                    src={slab.image_url} 
-                    alt={slab.family}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
-              )}
-              <div className="flex-1">
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                <p className="text-xs text-slate-500 mt-1">Upload a new image to replace the current one</p>
-              </div>
-            </div>
-          </div>
-
           {/* Box Widget Code */}
           <div className="space-y-2">
             <Label htmlFor="box_url">Box Widget Code</Label>
             <Textarea
               id="box_url"
-              placeholder="Paste Box widget embed code here..."
+              placeholder="Paste Box widget embed code here (e.g., <iframe src='...' width='500' height='400'></iframe>)"
               value={formData.box_url}
               onChange={(e) => setFormData({ ...formData, box_url: e.target.value })}
               rows={3}
             />
-            <p className="text-xs text-slate-500">Paste the Box widget embed code to display Box content</p>
+            <p className="text-xs text-slate-500">Paste the complete Box widget iframe code to display interactive Box content</p>
           </div>
 
           {/* Notes */}

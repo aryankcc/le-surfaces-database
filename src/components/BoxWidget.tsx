@@ -17,7 +17,25 @@ const BoxWidget = ({ widgetCode, slabName }: BoxWidgetProps) => {
     );
   }
 
-  // Extract the embed URL from Box widget code if it's an iframe
+  // Check if it's a full iframe HTML code
+  if (widgetCode.includes('<iframe') && widgetCode.includes('</iframe>')) {
+    return (
+      <div className="w-full h-48 bg-slate-100 rounded-lg overflow-hidden relative">
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center text-slate-500">
+            Loading Box content...
+          </div>
+        )}
+        <div
+          dangerouslySetInnerHTML={{ __html: widgetCode }}
+          className={`w-full h-full transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setIsLoaded(true)}
+        />
+      </div>
+    );
+  }
+
+  // Extract the embed URL from Box widget code if it's an iframe src
   const extractBoxUrl = (code: string) => {
     const iframeMatch = code.match(/src="([^"]+)"/);
     return iframeMatch ? iframeMatch[1] : code;

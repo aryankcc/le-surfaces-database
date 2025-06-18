@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FileImage, Calendar, MapPin, Edit, Package, Hash, Archive, StickyNote, LogIn } from "lucide-react";
+import { FileImage, Calendar, MapPin, Edit, Package, Hash, Archive, StickyNote, LogIn, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import BoxWidget from "./BoxWidget";
 import { Slab } from "@/types/slab";
@@ -41,6 +41,21 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
     });
   };
 
+  const openBoxInNewTab = () => {
+    if (slab.box_url) {
+      // Extract URL from iframe if it's HTML
+      if (slab.box_url.includes('<iframe')) {
+        const srcMatch = slab.box_url.match(/src="([^"]+)"/);
+        if (srcMatch) {
+          window.open(srcMatch[1], '_blank');
+          return;
+        }
+      }
+      // If it's a direct URL
+      window.open(slab.box_url, '_blank');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -56,7 +71,12 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
           {/* Image or Box Widget */}
           <div className="w-full">
             {slab.box_url ? (
-              <BoxWidget widgetCode={slab.box_url} slabName={slab.family} />
+              <div className="relative cursor-pointer" onClick={openBoxInNewTab}>
+                <BoxWidget widgetCode={slab.box_url} slabName={slab.family} />
+                <div className="absolute top-2 right-2 bg-blue-600 text-white p-1 rounded">
+                  <ExternalLink className="h-4 w-4" />
+                </div>
+              </div>
             ) : slab.image_url ? (
               <div className="w-full h-48 bg-slate-200 rounded-lg flex items-center justify-center">
                 <img 
@@ -183,8 +203,8 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
                   Edit Slab
                 </Button>
                 <Button variant="outline" className="flex-1">
-                  <FileImage className="h-4 w-4 mr-2" />
-                  Add Image
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Add Box Widget
                 </Button>
               </>
             ) : (

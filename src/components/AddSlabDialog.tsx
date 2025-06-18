@@ -32,36 +32,9 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
     quantity: "1"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-
-  const uploadImage = async (file: File, slabId: string): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${slabId}-${Date.now()}.${fileExt}`;
-    
-    const { data, error } = await supabase.storage
-      .from('slab-images')
-      .upload(fileName, file);
-
-    if (error) {
-      console.error('Error uploading image:', error);
-      return null;
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('slab-images')
-      .getPublicUrl(fileName);
-
-    return publicUrl;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,13 +42,6 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
 
     try {
       console.log("Adding new slab:", formData);
-      
-      let imageUrl = null;
-      
-      // Upload image if one was selected
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, formData.slab_id);
-      }
 
       const slabData = {
         slab_id: formData.slab_id,
@@ -87,7 +53,7 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         sent_to_location: formData.sent_to_location || null,
         sent_to_date: formData.sent_to_date || null,
         status: formData.sent_to_location ? 'sent' : formData.status,
-        image_url: imageUrl,
+        image_url: null, // No longer using image_url
         box_url: formData.box_url || null,
         sku: formData.sku || null,
         quantity: parseInt(formData.quantity) || 1
@@ -134,7 +100,6 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         sku: "",
         quantity: "1"
       });
-      setImageFile(null);
       onOpenChange(false);
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -257,29 +222,17 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
             </Select>
           </div>
 
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <Label htmlFor="image">Slab Image</Label>
-            <Input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-            <p className="text-xs text-slate-500">Upload an image of the slab (optional)</p>
-          </div>
-
           {/* Box Widget Code */}
           <div className="space-y-2">
             <Label htmlFor="box_url">Box Widget Code</Label>
             <Textarea
               id="box_url"
-              placeholder="Paste Box widget embed code here..."
+              placeholder="Paste Box widget embed code here (e.g., <iframe src='...' width='500' height='400'></iframe>)"
               value={formData.box_url}
               onChange={(e) => setFormData({ ...formData, box_url: e.target.value })}
               rows={3}
             />
-            <p className="text-xs text-slate-500">Paste the Box widget embed code to display Box content</p>
+            <p className="text-xs text-slate-500">Paste the complete Box widget iframe code to display interactive Box content</p>
           </div>
 
           {/* Notes */}
