@@ -9,36 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      slab_types: {
-        Row: {
-          created_at: string
-          family: string
-          formulation: string
-          id: string
-          min_quantity: number
-          updated_at: string
-          version: string | null
-        }
-        Insert: {
-          created_at?: string
-          family: string
-          formulation: string
-          id?: string
-          min_quantity?: number
-          updated_at?: string
-          version?: string | null
-        }
-        Update: {
-          created_at?: string
-          family?: string
-          formulation?: string
-          id?: string
-          min_quantity?: number
-          updated_at?: string
-          version?: string | null
-        }
-        Relationships: []
-      }
       slabs: {
         Row: {
           box_url: string | null
@@ -109,6 +79,8 @@ export type Database = {
           version: string
           current_count: number
           min_quantity: number
+          slab_id: string
+          quantity: number
         }[]
       }
     }

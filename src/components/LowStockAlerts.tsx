@@ -73,25 +73,18 @@ const LowStockAlerts = () => {
               {alert.version && ` (${alert.version})`}
             </AlertTitle>
             <AlertDescription className="text-orange-700">
-              Only {alert.current_count} slab{alert.current_count !== 1 ? 's' : ''} remaining 
-              (minimum: {alert.min_quantity})
-              
-              {alert.slabs.length > 0 && (
-                <div className="mt-2">
-                  <p className="text-sm font-medium">Slabs needing replacement (qty ≤ 2):</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {alert.slabs.map((slab, slabIndex) => (
-                      <Badge 
-                        key={slabIndex} 
-                        variant="outline" 
-                        className="text-xs border-orange-300 text-orange-800"
-                      >
-                        {slab.slab_id} (qty: {slab.quantity || 0})
-                      </Badge>
-                    ))}
-                  </div>
+              <div className="space-y-2">
+                <div>
+                  Slab ID: <strong>{alert.slab_id}</strong> has only <strong>{alert.quantity}</strong> remaining 
+                  (minimum recommended: {alert.min_quantity})
                 </div>
-              )}
+                <Badge 
+                  variant="outline" 
+                  className="text-xs border-orange-300 text-orange-800"
+                >
+                  Quantity: {alert.quantity}
+                </Badge>
+              </div>
             </AlertDescription>
           </Alert>
         ))}
