@@ -1,0 +1,36 @@
+1. Project Overview & Goal:
+
+This project is the 'Slab Trace Visualizer' for LE Surfaces.
+Its primary goal is to optimize quartz slab tracking and visualization, providing an intuitive web interface for managing slab inventory.
+2. Core Technology Stack:
+
+Frontend:
+Framework: React (functional components with hooks)
+Language: TypeScript
+Build Tool: Vite
+UI Components: shadcn-ui (prioritize using existing shadcn components, or suggest their equivalents)
+Styling: Tailwind CSS (use utility classes exclusively for styling)
+Backend/Database: Supabase (specifically interacting with its PostgreSQL API for data, authentication, and storage).
+3. Frontend Design & Development Principles:
+
+Responsiveness: All UI elements and layouts should be responsive and work well across different screen sizes (mobile, tablet, desktop).
+Component Structure: Favor modular, reusable React components written in TypeScript.
+Styling: Apply styling strictly using Tailwind CSS utility classes. Avoid custom CSS files unless absolutely necessary for complex, unique styles.
+Accessibility: Keep accessibility in mind, especially when generating interactive elements (shadcn-ui helps with this).
+4. Backend Integration (Supabase Specifics):
+
+Assume data interaction via the @supabase/supabase-js client library.
+Data Structure: Slabs data will include:
+primary_image_url: A public URL pointing to an image hosted on Supabase Storage (for on-site preview).
+box_shared_link: An external URL to the full file preview on Box.com (for external access, not direct embedding).
+Prioritize efficient data fetching and manipulation using Supabase's client methods.
+5. Development Workflow Context:
+
+Assume the project integrates with GitHub for version control and uses Netlify for continuous deployment.
+Focus on generating clean, idiomatic, and maintainable code that integrates well with this stack.
+6. Bolt's Role & Output Expectations:
+
+Code Generation: Generate React/TypeScript code snippets, components, and logic that directly adhere to the specified tech stack (Vite, React, TypeScript, shadcn-ui, Tailwind CSS, Supabase client).
+Clarity: Provide well-commented code that is easy to understand and integrate into an existing project.
+Problem-Solving: When addressing issues or suggesting features, propose solutions that fit within the defined stack.
+Efficiency: Focus on solutions that prioritize performance and developer efficiency within this specific project context.
