@@ -1,4 +1,3 @@
-
 export interface Slab {
   id: string;
   slab_id: string;
@@ -13,7 +12,7 @@ export interface Slab {
   sent_to_date: string | null;
   notes: string | null;
   image_url: string | null;
-  box_url: string | null;
+  box_shared_link: string | null;
   created_at: string;
   updated_at: string;
 }

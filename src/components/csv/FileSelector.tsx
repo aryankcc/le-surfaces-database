@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { FileText } from "lucide-react";
@@ -20,7 +19,7 @@ const FileSelector = ({ file, onFileChange }: FileSelectorProps) => {
         className="mt-1"
       />
       <p className="text-xs text-slate-500 mt-1">
-        Supports CSV, TSV, or tab-separated files with headers. Include "Image URL" for display images and "Box URL" for clickable links. Duplicate Slab IDs will have their quantities combined.
+        Supports CSV, TSV, or tab-separated files with headers. Include "Image URL" for display images and "Box Shared Link" for external Box.com access. Duplicate Slab IDs will have their quantities combined.
       </p>
       
       {file && (

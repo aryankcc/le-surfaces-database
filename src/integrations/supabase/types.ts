@@ -11,7 +11,7 @@ export type Database = {
     Tables: {
       slabs: {
         Row: {
-          box_url: string | null
+          box_shared_link: string | null
           created_at: string
           family: string
           formulation: string
@@ -29,7 +29,7 @@ export type Database = {
           version: string | null
         }
         Insert: {
-          box_url?: string | null
+          box_shared_link?: string | null
           created_at?: string
           family: string
           formulation: string
@@ -47,7 +47,7 @@ export type Database = {
           version?: string | null
         }
         Update: {
-          box_url?: string | null
+          box_shared_link?: string | null
           created_at?: string
           family?: string
           formulation?: string

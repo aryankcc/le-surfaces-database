@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Database, FileImage, Search } from "lucide-react";
@@ -36,7 +35,7 @@ const Index = () => {
       
       const { data: slabs, error } = await supabase
         .from('slabs')
-        .select('status, image_url, box_url');
+        .select('status, image_url, box_shared_link');
       
       if (error) {
         console.error('Error fetching stats:', error);
@@ -48,7 +47,7 @@ const Index = () => {
       const sent = slabs.filter(s => s.status === 'sent').length;
       const reserved = slabs.filter(s => s.status === 'reserved').length;
       const sold = slabs.filter(s => s.status === 'sold').length;
-      const slabsWithoutPictures = slabs.filter(s => !s.image_url && !s.box_url).length;
+      const slabsWithoutPictures = slabs.filter(s => !s.image_url && !s.box_shared_link).length;
 
       return {
         totalSlabs,

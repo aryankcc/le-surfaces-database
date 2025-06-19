@@ -2,9 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FileImage, Calendar, MapPin, Edit, Package, Hash, Archive, StickyNote, LogIn, ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
-import BoxWidget from "./BoxWidget";
+import { FileImage, Calendar, MapPin, Edit, Package, Hash, Archive, StickyNote, LogIn, ExternalLink, Link } from "lucide-react";
+import { Link as RouterLink } from "react-router-dom";
 import { Slab } from "@/types/slab";
 
 interface SlabDetailsProps {
@@ -40,9 +39,9 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
     });
   };
 
-  const openBoxInNewTab = () => {
-    if (slab.box_url) {
-      window.open(slab.box_url, '_blank');
+  const openBoxLink = () => {
+    if (slab.box_shared_link) {
+      window.open(slab.box_shared_link, '_blank');
     }
   };
 
@@ -58,19 +57,25 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Image with Box URL click action */}
+          {/* Image Display */}
           <div className="w-full">
             {slab.image_url ? (
-              <div className="relative cursor-pointer" onClick={openBoxInNewTab}>
+              <div className="relative">
                 <img 
                   src={slab.image_url} 
                   alt={slab.family}
                   className="w-full h-48 object-cover rounded-lg"
                 />
-                {slab.box_url && (
-                  <div className="absolute top-2 right-2 bg-blue-600 text-white p-1 rounded">
-                    <ExternalLink className="h-4 w-4" />
-                  </div>
+                {slab.box_shared_link && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+                    onClick={openBoxLink}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    View in Box
+                  </Button>
                 )}
               </div>
             ) : (
@@ -78,6 +83,17 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
                 <div className="text-center">
                   <FileImage className="h-12 w-12 text-slate-400 mx-auto mb-2" />
                   <p className="text-slate-500">No image available</p>
+                  {slab.box_shared_link && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={openBoxLink}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      View in Box
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
@@ -125,6 +141,31 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
           </div>
 
           <Separator />
+
+          {/* Box Link Section */}
+          {slab.box_shared_link && (
+            <>
+              <div className="space-y-3">
+                <h4 className="font-medium text-slate-800 flex items-center space-x-2">
+                  <Link className="h-4 w-4" />
+                  <span>Box Files</span>
+                </h4>
+                
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={openBoxLink}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Box Files
+                  </Button>
+                </div>
+              </div>
+
+              <Separator />
+            </>
+          )}
 
           {/* Sent To Information */}
           <div className="space-y-3">
@@ -182,28 +223,20 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
           {/* Actions */}
           <div className="flex space-x-2">
             {isAuthenticated ? (
-              <>
-                <Button 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
-                  onClick={() => onEditSlab(slab)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Slab
-                </Button>
-                {slab.box_url && (
-                  <Button variant="outline" className="flex-1" onClick={openBoxInNewTab}>
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Open in Box
-                  </Button>
-                )}
-              </>
+              <Button 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={() => onEditSlab(slab)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Slab
+              </Button>
             ) : (
-              <Link to="/auth" className="w-full">
+              <RouterLink to="/auth" className="w-full">
                 <Button variant="outline" className="w-full">
                   <LogIn className="h-4 w-4 mr-2" />
                   Sign in to Edit
                 </Button>
-              </Link>
+              </RouterLink>
             )}
           </div>
         </CardContent>

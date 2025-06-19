@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Save } from "lucide-react";
+import { Upload, Save, Link, Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -27,14 +26,69 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
     sent_to_location: "",
     sent_to_date: "",
     status: "in_stock",
-    box_url: "",
+    image_url: "",
+    box_shared_link: "",
     sku: "",
     quantity: "1"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handleImageUpload = async (file: File) => {
+    setIsUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `slab-images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('slab-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('slab-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image_url: publicUrl });
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully!",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        setImageFile(file);
+        handleImageUpload(file);
+      } else {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,8 +107,8 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         sent_to_location: formData.sent_to_location || null,
         sent_to_date: formData.sent_to_date || null,
         status: formData.sent_to_location ? 'sent' : formData.status,
-        image_url: null, // No longer using image_url
-        box_url: formData.box_url || null,
+        image_url: formData.image_url || null,
+        box_shared_link: formData.box_shared_link || null,
         sku: formData.sku || null,
         quantity: parseInt(formData.quantity) || 1
       };
@@ -96,10 +150,12 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
         sent_to_location: "",
         sent_to_date: "",
         status: "in_stock",
-        box_url: "",
+        image_url: "",
+        box_shared_link: "",
         sku: "",
         quantity: "1"
       });
+      setImageFile(null);
       onOpenChange(false);
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -222,17 +278,64 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
             </Select>
           </div>
 
-          {/* Box Widget Code */}
+          {/* Image Upload and URL */}
+          <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+            <h4 className="font-medium text-slate-800 flex items-center space-x-2">
+              <Image className="h-4 w-4" />
+              <span>Slab Image</span>
+            </h4>
+            
+            <div className="space-y-2">
+              <Label htmlFor="image-upload">Upload Image</Label>
+              <Input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={isUploadingImage}
+              />
+              <p className="text-xs text-slate-500">Upload an image file to display in the application</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="image_url">Or Image URL</Label>
+              <Input
+                id="image_url"
+                placeholder="https://example.com/image.jpg"
+                value={formData.image_url}
+                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                disabled={isUploadingImage}
+              />
+              <p className="text-xs text-slate-500">Direct URL to an image for display</p>
+            </div>
+
+            {formData.image_url && (
+              <div className="mt-2">
+                <img 
+                  src={formData.image_url} 
+                  alt="Preview" 
+                  className="w-32 h-32 object-cover rounded-lg border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Box Shared Link */}
           <div className="space-y-2">
-            <Label htmlFor="box_url">Box Widget Code</Label>
-            <Textarea
-              id="box_url"
-              placeholder="Paste Box widget embed code here (e.g., <iframe src='...' width='500' height='400'></iframe>)"
-              value={formData.box_url}
-              onChange={(e) => setFormData({ ...formData, box_url: e.target.value })}
-              rows={3}
+            <Label htmlFor="box_shared_link" className="flex items-center space-x-2">
+              <Link className="h-4 w-4" />
+              <span>Box Shared Link</span>
+            </Label>
+            <Input
+              id="box_shared_link"
+              placeholder="https://app.box.com/s/..."
+              value={formData.box_shared_link}
+              onChange={(e) => setFormData({ ...formData, box_shared_link: e.target.value })}
             />
-            <p className="text-xs text-slate-500">Paste the complete Box widget iframe code to display interactive Box content</p>
+            <p className="text-xs text-slate-500">Shared link to Box.com for external file access</p>
           </div>
 
           {/* Notes */}
@@ -273,12 +376,12 @@ const AddSlabDialog = ({ open, onOpenChange }: AddSlabDialogProps) => {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting || isUploadingImage}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting || isUploadingImage}>
               <Save className="h-4 w-4 mr-2" />
-              {isSubmitting ? "Adding..." : "Add Slab"}
+              {isSubmitting ? "Adding..." : isUploadingImage ? "Uploading..." : "Add Slab"}
             </Button>
           </DialogFooter>
         </form>

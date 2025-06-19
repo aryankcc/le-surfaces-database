@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeStatus, extractBoxUrl, extractImageUrl, parseCSVDate } from "@/utils/csvImport";
 
@@ -71,7 +70,9 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       const sentToLocation = firstRow['Sent To Location'] || firstRow['sent_to_location'] || firstRow['SentToLocation'] || '';
       const sentDate = firstRow['Sent Date'] || firstRow['sent_date'] || firstRow['SentDate'] || '';
       const notes = firstRow['Notes'] || firstRow['notes'] || '';
-      const boxUrl = firstRow['Box URL'] || firstRow['box_url'] || firstRow['BoxURL'] || firstRow['Box Link'] || firstRow['box_link'] || '';
+      
+      // Updated to handle new column names
+      const boxSharedLink = firstRow['Box Shared Link'] || firstRow['box_shared_link'] || firstRow['BoxSharedLink'] || firstRow['Box Link'] || firstRow['box_link'] || firstRow['Box URL'] || firstRow['box_url'] || firstRow['BoxURL'] || '';
       const imageUrl = firstRow['Image URL'] || firstRow['image_url'] || firstRow['ImageURL'] || firstRow['Image Link'] || firstRow['image_link'] || '';
 
       console.log(`Processing slab ${slabId} with total quantity:`, totalQuantity);
@@ -122,7 +123,7 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
           sent_to_location: sentToLocation || null,
           sent_to_date: sentDate ? parseCSVDate(sentDate) : null,
           notes: notes || null,
-          box_url: extractBoxUrl(boxUrl),
+          box_shared_link: extractBoxUrl(boxSharedLink),
           image_url: extractImageUrl(imageUrl)
         };
 
