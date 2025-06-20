@@ -9,6 +9,7 @@ import AddSlabDialog from "@/components/AddSlabDialog";
 import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
+import SlabsWithoutImagesDialog from "@/components/SlabsWithoutImagesDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +24,7 @@ const Index = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isCSVImportOpen, setIsCSVImportOpen] = useState(false);
+  const [isSlabsWithoutImagesOpen, setIsSlabsWithoutImagesOpen] = useState(false);
   const [editingSlab, setEditingSlab] = useState<Slab | null>(null);
   const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +49,15 @@ const Index = () => {
       const sent = slabs.filter(s => s.status === 'sent').length;
       const reserved = slabs.filter(s => s.status === 'reserved').length;
       const sold = slabs.filter(s => s.status === 'sold').length;
-      const slabsWithoutPictures = slabs.filter(s => !s.image_url && !s.box_shared_link).length;
+      
+      // Fix: Check for slabs that have neither image_url nor box_shared_link
+      const slabsWithoutPictures = slabs.filter(s => 
+        (!s.image_url || s.image_url.trim() === '') && 
+        (!s.box_shared_link || s.box_shared_link.trim() === '')
+      ).length;
+
+      console.log('Slabs without pictures count:', slabsWithoutPictures);
+      console.log('Slabs data sample:', slabs.slice(0, 3));
 
       return {
         totalSlabs,
@@ -94,6 +104,10 @@ const Index = () => {
     setIsCSVImportOpen(true);
   };
 
+  const handleViewSlabsWithoutImages = () => {
+    setIsSlabsWithoutImagesOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Header
@@ -133,7 +147,10 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <AnalyticsTab stats={stats} />
+            <AnalyticsTab 
+              stats={stats} 
+              onViewSlabsWithoutImages={handleViewSlabsWithoutImages}
+            />
           </TabsContent>
 
           <TabsContent value="search" className="space-y-6">
@@ -167,6 +184,11 @@ const Index = () => {
           />
         </>
       )}
+
+      <SlabsWithoutImagesDialog 
+        open={isSlabsWithoutImagesOpen}
+        onOpenChange={setIsSlabsWithoutImagesOpen}
+      />
     </div>
   );
 };
