@@ -37,12 +37,14 @@ const Index = () => {
       
       const { data: slabs, error } = await supabase
         .from('slabs')
-        .select('status, image_url, box_shared_link');
+        .select('*');
       
       if (error) {
         console.error('Error fetching stats:', error);
         throw error;
       }
+
+      console.log('Raw slabs data for analytics:', slabs);
 
       const totalSlabs = slabs.length;
       const inStock = slabs.filter(s => s.status === 'in_stock').length;
@@ -50,14 +52,32 @@ const Index = () => {
       const reserved = slabs.filter(s => s.status === 'reserved').length;
       const sold = slabs.filter(s => s.status === 'sold').length;
       
-      // Fix: Check for slabs that have neither image_url nor box_shared_link
-      const slabsWithoutPictures = slabs.filter(s => 
-        (!s.image_url || s.image_url.trim() === '') && 
-        (!s.box_shared_link || s.box_shared_link.trim() === '')
-      ).length;
+      // More thorough check for slabs without pictures
+      const slabsWithoutPictures = slabs.filter(slab => {
+        const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
+        const hasBoxLink = slab.box_shared_link && slab.box_shared_link.trim() !== '';
+        const hasNoPictures = !hasImageUrl && !hasBoxLink;
+        
+        console.log(`Slab ${slab.slab_id} check:`, {
+          image_url: slab.image_url,
+          box_shared_link: slab.box_shared_link,
+          hasImageUrl,
+          hasBoxLink,
+          hasNoPictures
+        });
+        
+        return hasNoPictures;
+      });
 
-      console.log('Slabs without pictures count:', slabsWithoutPictures);
-      console.log('Slabs data sample:', slabs.slice(0, 3));
+      console.log('Slabs without pictures:', slabsWithoutPictures.map(s => s.slab_id));
+      console.log('Analytics results:', {
+        totalSlabs,
+        inStock,
+        sent,
+        reserved,
+        sold,
+        slabsWithoutPictures: slabsWithoutPictures.length
+      });
 
       return {
         totalSlabs,
@@ -65,7 +85,7 @@ const Index = () => {
         sent,
         reserved,
         sold,
-        slabsWithoutPictures
+        slabsWithoutPictures: slabsWithoutPictures.length
       };
     }
   });

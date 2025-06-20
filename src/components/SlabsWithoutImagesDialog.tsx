@@ -29,13 +29,28 @@ const SlabsWithoutImagesDialog = ({ open, onOpenChange }: SlabsWithoutImagesDial
         throw error;
       }
 
-      // Filter slabs that have neither image_url nor box_shared_link
-      const slabsWithoutPictures = slabs.filter(slab => 
-        (!slab.image_url || slab.image_url.trim() === '') && 
-        (!slab.box_shared_link || slab.box_shared_link.trim() === '')
-      );
+      console.log('All slabs for filtering:', slabs.length);
 
-      console.log('Found slabs without images:', slabsWithoutPictures.length);
+      // Filter slabs that have neither image_url nor box_shared_link
+      const slabsWithoutPictures = slabs.filter(slab => {
+        const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
+        const hasBoxLink = slab.box_shared_link && slab.box_shared_link.trim() !== '';
+        const hasNoPictures = !hasImageUrl && !hasBoxLink;
+        
+        console.log(`Dialog filter - Slab ${slab.slab_id}:`, {
+          image_url: slab.image_url,
+          box_shared_link: slab.box_shared_link,
+          hasImageUrl,
+          hasBoxLink,
+          hasNoPictures
+        });
+        
+        return hasNoPictures;
+      });
+
+      console.log('Found slabs without images in dialog:', slabsWithoutPictures.length);
+      console.log('Slab IDs without images:', slabsWithoutPictures.map(s => s.slab_id));
+      
       return slabsWithoutPictures as Slab[];
     },
     enabled: open, // Only fetch when dialog is open
