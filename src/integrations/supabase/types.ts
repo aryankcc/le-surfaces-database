@@ -12,6 +12,7 @@ export type Database = {
       slabs: {
         Row: {
           box_shared_link: string | null
+          category: string
           created_at: string
           family: string
           formulation: string
@@ -30,6 +31,7 @@ export type Database = {
         }
         Insert: {
           box_shared_link?: string | null
+          category?: string
           created_at?: string
           family: string
           formulation: string
@@ -48,6 +50,7 @@ export type Database = {
         }
         Update: {
           box_shared_link?: string | null
+          category?: string
           created_at?: string
           family?: string
           formulation?: string

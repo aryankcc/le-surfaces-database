@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, FileImage, Calendar, Palette, Trash2, Hash, Archive } from "lucide-react";
+import { Eye, Edit, FileImage, Calendar, Palette, Trash2, Hash, Archive, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Slab } from "@/types/slab";
@@ -15,17 +14,26 @@ interface SlabInventoryProps {
   onEditSlab: (slab: Slab) => void;
   onDeleteSlab: (slab: Slab) => void;
   isAuthenticated: boolean;
+  category?: 'current' | 'development';
 }
 
-const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onDeleteSlab, isAuthenticated }: SlabInventoryProps) => {
+const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onDeleteSlab, isAuthenticated, category }: SlabInventoryProps) => {
   const { data: slabs = [], isLoading, error } = useQuery({
-    queryKey: ['slabs'],
+    queryKey: ['slabs', category],
     queryFn: async () => {
-      console.log('Fetching slabs from database...');
-      const { data, error } = await supabase
+      console.log('Fetching slabs from database with category:', category);
+      
+      let query = supabase
         .from('slabs')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Filter by category if specified
+      if (category) {
+        query = query.eq('category', category);
+      }
+      
+      const { data, error } = await query;
       
       if (error) {
         console.error('Error fetching slabs:', error);
@@ -59,6 +67,17 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
         return "bg-orange-100 text-orange-800 border-orange-200";
       case "sold":
         return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "current":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "development":
+        return "bg-blue-100 text-blue-800 border-blue-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -114,7 +133,11 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-800">Slab Inventory</h2>
+        <h2 className="text-xl font-semibold text-slate-800">
+          {category === 'current' ? 'Current Slabs' : 
+           category === 'development' ? 'Development Slabs' : 
+           'Slab Inventory'}
+        </h2>
         <span className="text-sm text-slate-500">{filteredSlabs.length} slabs found</span>
       </div>
       
@@ -134,6 +157,10 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                     <h3 className="font-semibold text-lg text-slate-800">{slab.family}</h3>
                     <Badge className={getStatusColor(slab.status)}>
                       {slab.status.replace('_', ' ')}
+                    </Badge>
+                    <Badge className={getCategoryColor(slab.category)} variant="outline">
+                      <Tag className="h-3 w-3 mr-1" />
+                      {slab.category}
                     </Badge>
                   </div>
                   

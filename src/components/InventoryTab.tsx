@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Database } from "lucide-react";
 import SlabInventory from "@/components/SlabInventory";
@@ -13,6 +12,7 @@ interface InventoryTabProps {
   onEditSlab: (slab: Slab) => void;
   onDeleteSlab: (slab: Slab) => void;
   isAuthenticated: boolean;
+  category?: 'current' | 'development';
 }
 
 const InventoryTab = ({ 
@@ -21,7 +21,8 @@ const InventoryTab = ({
   onSlabSelect, 
   onEditSlab, 
   onDeleteSlab,
-  isAuthenticated
+  isAuthenticated,
+  category
 }: InventoryTabProps) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -33,6 +34,7 @@ const InventoryTab = ({
           onEditSlab={onEditSlab}
           onDeleteSlab={onDeleteSlab}
           isAuthenticated={isAuthenticated}
+          category={category}
         />
       </div>
       <div className="lg:col-span-1 space-y-6">

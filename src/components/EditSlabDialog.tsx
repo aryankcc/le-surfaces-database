@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Save, Link, Image } from "lucide-react";
+import { Upload, Save, Link, Image, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     sent_to_location: "",
     sent_to_date: "",
     status: "in_stock",
+    category: "current" as 'current' | 'development',
     image_url: "",
     box_shared_link: "",
     sku: "",
@@ -52,6 +53,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         sent_to_location: slab.sent_to_location || "",
         sent_to_date: slab.sent_to_date || "",
         status: slab.status,
+        category: slab.category || 'current',
         image_url: slab.image_url || "",
         box_shared_link: slab.box_shared_link || "",
         sku: slab.sku || "",
@@ -131,6 +133,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         sent_to_location: formData.sent_to_location || null,
         sent_to_date: formData.sent_to_date || null,
         status: formData.sent_to_location ? 'sent' : formData.status,
+        category: formData.category,
         image_url: formData.image_url || null,
         box_shared_link: formData.box_shared_link || null,
         sku: formData.sku || null,
@@ -159,6 +162,8 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
       // Refresh the slabs list
       queryClient.invalidateQueries({ queryKey: ['slabs'] });
       queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['current-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
       
       toast({
         title: "Success",
@@ -273,20 +278,37 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
             </div>
           </div>
 
-          {/* Status */}
-          <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="in_stock">In Stock</SelectItem>
-                <SelectItem value="sent">Sent</SelectItem>
-                <SelectItem value="reserved">Reserved</SelectItem>
-                <SelectItem value="sold">Sold</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Status and Category */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="in_stock">In Stock</SelectItem>
+                  <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="reserved">Reserved</SelectItem>
+                  <SelectItem value="sold">Sold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category" className="flex items-center space-x-2">
+                <Tag className="h-4 w-4" />
+                <span>Category</span>
+              </Label>
+              <Select value={formData.category} onValueChange={(value: 'current' | 'development') => setFormData({ ...formData, category: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="current">Current</SelectItem>
+                  <SelectItem value="development">Development</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Image Upload and URL */}

@@ -5,6 +5,7 @@ export interface Slab {
   formulation: string;
   version: string | null;
   status: string;
+  category: 'current' | 'development';
   sku: string | null;
   quantity: number | null;
   received_date: string;
