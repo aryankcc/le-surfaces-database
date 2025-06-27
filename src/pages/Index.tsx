@@ -35,58 +35,92 @@ const Index = () => {
     queryFn: async () => {
       console.log('Fetching slab statistics...');
       
-      const { data: slabs, error } = await supabase
-        .from('slabs')
-        .select('*');
-      
-      if (error) {
-        console.error('Error fetching stats:', error);
+      try {
+        const { data: slabs, error } = await supabase
+          .from('slabs')
+          .select('*');
+        
+        if (error) {
+          console.error('Supabase error fetching stats:', error);
+          throw new Error(`Database error: ${error.message}`);
+        }
+
+        if (!slabs) {
+          console.warn('No slabs data returned from database');
+          return {
+            totalSlabs: 0,
+            inStock: 0,
+            sent: 0,
+            reserved: 0,
+            sold: 0,
+            slabsWithoutPictures: 0
+          };
+        }
+
+        console.log('Raw slabs data for analytics:', slabs);
+
+        const totalSlabs = slabs.length;
+        const inStock = slabs.filter(s => s.status === 'in_stock').length;
+        const sent = slabs.filter(s => s.status === 'sent').length;
+        const reserved = slabs.filter(s => s.status === 'reserved').length;
+        const sold = slabs.filter(s => s.status === 'sold').length;
+        
+        // More thorough check for slabs without pictures
+        const slabsWithoutPictures = slabs.filter(slab => {
+          const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
+          const hasBoxLink = slab.box_shared_link && slab.box_shared_link.trim() !== '';
+          const hasNoPictures = !hasImageUrl && !hasBoxLink;
+          
+          console.log(`Slab ${slab.slab_id} check:`, {
+            image_url: slab.image_url,
+            box_shared_link: slab.box_shared_link,
+            hasImageUrl,
+            hasBoxLink,
+            hasNoPictures
+          });
+          
+          return hasNoPictures;
+        });
+
+        console.log('Slabs without pictures:', slabsWithoutPictures.map(s => s.slab_id));
+        console.log('Analytics results:', {
+          totalSlabs,
+          inStock,
+          sent,
+          reserved,
+          sold,
+          slabsWithoutPictures: slabsWithoutPictures.length
+        });
+
+        return {
+          totalSlabs,
+          inStock,
+          sent,
+          reserved,
+          sold,
+          slabsWithoutPictures: slabsWithoutPictures.length
+        };
+      } catch (error) {
+        console.error('Error in stats query function:', error);
+        
+        // Check if it's a network error
+        if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+          throw new Error('Unable to connect to the database. Please check your internet connection and try again.');
+        }
+        
+        // Re-throw other errors
         throw error;
       }
-
-      console.log('Raw slabs data for analytics:', slabs);
-
-      const totalSlabs = slabs.length;
-      const inStock = slabs.filter(s => s.status === 'in_stock').length;
-      const sent = slabs.filter(s => s.status === 'sent').length;
-      const reserved = slabs.filter(s => s.status === 'reserved').length;
-      const sold = slabs.filter(s => s.status === 'sold').length;
-      
-      // More thorough check for slabs without pictures
-      const slabsWithoutPictures = slabs.filter(slab => {
-        const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
-        const hasBoxLink = slab.box_shared_link && slab.box_shared_link.trim() !== '';
-        const hasNoPictures = !hasImageUrl && !hasBoxLink;
-        
-        console.log(`Slab ${slab.slab_id} check:`, {
-          image_url: slab.image_url,
-          box_shared_link: slab.box_shared_link,
-          hasImageUrl,
-          hasBoxLink,
-          hasNoPictures
-        });
-        
-        return hasNoPictures;
+    },
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onError: (error) => {
+      console.error('Query error:', error);
+      toast({
+        title: "Connection Error",
+        description: error instanceof Error ? error.message : "Failed to load statistics. Please try again.",
+        variant: "destructive",
       });
-
-      console.log('Slabs without pictures:', slabsWithoutPictures.map(s => s.slab_id));
-      console.log('Analytics results:', {
-        totalSlabs,
-        inStock,
-        sent,
-        reserved,
-        sold,
-        slabsWithoutPictures: slabsWithoutPictures.length
-      });
-
-      return {
-        totalSlabs,
-        inStock,
-        sent,
-        reserved,
-        sold,
-        slabsWithoutPictures: slabsWithoutPictures.length
-      };
     }
   });
 
