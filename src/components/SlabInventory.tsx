@@ -158,9 +158,9 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                     <Badge className={getStatusColor(slab.status)}>
                       {slab.status.replace('_', ' ')}
                     </Badge>
-                    <Badge className={getCategoryColor(slab.category)} variant="outline">
+                    <Badge className={getCategoryColor(slab.category || 'current')} variant="outline">
                       <Tag className="h-3 w-3 mr-1" />
-                      {slab.category}
+                      {slab.category || 'current'}
                     </Badge>
                   </div>
                   
