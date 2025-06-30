@@ -38,10 +38,22 @@ const CurrentSlabs = () => {
       console.log('Fetching current slab statistics...');
       
       try {
-        const { data: slabs, error } = await supabase
+        // First, check if the category column exists by doing a simple query
+        const { data: columnCheck, error: columnError } = await supabase
           .from('slabs')
           .select('*')
-          .eq('category', 'current');
+          .limit(1);
+
+        let query = supabase
+          .from('slabs')
+          .select('*');
+
+        // Only filter by category if the column exists
+        if (columnCheck && columnCheck.length > 0 && 'category' in columnCheck[0]) {
+          query = query.eq('category', 'current');
+        }
+        
+        const { data: slabs, error } = await query;
         
         if (error) {
           console.error('Supabase error fetching stats:', error);
@@ -59,6 +71,8 @@ const CurrentSlabs = () => {
           };
         }
 
+        // If category column doesn't exist, we're showing all slabs
+        // Once the migration is applied, this will properly filter by category
         const totalSlabs = slabs.length;
         const inStock = slabs.filter(s => s.status === 'in_stock').length;
         const sent = slabs.filter(s => s.status === 'sent').length;

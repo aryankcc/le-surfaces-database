@@ -23,25 +23,39 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
     queryFn: async () => {
       console.log('Fetching slabs from database with category:', category);
       
-      let query = supabase
-        .from('slabs')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        // First, check if the category column exists
+        const { data: columnCheck, error: columnError } = await supabase
+          .from('slabs')
+          .select('*')
+          .limit(1);
 
-      // Filter by category if specified
-      if (category) {
-        query = query.eq('category', category);
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error('Error fetching slabs:', error);
+        let query = supabase
+          .from('slabs')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        // Only filter by category if the column exists and category is specified
+        if (category && columnCheck && columnCheck.length > 0 && 'category' in columnCheck[0]) {
+          query = query.eq('category', category);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error('Error fetching slabs:', error);
+          throw error;
+        }
+        
+        console.log('Fetched slabs:', data);
+        
+        // If category filtering is requested but column doesn't exist, return all slabs
+        // This is a temporary fallback until the migration is applied
+        return data as Slab[];
+      } catch (error) {
+        console.error('Error in slabs query:', error);
         throw error;
       }
-      
-      console.log('Fetched slabs:', data);
-      return data as Slab[];
     }
   });
 
@@ -158,10 +172,13 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                     <Badge className={getStatusColor(slab.status)}>
                       {slab.status.replace('_', ' ')}
                     </Badge>
-                    <Badge className={getCategoryColor(slab.category || 'current')} variant="outline">
-                      <Tag className="h-3 w-3 mr-1" />
-                      {slab.category || 'current'}
-                    </Badge>
+                    {/* Only show category badge if the category property exists */}
+                    {slab.category && (
+                      <Badge className={getCategoryColor(slab.category)} variant="outline">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {slab.category}
+                      </Badge>
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm text-slate-600 mb-3">
