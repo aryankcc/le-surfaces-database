@@ -42,7 +42,7 @@ const Landing = () => {
             Quartz Slab Management System
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Manage and track your quartz slab inventory with our comprehensive tracking system
+            Manage and track the LE Surfaces quartz slab inventory.
           </p>
         </div>
 
@@ -55,7 +55,7 @@ const Landing = () => {
                 <span>All Slabs</span>
               </CardTitle>
               <CardDescription>
-                Access different categories of slabs in your inventory
+                Access different categories of slabs in inventory
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -68,7 +68,7 @@ const Landing = () => {
                       <span>Current Slabs</span>
                     </CardTitle>
                     <CardDescription>
-                      Production-ready slabs available for projects and sales
+                      Production-ready slabs
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -89,7 +89,7 @@ const Landing = () => {
                       <span>New / Development Slabs</span>
                     </CardTitle>
                     <CardDescription>
-                      Experimental and development slabs for testing and R&D
+                      Experimental and development slabs
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
