@@ -125,7 +125,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
         console.error('Error adding slab:', error);
         toast({
           title: "Error",
-          description: "Failed to add slab. Please try again.",
+          description: `Failed to add slab: ${error.message}`,
           variant: "destructive",
         });
         return;
@@ -138,6 +138,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
       queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
       queryClient.invalidateQueries({ queryKey: ['current-slab-stats'] });
       queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['search-all-slabs'] });
       
       toast({
         title: "Success",
