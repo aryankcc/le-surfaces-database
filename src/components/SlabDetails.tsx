@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { FileImage, Calendar, MapPin, Edit, Package, Hash, Archive, StickyNote, LogIn, ExternalLink, Link } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import { Slab } from "@/types/slab";
+import { formatSlabDate } from "@/utils/dateUtils";
 
 interface SlabDetailsProps {
   slab: Slab;
@@ -26,17 +27,6 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    // Parse the date string and format it correctly
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', { 
-      timeZone: 'UTC',
-      month: 'numeric',
-      day: 'numeric',
-      year: 'numeric'
-    });
   };
 
   const openBoxLink = () => {
@@ -136,7 +126,7 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
             <div className="flex items-center space-x-2 text-sm">
               <Calendar className="h-4 w-4 text-slate-500" />
               <span className="font-medium text-slate-600">Received:</span>
-              <span className="text-slate-800">{formatDate(slab.received_date)}</span>
+              <span className="text-slate-800">{formatSlabDate(slab.received_date)}</span>
             </div>
           </div>
 
@@ -187,7 +177,7 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
                   <div className="flex items-center space-x-2 text-sm">
                     <Calendar className="h-4 w-4 text-blue-600" />
                     <span className="font-medium text-blue-800">Sent Date:</span>
-                    <span className="text-blue-700">{formatDate(slab.sent_to_date)}</span>
+                    <span className="text-blue-700">{formatSlabDate(slab.sent_to_date)}</span>
                   </div>
                 )}
               </div>

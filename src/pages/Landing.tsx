@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Layers, ArrowRight, Package, Beaker } from "lucide-react";
+import { Layers, ArrowRight, Package, Beaker, AlertTriangle, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -105,7 +105,7 @@ const Landing = () => {
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
+          {/* Quick Access Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader className="text-center">
@@ -156,13 +156,15 @@ const Landing = () => {
                 <CardTitle className="text-lg">Analytics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link to="/slabs/current">
+                <Link to="/reports">
                   <Button variant="outline" className="w-full">
+                    <BarChart3 className="h-4 w-4 mr-2" />
                     View Reports
                   </Button>
                 </Link>
-                <Link to="/slabs/current">
+                <Link to="/stock-alerts">
                   <Button variant="outline" className="w-full">
+                    <AlertTriangle className="h-4 w-4 mr-2" />
                     Stock Alerts
                   </Button>
                 </Link>

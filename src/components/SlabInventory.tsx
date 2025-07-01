@@ -6,6 +6,7 @@ import { Eye, Edit, FileImage, Calendar, Palette, Trash2, Hash, Archive, Tag } f
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Slab } from "@/types/slab";
+import { formatSlabDate } from "@/utils/dateUtils";
 
 interface SlabInventoryProps {
   searchTerm: string;
@@ -95,17 +96,6 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    // Parse the date string and format it correctly in UTC
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', { 
-      timeZone: 'UTC',
-      month: 'numeric',
-      day: 'numeric',
-      year: 'numeric'
-    });
   };
 
   if (isLoading) {
@@ -207,12 +197,12 @@ const SlabInventory = ({ searchTerm, onSlabSelect, selectedSlab, onEditSlab, onD
                     )}
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-3 w-3" />
-                      <span className="font-medium">Received:</span> {formatDate(slab.received_date)}
+                      <span className="font-medium">Received:</span> {formatSlabDate(slab.received_date)}
                     </div>
                     {slab.sent_to_location && (
                       <div className="col-span-2">
                         <span className="font-medium">Sent to:</span> {slab.sent_to_location}
-                        {slab.sent_to_date && ` (${formatDate(slab.sent_to_date)})`}
+                        {slab.sent_to_date && ` (${formatSlabDate(slab.sent_to_date)})`}
                       </div>
                     )}
                   </div>

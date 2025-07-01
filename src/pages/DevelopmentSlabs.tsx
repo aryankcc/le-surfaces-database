@@ -12,6 +12,7 @@ import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
 import SlabsWithoutImagesDialog from "@/components/SlabsWithoutImagesDialog";
+import ExportButton from "@/components/ExportButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -139,12 +140,15 @@ const DevelopmentSlabs = () => {
       <div className="container mx-auto px-6 py-8">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link to="/">
-            <Button variant="outline" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link to="/">
+              <Button variant="outline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
+            </Link>
+            <ExportButton category="development" />
+          </div>
           <h1 className="text-3xl font-bold text-slate-800">Development Slabs</h1>
           <p className="text-slate-600">Experimental and development slabs for testing and R&D</p>
         </div>
