@@ -39,7 +39,7 @@ export type Database = {
           image_url?: string | null
           notes?: string | null
           quantity?: number | null
-          received_date: string
+          received_date?: string
           sent_to_date?: string | null
           sent_to_location?: string | null
           sku?: string | null
@@ -84,6 +84,7 @@ export type Database = {
           min_quantity: number
           slab_id: string
           quantity: number
+          category: string
         }[]
       }
     }

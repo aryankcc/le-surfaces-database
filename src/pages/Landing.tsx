@@ -225,61 +225,58 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* All Slabs Section */}
+        {/* Main Category Selection */}
         <div className="max-w-4xl mx-auto">
           <Card className="mb-8">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl flex items-center justify-center space-x-2">
-                <Package className="h-6 w-6" />
-                <span>All Slabs</span>
-              </CardTitle>
-              <CardDescription>
-                Access different categories of slabs in inventory
+              <CardTitle className="text-3xl mb-4">Browse Inventory</CardTitle>
+              <CardDescription className="text-lg">
+                Choose a category to explore our slab collection
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Current Slabs */}
-                <Card className="border-2 border-green-200 hover:border-green-300 transition-colors">
-                  <CardHeader>
-                    <CardTitle className="text-xl text-green-700 flex items-center space-x-2">
-                      <Package className="h-5 w-5" />
-                      <span>Current Slabs</span>
-                    </CardTitle>
-                    <CardDescription>
-                      Production-ready slabs
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Link to="/slabs/current">
-                      <Button className="w-full bg-green-600 hover:bg-green-700">
-                        View Current Slabs
-                        <ArrowRight className="h-4 w-4 ml-2" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Current Inventory */}
+                <Link to="/category/current">
+                  <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-4 p-4 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
+                        <Package className="h-12 w-12 text-green-600" />
+                      </div>
+                      <CardTitle className="text-2xl text-green-700">Current Inventory</CardTitle>
+                      <CardDescription className="text-base">
+                        Production-ready slabs available for immediate use
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-lg py-6">
+                        Explore Current Slabs
+                        <ArrowRight className="h-5 w-5 ml-2" />
                       </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
 
                 {/* Development Slabs */}
-                <Card className="border-2 border-blue-200 hover:border-blue-300 transition-colors">
-                  <CardHeader>
-                    <CardTitle className="text-xl text-blue-700 flex items-center space-x-2">
-                      <Beaker className="h-5 w-5" />
-                      <span>New / Development Slabs</span>
-                    </CardTitle>
-                    <CardDescription>
-                      Experimental and development slabs
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Link to="/slabs/development">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                        View Development Slabs
-                        <ArrowRight className="h-4 w-4 ml-2" />
+                <Link to="/category/development">
+                  <Card className="border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-4 p-4 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                        <Beaker className="h-12 w-12 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-2xl text-blue-700">Development Slabs</CardTitle>
+                      <CardDescription className="text-base">
+                        Experimental and new formulations in development
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6">
+                        Explore Development Slabs
+                        <ArrowRight className="h-5 w-5 ml-2" />
                       </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               </div>
             </CardContent>
           </Card>
