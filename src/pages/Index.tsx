@@ -105,23 +105,27 @@ const Index = () => {
         
         // Check if it's a network error
         if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+          toast({
+            title: "Connection Error",
+            description: "Unable to connect to the database. Please check your internet connection and try again.",
+            variant: "destructive",
+          });
           throw new Error('Unable to connect to the database. Please check your internet connection and try again.');
         }
+        
+        // Show toast for other errors
+        toast({
+          title: "Connection Error",
+          description: error instanceof Error ? error.message : "Failed to load statistics. Please try again.",
+          variant: "destructive",
+        });
         
         // Re-throw other errors
         throw error;
       }
     },
     retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    onError: (error) => {
-      console.error('Query error:', error);
-      toast({
-        title: "Connection Error",
-        description: error instanceof Error ? error.message : "Failed to load statistics. Please try again.",
-        variant: "destructive",
-      });
-    }
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
   });
 
   const checkAuthForAction = (action: string) => {

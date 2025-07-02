@@ -34,8 +34,8 @@ export const exportInventoryToExcel = async () => {
       'Sent To Location': slab.sent_to_location || '',
       'Sent Date': slab.sent_to_date ? new Date(slab.sent_to_date).toLocaleDateString() : '',
       'Notes': slab.notes || '',
-      'Has Box Link': slab.box_url ? 'Yes' : 'No',
-      'Box URL': slab.box_url || ''
+      'Has Box Link': slab.box_shared_link ? 'Yes' : 'No',
+      'Box URL': slab.box_shared_link || ''
     }));
 
     // Create workbook and worksheet
