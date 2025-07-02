@@ -308,7 +308,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
                 <Label htmlFor="slab_id">Slab ID *</Label>
                 <Input
                   id="slab_id"
-                  placeholder="e.g., LE-004"
+                  placeholder="e.g., 1A or 9C"
                   value={formData.slab_id}
                   onChange={(e) => handleSlabIdChange(e.target.value)}
                   required
@@ -336,7 +336,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
               <Label htmlFor="family">Family *</Label>
               <Input
                 id="family"
-                placeholder="e.g., Calacatta, Carrara, Statuario"
+                placeholder="e.g., Fundamental Calacatta, Taj Mahal, etc"
                 value={formData.family}
                 onChange={(e) => setFormData({ ...formData, family: e.target.value })}
                 required
@@ -348,7 +348,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
                 <Label htmlFor="formulation">Formulation (Sub-family) *</Label>
                 <Input
                   id="formulation"
-                  placeholder="e.g., Gold, White Classic, Premium White"
+                  placeholder="e.g., Green, Petro Grigio, etc"
                   value={formData.formulation}
                   onChange={(e) => setFormData({ ...formData, formulation: e.target.value })}
                   required
@@ -358,20 +358,20 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
                 <Label htmlFor="version">Version</Label>
                 <Input
                   id="version"
-                  placeholder="e.g., Premium, Standard, Luxury"
+                  placeholder="e.g., 1, 2, 3, etc"
                   value={formData.version}
                   onChange={(e) => setFormData({ ...formData, version: e.target.value })}
                 />
               </div>
             </div>
 
-            {/* SKU and Quantity */}
+            {/* SKU */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="sku">SKU</Label>
                 <Input
                   id="sku"
-                  placeholder="e.g., CAL-GOLD-001"
+                  placeholder="e.g., 9907"
                   value={formData.sku}
                   onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                 />
@@ -502,7 +502,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
                   <Label htmlFor="sent_to_location">Sent To Location</Label>
                   <Input
                     id="sent_to_location"
-                    placeholder="e.g., Project Site A - Downtown Office"
+                    placeholder="e.g., Spicewood Springs Office"
                     value={formData.sent_to_location}
                     onChange={(e) => setFormData({ ...formData, sent_to_location: e.target.value })}
                   />
