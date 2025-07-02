@@ -38,7 +38,7 @@ const InventoryTab = ({
         />
       </div>
       <div className="lg:col-span-1 space-y-6">
-        <LowStockAlerts />
+        <LowStockAlerts category={category} />
         {selectedSlab ? (
           <SlabDetails 
             slab={selectedSlab} 

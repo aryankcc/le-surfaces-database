@@ -1,12 +1,21 @@
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Package } from "lucide-react";
 import { useLowStockAlerts } from "@/hooks/useLowStockAlerts";
 
-const LowStockAlerts = () => {
-  const { data: alerts = [], isLoading, error } = useLowStockAlerts();
+interface LowStockAlertsProps {
+  category?: 'current' | 'development';
+}
+
+const LowStockAlerts = ({ category }: LowStockAlertsProps) => {
+  const { data: alerts = [], isLoading, error } = useLowStockAlerts(category);
+
+  const getTitle = () => {
+    if (category === 'current') return 'Current Slabs - Stock Alerts';
+    if (category === 'development') return 'Development Slabs - Stock Alerts';
+    return 'Stock Alerts';
+  };
 
   if (isLoading) {
     return (
@@ -14,7 +23,7 @@ const LowStockAlerts = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Package className="h-5 w-5" />
-            <span>Stock Alerts</span>
+            <span>{getTitle()}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -30,7 +39,7 @@ const LowStockAlerts = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Package className="h-5 w-5" />
-            <span>Stock Alerts</span>
+            <span>{getTitle()}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -46,11 +55,16 @@ const LowStockAlerts = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Package className="h-5 w-5 text-green-600" />
-            <span>Stock Alerts</span>
+            <span>{getTitle()}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-green-600">All stock levels are sufficient</p>
+          <p className="text-sm text-green-600">
+            {category 
+              ? `All ${category} slab stock levels are sufficient`
+              : 'All stock levels are sufficient'
+            }
+          </p>
         </CardContent>
       </Card>
     );
@@ -61,7 +75,7 @@ const LowStockAlerts = () => {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <AlertTriangle className="h-5 w-5 text-orange-500" />
-          <span>Low Stock Alerts</span>
+          <span>{getTitle()}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -78,12 +92,26 @@ const LowStockAlerts = () => {
                   Slab ID: <strong>{alert.slab_id}</strong> has only <strong>{alert.quantity}</strong> remaining 
                   (minimum recommended: {alert.min_quantity})
                 </div>
-                <Badge 
-                  variant="outline" 
-                  className="text-xs border-orange-300 text-orange-800"
-                >
-                  Quantity: {alert.quantity}
-                </Badge>
+                <div className="flex space-x-2">
+                  <Badge 
+                    variant="outline" 
+                    className="text-xs border-orange-300 text-orange-800"
+                  >
+                    Quantity: {alert.quantity}
+                  </Badge>
+                  {alert.category && (
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs ${
+                        alert.category === 'current' 
+                          ? 'border-green-300 text-green-800' 
+                          : 'border-blue-300 text-blue-800'
+                      }`}
+                    >
+                      {alert.category}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </AlertDescription>
           </Alert>

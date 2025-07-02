@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,13 +9,14 @@ interface LowStockAlert {
   min_quantity: number;
   slab_id: string;
   quantity: number;
+  category: string;
 }
 
-export const useLowStockAlerts = () => {
+export const useLowStockAlerts = (category?: 'current' | 'development') => {
   return useQuery({
-    queryKey: ['low-stock-alerts'],
+    queryKey: ['low-stock-alerts', category],
     queryFn: async () => {
-      console.log('Fetching low stock alerts...');
+      console.log('Fetching low stock alerts for category:', category);
       
       // Get low stock slabs directly from the function
       const { data: lowStockSlabs, error } = await supabase
@@ -29,7 +29,15 @@ export const useLowStockAlerts = () => {
         throw error;
       }
       
-      return lowStockSlabs as LowStockAlert[];
+      let filteredSlabs = lowStockSlabs as LowStockAlert[];
+      
+      // Filter by category if specified
+      if (category) {
+        filteredSlabs = filteredSlabs.filter(slab => slab.category === category);
+        console.log(`Filtered slabs for category ${category}:`, filteredSlabs);
+      }
+      
+      return filteredSlabs;
     },
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
   });
