@@ -14,12 +14,13 @@ interface AddSlabDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultCategory?: 'current' | 'development';
+  defaultFamily?: string;
 }
 
-const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddSlabDialogProps) => {
+const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaultFamily }: AddSlabDialogProps) => {
   const [formData, setFormData] = useState({
     slab_id: "",
-    family: "",
+    family: defaultFamily || "",
     formulation: "",
     version: "",
     received_date: "",
@@ -196,7 +197,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current' }: AddS
   const resetForm = () => {
     setFormData({
       slab_id: "",
-      family: "",
+      family: defaultFamily || "",
       formulation: "",
       version: "",
       received_date: "",
