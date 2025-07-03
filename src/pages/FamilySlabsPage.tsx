@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Database, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Slab } from "@/types/slab";
-import SlabTable from "@/components/SlabTable";
 import SlabDetails from "@/components/SlabDetails";
 import LowStockAlerts from "@/components/LowStockAlerts";
 import ExportButton from "@/components/ExportButton";
@@ -15,6 +13,7 @@ import AddSlabDialog from "@/components/AddSlabDialog";
 import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
+import SlabInventory from "@/components/SlabInventory";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -180,14 +179,14 @@ const FamilySlabsPage = () => {
               </Card>
             )}
 
-            <SlabTable
-              slabs={slabs}
+            {/* Use the card-based SlabInventory component */}
+            <SlabInventory
+              searchTerm=""
               onSlabSelect={setSelectedSlab}
               selectedSlab={selectedSlab}
               onEditSlab={handleEditSlab}
               onDeleteSlab={handleDeleteSlab}
               isAuthenticated={!!user}
-              isLoading={isLoading}
               category={categoryName as 'current' | 'development'}
             />
           </div>
