@@ -1,8 +1,10 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Database } from "lucide-react";
-import SlabInventory from "@/components/SlabInventory";
+import SlabTable from "@/components/SlabTable";
 import SlabDetails from "@/components/SlabDetails";
 import LowStockAlerts from "@/components/LowStockAlerts";
+import { useSlabs } from "@/hooks/useSlabs";
 import { Slab } from "@/types/slab";
 
 interface InventoryTabProps {
@@ -24,16 +26,42 @@ const InventoryTab = ({
   isAuthenticated,
   category
 }: InventoryTabProps) => {
+  const { data: allSlabs = [], isLoading } = useSlabs();
+
+  // Filter slabs based on category and search term
+  const filteredSlabs = allSlabs.filter(slab => {
+    // Filter by category if specified
+    if (category && slab.category !== category) {
+      return false;
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        (slab.family || '').toLowerCase().includes(searchLower) ||
+        (slab.formulation || '').toLowerCase().includes(searchLower) ||
+        (slab.slab_id || '').toLowerCase().includes(searchLower) ||
+        (slab.version || '').toLowerCase().includes(searchLower) ||
+        (slab.sku || '').toLowerCase().includes(searchLower) ||
+        (slab.sent_to_location || '').toLowerCase().includes(searchLower)
+      );
+    }
+
+    return true;
+  });
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
-        <SlabInventory 
-          searchTerm={searchTerm}
+        <SlabTable
+          slabs={filteredSlabs}
           onSlabSelect={onSlabSelect}
           selectedSlab={selectedSlab}
           onEditSlab={onEditSlab}
           onDeleteSlab={onDeleteSlab}
           isAuthenticated={isAuthenticated}
+          isLoading={isLoading}
           category={category}
         />
       </div>

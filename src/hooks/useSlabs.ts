@@ -3,16 +3,21 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Slab } from '@/types/slab';
 
-export const useSlabs = (searchTerm?: string) => {
+export const useSlabs = (searchTerm?: string, category?: 'current' | 'development') => {
   return useQuery({
-    queryKey: ['slabs', searchTerm],
+    queryKey: ['slabs', searchTerm, category],
     queryFn: async () => {
-      console.log('Fetching slabs with search term:', searchTerm);
+      console.log('Fetching slabs with search term:', searchTerm, 'category:', category);
       
       let query = supabase
         .from('slabs')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Filter by category if specified
+      if (category) {
+        query = query.eq('category', category);
+      }
 
       // If there's a search term, filter by slab_id first, then other fields
       if (searchTerm && searchTerm.trim()) {
