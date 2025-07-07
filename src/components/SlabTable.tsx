@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -39,8 +38,21 @@ const SlabTable = ({
         return "bg-orange-100 text-orange-800 border-orange-200";
       case "sold":
         return "bg-red-100 text-red-800 border-red-200";
+      case "not_in_yet":
+        return "bg-purple-100 text-purple-800 border-purple-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "not_in_yet":
+        return "Not In Yet";
+      case "in_stock":
+        return "In Stock";
+      default:
+        return status.replace('_', ' ');
     }
   };
 
@@ -122,7 +134,7 @@ const SlabTable = ({
                   <TableCell>{slab.version || '-'}</TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(slab.status)} variant="outline">
-                      {slab.status.replace('_', ' ')}
+                      {getStatusDisplay(slab.status)}
                     </Badge>
                   </TableCell>
                   {!category && (
@@ -139,7 +151,7 @@ const SlabTable = ({
                   <TableCell>
                     <div className="flex items-center space-x-1">
                       <Archive className="h-3 w-3 text-slate-400" />
-                      <span>{slab.quantity || 1}</span>
+                      <span>{slab.quantity !== null ? slab.quantity : 0}</span>
                     </div>
                   </TableCell>
                   <TableCell>

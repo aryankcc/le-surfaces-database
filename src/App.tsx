@@ -4,15 +4,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import Landing from "./pages/Landing";
-import CategoryPage from "./pages/CategoryPage";
-import FamilySlabsPage from "./pages/FamilySlabsPage";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import CurrentSlabs from "./pages/CurrentSlabs";
 import DevelopmentSlabs from "./pages/DevelopmentSlabs";
-import StockAlerts from "./pages/StockAlerts";
-import Reports from "./pages/Reports";
-import Auth from "./pages/Auth";
+import OutboundSamples from "./pages/OutboundSamples";
+import CategoryPage from "./pages/CategoryPage";
+import FamilySlabsPage from "./pages/FamilySlabsPage";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,20 +22,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<Landing />} />
-            <Route path="/category/:categoryName" element={<CategoryPage />} />
-            <Route path="/category/:categoryName/:familyName" element={<FamilySlabsPage />} />
-            <Route path="/slabs/current" element={<CurrentSlabs />} />
-            <Route path="/slabs/development" element={<DevelopmentSlabs />} />
-            <Route path="/stock-alerts" element={<StockAlerts />} />
-            <Route path="/reports" element={<Reports />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/current" element={<CurrentSlabs />} />
+          <Route path="/development" element={<DevelopmentSlabs />} />
+          <Route path="/outbound" element={<OutboundSamples />} />
+          <Route path="/category/:categoryName" element={<CategoryPage />} />
+          <Route path="/category/:categoryName/family/:familyName" element={<FamilySlabsPage />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

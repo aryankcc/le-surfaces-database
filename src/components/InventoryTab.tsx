@@ -1,20 +1,23 @@
 
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Database } from "lucide-react";
-import SlabTable from "@/components/SlabTable";
+import { AlertTriangle, Database } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import SlabInventory from "@/components/SlabInventory";
 import SlabDetails from "@/components/SlabDetails";
 import LowStockAlerts from "@/components/LowStockAlerts";
-import { useSlabs } from "@/hooks/useSlabs";
 import { Slab } from "@/types/slab";
+import { useSlabs } from "@/hooks/useSlabs";
 
 interface InventoryTabProps {
   searchTerm: string;
   selectedSlab: Slab | null;
-  onSlabSelect: (slab: Slab | null) => void;
+  onSlabSelect: (slab: Slab) => void;
   onEditSlab: (slab: Slab) => void;
   onDeleteSlab: (slab: Slab) => void;
   isAuthenticated: boolean;
   category?: 'current' | 'development';
+  status?: string;
 }
 
 const InventoryTab = ({ 
@@ -22,51 +25,44 @@ const InventoryTab = ({
   selectedSlab, 
   onSlabSelect, 
   onEditSlab, 
-  onDeleteSlab,
+  onDeleteSlab, 
   isAuthenticated,
-  category
+  category,
+  status
 }: InventoryTabProps) => {
-  const { data: allSlabs = [], isLoading } = useSlabs();
+  const { data: slabs = [], isLoading, error } = useSlabs(searchTerm, category, status);
 
-  // Filter slabs based on category and search term
-  const filteredSlabs = allSlabs.filter(slab => {
-    // Filter by category if specified
-    if (category && slab.category !== category) {
-      return false;
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        (slab.family || '').toLowerCase().includes(searchLower) ||
-        (slab.formulation || '').toLowerCase().includes(searchLower) ||
-        (slab.slab_id || '').toLowerCase().includes(searchLower) ||
-        (slab.version || '').toLowerCase().includes(searchLower) ||
-        (slab.sku || '').toLowerCase().includes(searchLower) ||
-        (slab.sent_to_location || '').toLowerCase().includes(searchLower)
-      );
-    }
-
-    return true;
-  });
+  if (error) {
+    return (
+      <Card className="border-red-200">
+        <CardContent className="p-6 text-center text-red-600">
+          <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+          <p className="mb-4">Failed to load slabs. Please try again.</p>
+          <Button onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
-        <SlabTable
-          slabs={filteredSlabs}
+        <SlabInventory
+          searchTerm={searchTerm}
           onSlabSelect={onSlabSelect}
           selectedSlab={selectedSlab}
           onEditSlab={onEditSlab}
           onDeleteSlab={onDeleteSlab}
           isAuthenticated={isAuthenticated}
-          isLoading={isLoading}
           category={category}
+          status={status}
         />
       </div>
+
       <div className="lg:col-span-1 space-y-6">
-        <LowStockAlerts category={category} />
+        {!status && <LowStockAlerts category={category} />}
         {selectedSlab ? (
           <SlabDetails 
             slab={selectedSlab} 
