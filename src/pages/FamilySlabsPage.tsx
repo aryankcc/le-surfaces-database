@@ -13,7 +13,7 @@ import AddSlabDialog from "@/components/AddSlabDialog";
 import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
-import SlabInventory from "@/components/SlabInventory";
+import SlabTable from "@/components/SlabTable";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -179,16 +179,19 @@ const FamilySlabsPage = () => {
               </Card>
             )}
 
-            {/* Use the card-based SlabInventory component */}
-            <SlabInventory
-              searchTerm=""
-              onSlabSelect={setSelectedSlab}
-              selectedSlab={selectedSlab}
-              onEditSlab={handleEditSlab}
-              onDeleteSlab={handleDeleteSlab}
-              isAuthenticated={!!user}
-              category={categoryName as 'current' | 'development'}
-            />
+            {/* Use the table-based SlabTable component for family pages */}
+            {slabs.length > 0 && (
+              <SlabTable
+                slabs={slabs}
+                onSlabSelect={setSelectedSlab}
+                selectedSlab={selectedSlab}
+                onEditSlab={handleEditSlab}
+                onDeleteSlab={handleDeleteSlab}
+                isAuthenticated={!!user}
+                isLoading={isLoading}
+                category={categoryName as 'current' | 'development'}
+              />
+            )}
           </div>
 
           <div className="lg:col-span-1 space-y-6">
