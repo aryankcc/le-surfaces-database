@@ -32,7 +32,6 @@ const Index = () => {
   const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch statistics for the analytics tab
   const { data: stats } = useQuery({
     queryKey: ['slab-stats'],
     queryFn: async () => {
@@ -192,7 +191,7 @@ const Index = () => {
 
         {/* Quick Access Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Link to="/current">
+          <Link to="/category/current">
             <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4 p-4 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
@@ -206,7 +205,7 @@ const Index = () => {
             </Card>
           </Link>
 
-          <Link to="/development">
+          <Link to="/category/development">
             <Card className="border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4 p-4 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">

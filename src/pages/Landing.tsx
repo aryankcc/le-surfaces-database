@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,6 +85,8 @@ const Landing = () => {
         return "bg-orange-100 text-orange-800 border-orange-200";
       case "sold":
         return "bg-red-100 text-red-800 border-red-200";
+      case "not_in_yet":
+        return "bg-purple-100 text-purple-800 border-purple-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -206,7 +209,7 @@ const Landing = () => {
                             </div>
                           </div>
                           <Link 
-                            to={slab.category === 'development' ? '/slabs/development' : '/slabs/current'}
+                            to={`/category/${slab.category}`}
                             className="text-blue-600 hover:text-blue-700 text-sm"
                           >
                             View →
@@ -288,14 +291,14 @@ const Landing = () => {
                 <CardTitle className="text-lg">Quick Access</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link to="/slabs/current">
+                <Link to="/category/current">
                   <Button variant="outline" className="w-full">
-                    <Link to="/current">Current Inventory</Link>
+                    Current Inventory
                   </Button>
                 </Link>
-                <Link to="/slabs/development">
+                <Link to="/category/development">
                   <Button variant="outline" className="w-full">
-                    <Link to="/development">Development Lab</Link>
+                    Development Lab
                   </Button>
                 </Link>
               </CardContent>
