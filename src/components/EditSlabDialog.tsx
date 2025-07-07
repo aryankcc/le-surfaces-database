@@ -202,7 +202,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
               <Label htmlFor="slab_id">Slab ID *</Label>
               <Input
                 id="slab_id"
-                placeholder="e.g., LE-004"
+                placeholder="e.g., 1A, 9C"
                 value={formData.slab_id}
                 onChange={(e) => setFormData({ ...formData, slab_id: e.target.value })}
                 required
@@ -225,7 +225,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
             <Label htmlFor="family">Family *</Label>
             <Input
               id="family"
-              placeholder="e.g., Calacatta, Carrara, Statuario"
+              placeholder="e.g., Fundamental Calacatta, Carrara"
               value={formData.family}
               onChange={(e) => setFormData({ ...formData, family: e.target.value })}
               required
@@ -237,7 +237,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
               <Label htmlFor="formulation">Formulation (Sub-family) *</Label>
               <Input
                 id="formulation"
-                placeholder="e.g., Gold, White Classic, Premium White"
+                placeholder="e.g., Sereno Bianco, 9907, etc"
                 value={formData.formulation}
                 onChange={(e) => setFormData({ ...formData, formulation: e.target.value })}
                 required
@@ -247,7 +247,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
               <Label htmlFor="version">Version</Label>
               <Input
                 id="version"
-                placeholder="e.g., Premium, Standard, Luxury"
+                placeholder="e.g., 1, 2, etc"
                 value={formData.version}
                 onChange={(e) => setFormData({ ...formData, version: e.target.value })}
               />
@@ -260,7 +260,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
               <Label htmlFor="sku">SKU</Label>
               <Input
                 id="sku"
-                placeholder="e.g., CAL-GOLD-001"
+                placeholder="e.g., 770906"
                 value={formData.sku}
                 onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
               />
@@ -391,7 +391,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
                 <Label htmlFor="sent_to_location">Sent To Location</Label>
                 <Input
                   id="sent_to_location"
-                  placeholder="e.g., Project Site A - Downtown Office"
+                  placeholder="e.g., Spicewood Springs Office"
                   value={formData.sent_to_location}
                   onChange={(e) => setFormData({ ...formData, sent_to_location: e.target.value })}
                 />
