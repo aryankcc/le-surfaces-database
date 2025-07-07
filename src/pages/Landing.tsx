@@ -290,12 +290,12 @@ const Landing = () => {
               <CardContent className="space-y-2">
                 <Link to="/slabs/current">
                   <Button variant="outline" className="w-full">
-                    Current Inventory
+                    <Link to="/current">Current Inventory</Link>
                   </Button>
                 </Link>
                 <Link to="/slabs/development">
                   <Button variant="outline" className="w-full">
-                    Development Lab
+                    <Link to="/development">Development Lab</Link>
                   </Button>
                 </Link>
               </CardContent>
