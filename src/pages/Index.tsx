@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Database, FileImage, Search } from "lucide-react";
+import { Database, FileImage, Search, Package, Beaker } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import InventoryTab from "@/components/InventoryTab";
 import AnalyticsTab from "@/components/AnalyticsTab";
@@ -177,6 +180,61 @@ const Index = () => {
       />
 
       <div className="container mx-auto px-6 py-8">
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-slate-800 mb-4">
+            LE Surfaces Slab Inventory
+          </h1>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
+            Manage and track your quartz slab inventory with ease
+          </p>
+        </div>
+
+        {/* Quick Access Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Link to="/current">
+            <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4 p-4 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
+                  <Package className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-xl text-green-700">Current Slabs</CardTitle>
+                <CardDescription>
+                  Production-ready slabs available for projects
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/development">
+            <Card className="border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4 p-4 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                  <Beaker className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl text-blue-700">Development Slabs</CardTitle>
+                <CardDescription>
+                  Experimental and R&D formulations
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/outbound">
+            <Card className="border-2 border-purple-200 hover:border-purple-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4 p-4 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors">
+                  <Database className="h-8 w-8 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl text-purple-700">Outbound Samples</CardTitle>
+                <CardDescription>
+                  Track samples sent to customers
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+        </div>
+
         <Tabs defaultValue="inventory" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
             <TabsTrigger value="inventory" className="flex items-center space-x-2">

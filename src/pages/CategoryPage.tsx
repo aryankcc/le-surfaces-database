@@ -137,7 +137,7 @@ const CategoryPage = () => {
               {families.map((family) => (
                 <Link 
                   key={family} 
-                  to={`/category/${categoryName}/${encodeURIComponent(family)}`}
+                  to={`/category/${categoryName}/family/${encodeURIComponent(family)}`}
                 >
                   <Card className={`border-2 border-${colorScheme}-200 hover:border-${colorScheme}-400 hover:shadow-lg transition-all duration-300 cursor-pointer group`}>
                     <CardHeader className="text-center">

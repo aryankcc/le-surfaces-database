@@ -34,18 +34,29 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Landing />} />
+            {/* Main inventory page */}
+            <Route path="/" element={<Index />} />
+            
+            {/* Authentication */}
             <Route path="/auth" element={<Auth />} />
-            <Route path="/slabs/current" element={<CurrentSlabs />} />
-            <Route path="/slabs/development" element={<DevelopmentSlabs />} />
+            
+            {/* Slab category pages */}
             <Route path="/current" element={<CurrentSlabs />} />
             <Route path="/development" element={<DevelopmentSlabs />} />
             <Route path="/outbound" element={<OutboundSamples />} />
+            
+            {/* Category browsing */}
             <Route path="/category/:categoryName" element={<CategoryPage />} />
             <Route path="/category/:categoryName/family/:familyName" element={<FamilySlabsPage />} />
+            
+            {/* Reports and analytics */}
             <Route path="/reports" element={<Reports />} />
             <Route path="/stock-alerts" element={<StockAlerts />} />
-            <Route path="/inventory" element={<Index />} />
+            
+            {/* Alternative landing page */}
+            <Route path="/landing" element={<Landing />} />
+            
+            {/* Catch all 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
