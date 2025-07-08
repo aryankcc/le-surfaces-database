@@ -6,25 +6,17 @@ import { Plus } from "lucide-react";
 interface DuplicateSlabDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  formData: {
-    slab_id: string;
-    quantity: string;
-  };
-  duplicateSlabInfo: {
-    currentQuantity: number;
-    slabData?: any;
-  };
-  onAddToExisting: () => void;
-  isSubmitting: boolean;
+  onConfirm: () => Promise<void>;
+  slabId: string;
+  currentQuantity: number;
 }
 
 const DuplicateSlabDialog = ({ 
   open, 
   onOpenChange, 
-  formData, 
-  duplicateSlabInfo, 
-  onAddToExisting, 
-  isSubmitting 
+  onConfirm,
+  slabId,
+  currentQuantity
 }: DuplicateSlabDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,29 +27,16 @@ const DuplicateSlabDialog = ({
             <span>Slab Already Exists</span>
           </DialogTitle>
           <DialogDescription>
-            A slab with ID "{formData.slab_id}" already exists in your main inventory.
+            A slab with ID "{slabId}" already exists in your main inventory.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
             <div className="text-sm">
-              <div className="font-medium text-orange-800 mb-2">Existing Slab Details:</div>
+              <div className="font-medium text-orange-800 mb-2">Current quantity: {currentQuantity}</div>
               <div className="text-orange-700">
-                <div>ID: {duplicateSlabInfo.slabData?.slab_id}</div>
-                <div>Family: {duplicateSlabInfo.slabData?.family}</div>
-                <div>Category: {duplicateSlabInfo.slabData?.category}</div>
-                <div>Current Quantity: {duplicateSlabInfo.currentQuantity}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="text-sm text-blue-800">
-              <div className="font-medium mb-1">Would you like to:</div>
-              <div>Add {formData.quantity} to the existing quantity?</div>
-              <div className="mt-2 font-medium">
-                New total: {duplicateSlabInfo.currentQuantity + parseInt(formData.quantity)} slabs
+                Would you like to proceed and add this as a duplicate entry?
               </div>
             </div>
           </div>
@@ -67,17 +46,15 @@ const DuplicateSlabDialog = ({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button
-            onClick={onAddToExisting}
-            disabled={isSubmitting}
+            onClick={onConfirm}
             className="bg-orange-600 hover:bg-orange-700"
           >
             <Plus className="h-4 w-4 mr-2" />
-            {isSubmitting ? "Adding..." : `Add ${formData.quantity} to Existing`}
+            Add Anyway
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Database, FileImage, Search, Plus, Upload } from "lucide-react";
@@ -12,7 +11,6 @@ import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
 import SlabsWithoutImagesDialog from "@/components/SlabsWithoutImagesDialog";
-import SampleDataButton from "@/components/SampleDataButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -139,7 +137,7 @@ const Index = () => {
       <div className="container mx-auto px-6 py-8">
         {/* Sample Data Button */}
         <div className="mb-6 flex justify-center">
-          <SampleDataButton />
+          
         </div>
 
         <Tabs defaultValue="inventory" className="space-y-6">
