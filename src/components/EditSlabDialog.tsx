@@ -265,7 +265,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
                 value={formData.quantity}
                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
               />
-
+          </div>
           {/* Status and Category */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
