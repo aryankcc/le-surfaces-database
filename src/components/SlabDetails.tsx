@@ -111,13 +111,6 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
             )}
             {slab.sku && (
               <div className="flex items-center space-x-2 text-sm">
-                <Hash className="h-4 w-4 text-slate-500" />
-                <span className="font-medium text-slate-600">SKU:</span>
-                <span className="text-slate-800">{slab.sku}</span>
-              </div>
-            )}
-            {slab.quantity && (
-              <div className="flex items-center space-x-2 text-sm">
                 <Archive className="h-4 w-4 text-slate-500" />
                 <span className="font-medium text-slate-600">Quantity:</span>
                 <span className="text-slate-800">{slab.quantity}</span>

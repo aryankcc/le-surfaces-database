@@ -108,7 +108,6 @@ const SlabTable = ({
                 <TableHead className="font-semibold">Version</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
                 {!category && <TableHead className="font-semibold">Category</TableHead>}
-                <TableHead className="font-semibold">SKU</TableHead>
                 <TableHead className="font-semibold">Qty</TableHead>
                 <TableHead className="font-semibold">Received</TableHead>
                 <TableHead className="font-semibold">Sent To</TableHead>
@@ -147,7 +146,6 @@ const SlabTable = ({
                       )}
                     </TableCell>
                   )}
-                  <TableCell>{slab.sku || '-'}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-1">
                       <Archive className="h-3 w-3 text-slate-400" />
