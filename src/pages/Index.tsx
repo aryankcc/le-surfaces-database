@@ -66,6 +66,8 @@ const Index = () => {
         const sent = slabs.filter(s => s.status === 'sent').length;
         const notInYet = slabs.filter(s => s.status === 'not_in_yet').length;
         const discontinued = slabs.filter(s => s.status === 'discontinued').length;
+        const reserved = slabs.filter(s => s.status === 'reserved').length;
+        const sold = slabs.filter(s => s.status === 'sold').length;
         
         // More thorough check for slabs without pictures
         const slabsWithoutPictures = slabs.filter(slab => {
@@ -98,6 +100,8 @@ const Index = () => {
           totalSlabs,
           inStock,
           sent,
+          reserved,
+          sold,
           notInYet,
           discontinued,
           slabsWithoutPictures: slabsWithoutPictures.length
