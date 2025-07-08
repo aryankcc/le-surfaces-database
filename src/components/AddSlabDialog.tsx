@@ -649,17 +649,28 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
                 </div>
               </div>
 
-          <DialogFooter>
-          <div className="space-y-2">
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {isSubmitting ? "Adding..." : `Add ${formData.quantity} to Existing`}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+          <DialogFooter>
+            {/* Removed the extra <div className="space-y-2"> here */}
+            <Button
+              variant="outline"
+              onClick={() => setShowDuplicateDialog(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => handleDuplicateAction('add_to_existing')} // Call with specific action
+              disabled={isSubmitting}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {isSubmitting ? "Adding..." : `Add ${formData.quantity} to Existing`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 };
 
 export default AddSlabDialog;
