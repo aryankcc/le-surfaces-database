@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"; // Added useEffect for debouncing cleanup
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,6 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
     category: defaultCategory,
     image_url: "",
     box_shared_link: "",
-    sku: "",
     quantity: "1" // Quantity as string for input
   });
 
@@ -65,7 +65,6 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
         sent_to_date: "",
         image_url: "",
         box_shared_link: "",
-        sku: "",
         quantity: "1"
       }));
       resetForm(); // Ensure a full reset when dialog opens or defaults change
@@ -181,7 +180,6 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       category: defaultCategory,
       image_url: "",
       box_shared_link: "",
-      sku: "",
       quantity: "1"
     });
     setImageFile(null);
@@ -197,7 +195,6 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
     const quantityToAddOrSubtract = parseInt(formData.quantity);
     let newQuantity = duplicateSlabInfo.currentQuantity;
     let successMessage = "";
-    let slabToInsert = null;
 
     try {
       if (action === 'add_to_existing') {
@@ -244,11 +241,6 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       if (updateError) {
         throw updateError;
       }
-
-      // If the action was "subtract" and the `formData.status` is 'sent',
-      // it means this form submission was intended to be an outbound sample.
-      // We don't create a *new* slab record for the outbound sample itself,
-      // as it's just a quantity change on the existing slab.
 
       toast({
         title: "Success",
@@ -324,7 +316,6 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
         category: formData.category,
         image_url: formData.image_url || null,
         box_shared_link: formData.box_shared_link || null,
-        sku: formData.sku || null,
         quantity: parseInt(formData.quantity) || 1, // Ensure quantity is a number
       };
 
@@ -402,13 +393,12 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="received_date">Received Date</Label> {/* Removed * */}
+                <Label htmlFor="received_date">Received Date</Label>
                 <Input
                   id="received_date"
                   type="date"
                   value={formData.received_date}
                   onChange={(e) => setFormData({ ...formData, received_date: e.target.value })}
-                  // Removed required
                 />
               </div>
             </div>
@@ -427,13 +417,12 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="formulation">Formulation (Sub-family)</Label> {/* Removed * */}
+                <Label htmlFor="formulation">Formulation (Sub-family)</Label>
                 <Input
                   id="formulation"
                   placeholder="e.g., Green, Petro Grigio, etc"
                   value={formData.formulation}
                   onChange={(e) => setFormData({ ...formData, formulation: e.target.value })}
-                  // Removed required
                 />
               </div>
               <div className="space-y-2">
@@ -447,28 +436,17 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
               </div>
             </div>
 
-            {/* SKU */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="sku">SKU</Label>
-                <Input
-                  id="sku"
-                  placeholder="e.g., 9907"
-                  value={formData.sku}
-                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  placeholder="1"
-                  value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                />
-              </div>
+            {/* Quantity */}
+            <div className="space-y-2">
+              <Label htmlFor="quantity">Quantity</Label>
+              <Input
+                id="quantity"
+                type="number"
+                min="1"
+                placeholder="1"
+                value={formData.quantity}
+                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              />
             </div>
 
             {/* Status and Category */}
@@ -481,7 +459,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="in_stock">In Stock</SelectItem>
-                    <SelectItem value="sent">Sent</SelectItem> {/* This is key for your new logic */}
+                    <SelectItem value="sent">Sent</SelectItem>
                     <SelectItem value="not_in_yet">Not In Yet</SelectItem>
                     <SelectItem value="discontinued">Discontinued</SelectItem>
                   </SelectContent>
@@ -648,29 +626,30 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
                   New total: {duplicateSlabInfo.currentQuantity + parseInt(formData.quantity)} slabs
                 </div>
               </div>
+            </div>
+          </div>
 
-          <DialogFooter>
-            {/* Removed the extra <div className="space-y-2"> here */}
-            <Button
-              variant="outline"
-              onClick={() => setShowDuplicateDialog(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => handleDuplicateAction('add_to_existing')} // Call with specific action
-              disabled={isSubmitting}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {isSubmitting ? "Adding..." : `Add ${formData.quantity} to Existing`}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDuplicateDialog(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => handleDuplicateAction('add_to_existing')}
+              disabled={isSubmitting}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {isSubmitting ? "Adding..." : `Add ${formData.quantity} to Existing`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 };
 
 export default AddSlabDialog;
