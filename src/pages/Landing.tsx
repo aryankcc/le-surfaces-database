@@ -305,9 +305,6 @@ const Landing = () => {
           <Card className="mb-8">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl mb-4">Browse Inventory</CardTitle>
-              <CardDescription className="text-lg">
-                Choose a category to explore our slab collection
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -320,12 +317,12 @@ const Landing = () => {
                       </div>
                       <CardTitle className="text-2xl text-green-700">Current Inventory</CardTitle>
                       <CardDescription className="text-base">
-                        Production-ready slabs available for immediate use
+                        Active and sellable slabs
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="text-center">
                       <Button className="w-full bg-green-600 hover:bg-green-700 text-lg py-6">
-                        Explore Current Slabs
+                        Explore
                         <ArrowRight className="h-5 w-5 ml-2" />
                       </Button>
                     </CardContent>
@@ -341,12 +338,12 @@ const Landing = () => {
                       </div>
                       <CardTitle className="text-2xl text-blue-700">Development Slabs</CardTitle>
                       <CardDescription className="text-base">
-                        Experimental and new formulations in development
+                        Slabs in development
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="text-center">
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6">
-                        Explore Development Slabs
+                        Explore
                         <ArrowRight className="h-5 w-5 ml-2" />
                       </Button>
                     </CardContent>
@@ -367,7 +364,7 @@ const Landing = () => {
                     </CardHeader>
                     <CardContent className="text-center">
                       <Button className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6">
-                        View Outbound Samples
+                        View
                         <ArrowRight className="h-5 w-5 ml-2" />
                       </Button>
                     </CardContent>
