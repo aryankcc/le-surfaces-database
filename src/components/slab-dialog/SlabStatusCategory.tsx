@@ -8,7 +8,7 @@ interface SlabStatusCategoryProps {
     status: string;
     category: 'current' | 'development';
   };
-  onFormDataChange: (updates: Partial<typeof formData>) => void;
+  onFormDataChange: (updates: Partial<SlabStatusCategoryProps['formData']>) => void;
 }
 
 const SlabStatusCategory = ({ formData, onFormDataChange }: SlabStatusCategoryProps) => {

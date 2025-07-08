@@ -11,7 +11,7 @@ interface BasicSlabInfoProps {
     version: string;
     quantity: string;
   };
-  onFormDataChange: (updates: Partial<typeof formData>) => void;
+  onFormDataChange: (updates: Partial<BasicSlabInfoProps['formData']>) => void;
   duplicateSlabInfo: {
     exists: boolean;
     currentQuantity: number;

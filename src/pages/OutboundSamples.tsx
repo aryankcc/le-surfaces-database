@@ -54,8 +54,8 @@ const OutboundSamples = () => {
             totalSlabs: 0,
             inStock: 0,
             sent: 0,
-            reserved: 0,
-            sold: 0,
+            notInYet: 0,
+            discontinued: 0,
             slabsWithoutPictures: 0
           };
         }
@@ -93,8 +93,8 @@ const OutboundSamples = () => {
     totalSlabs: stats.totalSlabs,
     inStock: stats.inStock,
     sent: stats.sent,
-    notInYet: stats.notInYet || 0,
-    discontinued: stats.discontinued || 0,
+    notInYet: stats.notInYet,
+    discontinued: stats.discontinued,
     slabsWithoutPictures: stats.slabsWithoutPictures,
   } : {
     totalSlabs: 0,

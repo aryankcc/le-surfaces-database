@@ -11,7 +11,7 @@ interface SlabAdditionalFieldsProps {
     sent_to_location: string;
     sent_to_date: string;
   };
-  onFormDataChange: (updates: Partial<typeof formData>) => void;
+  onFormDataChange: (updates: Partial<SlabAdditionalFieldsProps['formData']>) => void;
 }
 
 const SlabAdditionalFields = ({ formData, onFormDataChange }: SlabAdditionalFieldsProps) => {

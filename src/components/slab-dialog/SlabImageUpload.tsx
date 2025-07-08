@@ -10,7 +10,7 @@ interface SlabImageUploadProps {
   formData: {
     image_url: string;
   };
-  onFormDataChange: (updates: Partial<typeof formData>) => void;
+  onFormDataChange: (updates: Partial<SlabImageUploadProps['formData']>) => void;
 }
 
 const SlabImageUpload = ({ formData, onFormDataChange }: SlabImageUploadProps) => {
