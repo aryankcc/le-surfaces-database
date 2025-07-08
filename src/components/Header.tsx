@@ -56,7 +56,6 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
                 alt="LE Surfaces" 
                 className="h-8 w-auto"
               />
-              <h1 className="text-xl font-bold text-slate-800">Slab Inventory</h1>
             </Link>
             
             <nav className="hidden md:flex space-x-4">
