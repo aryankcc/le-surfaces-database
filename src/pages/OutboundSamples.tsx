@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Database, FileImage, Search, ArrowLeft } from "lucide-react";
@@ -89,6 +88,22 @@ const OutboundSamples = () => {
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  const statsData = stats ? {
+    totalSlabs: stats.totalSlabs,
+    inStock: stats.inStock,
+    sent: stats.sent,
+    notInYet: stats.notInYet || 0,
+    discontinued: stats.discontinued || 0,
+    slabsWithoutPictures: stats.slabsWithoutPictures,
+  } : {
+    totalSlabs: 0,
+    inStock: 0,
+    sent: 0,
+    notInYet: 0,
+    discontinued: 0,
+    slabsWithoutPictures: 0,
+  };
 
   const checkAuthForAction = (action: string) => {
     if (!user) {
