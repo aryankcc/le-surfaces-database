@@ -149,7 +149,7 @@ const OutboundSamples = () => {
               </Button>
             </Link>
             <div className="flex space-x-2">
-              <ExportButton category="outbound" />
+              <ExportButton status="sent" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-slate-800">Outbound Samples</h1>

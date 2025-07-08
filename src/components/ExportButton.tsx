@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -6,24 +7,23 @@ import { exportSlabsToExcel } from "@/utils/exportUtils";
 import { useToast } from "@/hooks/use-toast";
 
 interface ExportButtonProps {
-  category?: 'current' | 'development' | 'outbound' | 'all';
+  category?: 'current' | 'development' | 'all';
+  status?: string;
   variant?: 'default' | 'outline';
   size?: 'default' | 'sm' | 'lg';
 }
 
-const ExportButton = ({ category = 'all', variant = 'outline', size = 'default' }: ExportButtonProps) => {
+const ExportButton = ({ category = 'all', status, variant = 'outline', size = 'default' }: ExportButtonProps) => {
   const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
 
-  const handleExport = async (exportCategory: 'current' | 'development' | 'all') => {
+  const handleExport = async (exportCategory?: 'current' | 'development' | 'all', exportStatus?: string) => {
     setIsExporting(true);
     try {
-      let result;
-      if (exportCategory === 'outbound') {
-        result = await exportSlabsToExcel({ status: 'sent' });
-      } else {
-        result = await exportSlabsToExcel({ category: exportCategory });
-      }
+      const result = await exportSlabsToExcel({ 
+        category: exportCategory || category, 
+        status: exportStatus || status 
+      });
       toast({
         title: "Export Successful",
         description: `Exported ${result.count} slabs to ${result.filename}`,
@@ -40,16 +40,30 @@ const ExportButton = ({ category = 'all', variant = 'outline', size = 'default' 
     }
   };
 
+  // For outbound samples page (status = 'sent')
+  if (status === 'sent') {
+    return (
+      <Button
+        variant={variant}
+        size={size}
+        onClick={() => handleExport(undefined, 'sent')}
+        disabled={isExporting}
+      >
+        <Download className="h-4 w-4 mr-2" />
+        {isExporting ? "Exporting..." : "Export Outbound Slabs"}
+      </Button>
+    );
+  }
+
+  // For specific category pages
   if (category !== 'all') {
-    // Single category export button
-    const buttonText = category === 'outbound' ? 'Export Outbound Slabs' : 
-                      `Export ${category === 'current' ? 'Current' : 'Development'} Slabs`;
+    const buttonText = `Export ${category === 'current' ? 'Current' : 'Development'} Slabs`;
     
     return (
       <Button
         variant={variant}
         size={size}
-        onClick={() => category === 'outbound' ? handleExport('outbound' as any) : handleExport(category)}
+        onClick={() => handleExport(category)}
         disabled={isExporting}
       >
         <Download className="h-4 w-4 mr-2" />
@@ -80,7 +94,7 @@ const ExportButton = ({ category = 'all', variant = 'outline', size = 'default' 
           <Download className="h-4 w-4 mr-2" />
           Export Development Slabs
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleExport('outbound' as any)}>
+        <DropdownMenuItem onClick={() => handleExport(undefined, 'sent')}>
           <Download className="h-4 w-4 mr-2" />
           Export Outbound Slabs
         </DropdownMenuItem>

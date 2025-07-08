@@ -1,3 +1,4 @@
+
 import * as XLSX from 'xlsx';
 import { supabase } from '@/integrations/supabase/client';
 import { Slab } from '@/types/slab';
@@ -12,29 +13,21 @@ export const exportSlabsToExcel = async (options: ExportOptions = {}) => {
   try {
     console.log('Starting Excel export with options:', options);
     
-    // Build query based on category
+    // Build query based on category and status
     let query = supabase
       .from('slabs')
       .select('*')
       .order('created_at', { ascending: false });
 
-    // Apply category filter if specified
-    if (options.category && options.category !== 'all') {
-      // Check if category column exists first
-      const { data: columnCheck } = await supabase
-        .from('slabs')
-        .select('*')
-        .limit(1);
-
-      if (columnCheck && columnCheck.length > 0 && 'category' in columnCheck[0]) {
-        query = query.eq('category', options.category);
-      }
-    }
-
-    // Apply status filter if specified (for outbound slabs)
+    // Apply status filter first (for outbound slabs)
     if (options.status) {
       query = query.eq('status', options.status);
     }
+    // Apply category filter if specified and not filtering by status
+    else if (options.category && options.category !== 'all') {
+      query = query.eq('category', options.category);
+    }
+
     const { data: slabs, error } = await query;
 
     if (error) {
@@ -54,8 +47,7 @@ export const exportSlabsToExcel = async (options: ExportOptions = {}) => {
       'Version': slab.version || '',
       'Status': slab.status,
       'Category': slab.category || 'current',
-      'SKU': slab.sku || '',
-      'Quantity': slab.quantity || 1,
+      'Quantity': slab.quantity || 0,
       'Received Date': formatDateForExport(slab.received_date),
       'Sent To Location': slab.sent_to_location || '',
       'Sent Date': slab.sent_to_date ? formatDateForExport(slab.sent_to_date) : '',

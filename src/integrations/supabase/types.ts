@@ -20,15 +20,14 @@ export type Database = {
           category: string
           created_at: string
           family: string
-          formulation: string
+          formulation: string | null
           id: string
           image_url: string | null
           notes: string | null
           quantity: number | null
-          received_date: string
+          received_date: string | null
           sent_to_date: string | null
           sent_to_location: string | null
-          sku: string | null
           slab_id: string
           status: string
           updated_at: string
@@ -39,15 +38,14 @@ export type Database = {
           category?: string
           created_at?: string
           family: string
-          formulation: string
+          formulation?: string | null
           id?: string
           image_url?: string | null
           notes?: string | null
           quantity?: number | null
-          received_date?: string
+          received_date?: string | null
           sent_to_date?: string | null
           sent_to_location?: string | null
-          sku?: string | null
           slab_id: string
           status?: string
           updated_at?: string
@@ -58,15 +56,14 @@ export type Database = {
           category?: string
           created_at?: string
           family?: string
-          formulation?: string
+          formulation?: string | null
           id?: string
           image_url?: string | null
           notes?: string | null
           quantity?: number | null
-          received_date?: string
+          received_date?: string | null
           sent_to_date?: string | null
           sent_to_location?: string | null
-          sku?: string | null
           slab_id?: string
           status?: string
           updated_at?: string

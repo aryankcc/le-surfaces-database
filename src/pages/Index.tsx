@@ -1,8 +1,7 @@
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Database, FileImage, Search, Package, Beaker } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Database, FileImage, Search, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import InventoryTab from "@/components/InventoryTab";
@@ -13,6 +12,7 @@ import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
 import SlabsWithoutImagesDialog from "@/components/SlabsWithoutImagesDialog";
+import SampleDataButton from "@/components/SampleDataButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,6 +32,7 @@ const Index = () => {
   const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Fetch combined statistics
   const { data: stats } = useQuery({
     queryKey: ['slab-stats'],
     queryFn: async () => {
@@ -48,90 +49,43 @@ const Index = () => {
         }
 
         if (!slabs) {
-          console.warn('No slabs data returned from database');
           return {
             totalSlabs: 0,
             inStock: 0,
             sent: 0,
-            reserved: 0,
-            sold: 0,
+            notInYet: 0,
+            discontinued: 0,
             slabsWithoutPictures: 0
           };
         }
 
-        console.log('Raw slabs data for analytics:', slabs);
-
         const totalSlabs = slabs.length;
-        const inStock = slabs.filter(s => s.status === 'in_stock').length;
-        const sent = slabs.filter(s => s.status === 'sent').length;
-        const notInYet = slabs.filter(s => s.status === 'not_in_yet').length;
-        const discontinued = slabs.filter(s => s.status === 'discontinued').length;
-        const reserved = slabs.filter(s => s.status === 'reserved').length;
-        const sold = slabs.filter(s => s.status === 'sold').length;
+        const inStock = slabs.filter(slab => slab.status === 'in_stock').length;
+        const sent = slabs.filter(slab => slab.status === 'sent').length;
+        const notInYet = slabs.filter(slab => slab.status === 'not_in_yet').length;
+        const discontinued = slabs.filter(slab => slab.status === 'discontinued').length;
         
-        // More thorough check for slabs without pictures
         const slabsWithoutPictures = slabs.filter(slab => {
           const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
           const hasBoxLink = slab.box_shared_link && slab.box_shared_link.trim() !== '';
-          const hasNoPictures = !hasImageUrl && !hasBoxLink;
-          
-          console.log(`Slab ${slab.slab_id} check:`, {
-            image_url: slab.image_url,
-            box_shared_link: slab.box_shared_link,
-            hasImageUrl,
-            hasBoxLink,
-            hasNoPictures
-          });
-          
-          return hasNoPictures;
-        });
-
-        console.log('Slabs without pictures:', slabsWithoutPictures.map(s => s.slab_id));
-        console.log('Analytics results:', {
-          totalSlabs,
-          inStock,
-          sent,
-          reserved,
-          sold,
-          slabsWithoutPictures: slabsWithoutPictures.length
+          return !hasImageUrl && !hasBoxLink;
         });
 
         return {
           totalSlabs,
           inStock,
           sent,
-          reserved,
-          sold,
           notInYet,
           discontinued,
           slabsWithoutPictures: slabsWithoutPictures.length
         };
       } catch (error) {
-        console.error('Error in stats query function:', error);
-        
-        // Check if it's a network error
-        if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-          toast({
-            title: "Connection Error",
-            description: "Unable to connect to the database. Please check your internet connection and try again.",
-            variant: "destructive",
-          });
-          throw new Error('Unable to connect to the database. Please check your internet connection and try again.');
-        }
-        
-        // Show toast for other errors
-        toast({
-          title: "Connection Error",
-          description: error instanceof Error ? error.message : "Failed to load statistics. Please try again.",
-          variant: "destructive",
-        });
-        
-        // Re-throw other errors
+        console.error('Error in slabs stats query:', error);
         throw error;
       }
     },
     retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const checkAuthForAction = (action: string) => {
@@ -183,59 +137,9 @@ const Index = () => {
       />
 
       <div className="container mx-auto px-6 py-8">
-        {/* Welcome Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-800 mb-4">
-            LE Surfaces Slab Inventory
-          </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
-            Manage and track your quartz slab inventory with ease
-          </p>
-        </div>
-
-        {/* Quick Access Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Link to="/category/current">
-            <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 p-4 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
-                  <Package className="h-8 w-8 text-green-600" />
-                </div>
-                <CardTitle className="text-xl text-green-700">Current Slabs</CardTitle>
-                <CardDescription>
-                  Production-ready slabs available for projects
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-
-          <Link to="/category/development">
-            <Card className="border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 p-4 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-                  <Beaker className="h-8 w-8 text-blue-600" />
-                </div>
-                <CardTitle className="text-xl text-blue-700">Development Slabs</CardTitle>
-                <CardDescription>
-                  Experimental and R&D formulations
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-
-          <Link to="/outbound">
-            <Card className="border-2 border-purple-200 hover:border-purple-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 p-4 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors">
-                  <Database className="h-8 w-8 text-purple-600" />
-                </div>
-                <CardTitle className="text-xl text-purple-700">Outbound Samples</CardTitle>
-                <CardDescription>
-                  Track samples sent to customers
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
+        {/* Sample Data Button */}
+        <div className="mb-6 flex justify-center">
+          <SampleDataButton />
         </div>
 
         <Tabs defaultValue="inventory" className="space-y-6">

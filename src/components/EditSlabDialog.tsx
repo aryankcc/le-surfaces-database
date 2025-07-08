@@ -31,8 +31,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     category: "current" as 'current' | 'development',
     image_url: "",
     box_shared_link: "",
-    sku: "",
-    quantity: "1"
+    quantity: "0"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -56,8 +55,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         category: slab.category || 'current',
         image_url: slab.image_url || "",
         box_shared_link: slab.box_shared_link || "",
-        sku: slab.sku || "",
-        quantity: (slab.quantity || 1).toString()
+        quantity: (slab.quantity || 0).toString()
       });
     }
   }, [slab]);
@@ -136,8 +134,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         category: formData.category,
         image_url: formData.image_url || null,
         box_shared_link: formData.box_shared_link || null,
-        sku: formData.sku || null,
-        quantity: parseInt(formData.quantity) || 1,
+        quantity: parseInt(formData.quantity) || 0,
         updated_at: new Date().toISOString()
       };
 
@@ -164,6 +161,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
       queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
       queryClient.invalidateQueries({ queryKey: ['current-slab-stats'] });
       queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['outbound-slab-stats'] });
       
       toast({
         title: "Success",
@@ -254,18 +252,19 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
             </div>
           </div>
 
-          {/* SKU and Quantity */}
+          {/* Quantity */}
           <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity</Label>
-              <Input
-                id="quantity"
-                type="number"
-                min="1"
-                placeholder="1"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-              />
+            <Label htmlFor="quantity">Quantity</Label>
+            <Input
+              id="quantity"
+              type="number"
+              min="0"
+              placeholder="0"
+              value={formData.quantity}
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+            />
           </div>
+
           {/* Status and Category */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

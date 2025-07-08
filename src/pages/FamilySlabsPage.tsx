@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ import AddSlabDialog from "@/components/AddSlabDialog";
 import EditSlabDialog from "@/components/EditSlabDialog";
 import DeleteSlabDialog from "@/components/DeleteSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
-import SlabTable from "@/components/SlabTable";
+import SlabTableSorted from "@/components/SlabTableSorted";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -179,9 +180,9 @@ const FamilySlabsPage = () => {
               </Card>
             )}
 
-            {/* Use the table-based SlabTable component for family pages */}
+            {/* Use the sortable table component for family pages */}
             {slabs.length > 0 && (
-              <SlabTable
+              <SlabTableSorted
                 slabs={slabs}
                 onSlabSelect={setSelectedSlab}
                 selectedSlab={selectedSlab}

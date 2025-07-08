@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SlabTable from "@/components/SlabTable";
+import SlabTableSorted from "@/components/SlabTableSorted";
 import { Slab } from "@/types/slab";
 import { useSlabs } from "@/hooks/useSlabs";
 
@@ -59,7 +59,7 @@ const SlabInventory = ({
   }
 
   return (
-    <SlabTable
+    <SlabTableSorted
       slabs={slabs}
       onSlabSelect={onSlabSelect}
       selectedSlab={selectedSlab}
