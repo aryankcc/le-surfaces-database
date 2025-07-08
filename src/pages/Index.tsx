@@ -1,34 +1,23 @@
+
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Database, FileImage, Search, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
-import InventoryTab from "@/components/InventoryTab";
-import AnalyticsTab from "@/components/AnalyticsTab";
-import AdvancedSearchTab from "@/components/AdvancedSearchTab";
-import AddSlabDialog from "@/components/AddSlabDialog";
-import EditSlabDialog from "@/components/EditSlabDialog";
-import DeleteSlabDialog from "@/components/DeleteSlabDialog";
-import CSVImportDialog from "@/components/CSVImportDialog";
-import SlabsWithoutImagesDialog from "@/components/SlabsWithoutImagesDialog";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Package, Beaker, Send, ArrowRight, Upload, User, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Slab } from "@/types/slab";
+import CSVImportDialog from "@/components/CSVImportDialog";
+import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedSlab, setSelectedSlab] = useState<Slab | null>(null);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isCSVImportOpen, setIsCSVImportOpen] = useState(false);
-  const [isSlabsWithoutImagesOpen, setIsSlabsWithoutImagesOpen] = useState(false);
-  const [editingSlab, setEditingSlab] = useState<Slab | null>(null);
-  const [deletingSlab, setDeletingSlab] = useState<Slab | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isCSVImportOpen, setIsCSVImportOpen] = useState(false);
 
   // Fetch combined statistics
   const { data: stats } = useQuery({
@@ -49,33 +38,22 @@ const Index = () => {
         if (!slabs) {
           return {
             totalSlabs: 0,
-            inStock: 0,
-            sent: 0,
-            notInYet: 0,
-            discontinued: 0,
-            slabsWithoutPictures: 0
+            currentSlabs: 0,
+            developmentSlabs: 0,
+            outboundSlabs: 0
           };
         }
 
         const totalSlabs = slabs.length;
-        const inStock = slabs.filter(slab => slab.status === 'in_stock').length;
-        const sent = slabs.filter(slab => slab.status === 'sent').length;
-        const notInYet = slabs.filter(slab => slab.status === 'not_in_yet').length;
-        const discontinued = slabs.filter(slab => slab.status === 'discontinued').length;
-        
-        const slabsWithoutPictures = slabs.filter(slab => {
-          const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
-          const hasBoxLink = slab.box_shared_link && slab.box_shared_link.trim() !== '';
-          return !hasImageUrl && !hasBoxLink;
-        });
+        const currentSlabs = slabs.filter(slab => slab.category === 'current').length;
+        const developmentSlabs = slabs.filter(slab => slab.category === 'development').length;
+        const outboundSlabs = slabs.filter(slab => slab.status === 'sent').length;
 
         return {
           totalSlabs,
-          inStock,
-          sent,
-          notInYet,
-          discontinued,
-          slabsWithoutPictures: slabsWithoutPictures.length
+          currentSlabs,
+          developmentSlabs,
+          outboundSlabs
         };
       } catch (error) {
         console.error('Error in slabs stats query:', error);
@@ -98,30 +76,22 @@ const Index = () => {
     return true;
   };
 
-  const handleEditSlab = (slab: Slab) => {
-    if (!checkAuthForAction("edit slabs")) return;
-    setEditingSlab(slab);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleDeleteSlab = (slab: Slab) => {
-    if (!checkAuthForAction("delete slabs")) return;
-    setDeletingSlab(slab);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleAddSlab = () => {
-    if (!checkAuthForAction("add slabs")) return;
-    setIsAddDialogOpen(true);
-  };
-
   const handleCSVImport = () => {
     if (!checkAuthForAction("import CSV data")) return;
     setIsCSVImportOpen(true);
   };
 
-  const handleViewSlabsWithoutImages = () => {
-    setIsSlabsWithoutImagesOpen(true);
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const handleAddSlab = () => {
+    // This would open an add slab dialog if implemented
+    toast({
+      title: "Add Slab",
+      description: "Navigate to a specific category to add slabs.",
+    });
   };
 
   return (
@@ -134,82 +104,171 @@ const Index = () => {
         isAuthenticated={!!user}
       />
 
-      <div className="container mx-auto px-6 py-8">
-        {/* Sample Data Button */}
-        <div className="mb-6 flex justify-center">
-          
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-slate-800 mb-4">
+            Quartz Slab Management System
+          </h1>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
+            Manage and track the LE Surfaces quartz slab inventory.
+          </p>
         </div>
 
-        <Tabs defaultValue="inventory" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
-            <TabsTrigger value="inventory" className="flex items-center space-x-2">
-              <Database className="h-4 w-4" />
-              <span>Inventory</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center space-x-2">
-              <FileImage className="h-4 w-4" />
-              <span>Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="search" className="flex items-center space-x-2">
-              <Search className="h-4 w-4" />
-              <span>Advanced Search</span>
-            </TabsTrigger>
-          </TabsList>
+        {/* Main Category Selection */}
+        <div className="max-w-6xl mx-auto">
+          <Card className="mb-8">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl mb-4">Browse Inventory</CardTitle>
+              <CardDescription className="text-lg">
+                Choose a category to explore our slab collection
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Current Inventory */}
+                <Link to="/current">
+                  <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-4 p-4 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
+                        <Package className="h-12 w-12 text-green-600" />
+                      </div>
+                      <CardTitle className="text-2xl text-green-700">Current Inventory</CardTitle>
+                      <CardDescription className="text-base">
+                        Production-ready slabs available for immediate use
+                      </CardDescription>
+                      {stats && (
+                        <div className="mt-2 text-sm font-medium text-green-600">
+                          {stats.currentSlabs} slabs available
+                        </div>
+                      )}
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-lg py-6">
+                        Explore Current Slabs
+                        <ArrowRight className="h-5 w-5 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-          <TabsContent value="inventory" className="space-y-6">
-            <InventoryTab
-              searchTerm={searchTerm}
-              selectedSlab={selectedSlab}
-              onSlabSelect={setSelectedSlab}
-              onEditSlab={handleEditSlab}
-              onDeleteSlab={handleDeleteSlab}
-              isAuthenticated={!!user}
-            />
-          </TabsContent>
+                {/* Development Slabs */}
+                <Link to="/development">
+                  <Card className="border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-4 p-4 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                        <Beaker className="h-12 w-12 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-2xl text-blue-700">Development Slabs</CardTitle>
+                      <CardDescription className="text-base">
+                        Experimental and new formulations in development
+                      </CardDescription>
+                      {stats && (
+                        <div className="mt-2 text-sm font-medium text-blue-600">
+                          {stats.developmentSlabs} slabs in development
+                        </div>
+                      )}
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6">
+                        Explore Development Slabs
+                        <ArrowRight className="h-5 w-5 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-          <TabsContent value="analytics" className="space-y-6">
-            <AnalyticsTab 
-              stats={stats} 
-              onViewSlabsWithoutImages={handleViewSlabsWithoutImages}
-            />
-          </TabsContent>
+                {/* Outbound Samples */}
+                <Link to="/outbound-samples">
+                  <Card className="border-2 border-purple-200 hover:border-purple-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-4 p-4 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors">
+                        <Send className="h-12 w-12 text-purple-600" />
+                      </div>
+                      <CardTitle className="text-2xl text-purple-700">Outbound Samples</CardTitle>
+                      <CardDescription className="text-base">
+                        Samples sent to customers and locations
+                      </CardDescription>
+                      {stats && (
+                        <div className="mt-2 text-sm font-medium text-purple-600">
+                          {stats.outboundSlabs} samples sent
+                        </div>
+                      )}
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <Button className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6">
+                        View Outbound Samples
+                        <ArrowRight className="h-5 w-5 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
 
-          <TabsContent value="search" className="space-y-6">
-            <AdvancedSearchTab />
-          </TabsContent>
-        </Tabs>
+          {/* Quick Access Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-lg">Quick Access</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Link to="/current">
+                  <Button variant="outline" className="w-full">
+                    Current Inventory
+                  </Button>
+                </Link>
+                <Link to="/development">
+                  <Button variant="outline" className="w-full">
+                    Development Lab
+                  </Button>
+                </Link>
+                <Link to="/outbound-samples">
+                  <Button variant="outline" className="w-full">
+                    Outbound Samples
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-lg">Management</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {user && (
+                  <Button variant="outline" className="w-full" onClick={handleCSVImport}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Import CSV Data
+                  </Button>
+                )}
+                {!user ? (
+                  <Link to="/auth">
+                    <Button variant="outline" className="w-full">
+                      <User className="h-4 w-4 mr-2" />
+                      Sign In to Manage
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button variant="outline" className="w-full" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
 
+      {/* Dialogs */}
       {user && (
-        <>
-          <AddSlabDialog 
-            open={isAddDialogOpen}
-            onOpenChange={setIsAddDialogOpen}
-          />
-
-          <EditSlabDialog 
-            open={isEditDialogOpen}
-            onOpenChange={setIsEditDialogOpen}
-            slab={editingSlab}
-          />
-
-          <DeleteSlabDialog 
-            open={isDeleteDialogOpen}
-            onOpenChange={setIsDeleteDialogOpen}
-            slab={deletingSlab}
-          />
-
-          <CSVImportDialog 
-            open={isCSVImportOpen}
-            onOpenChange={setIsCSVImportOpen}
-          />
-        </>
+        <CSVImportDialog 
+          open={isCSVImportOpen}
+          onOpenChange={setIsCSVImportOpen}
+        />
       )}
-
-      <SlabsWithoutImagesDialog 
-        open={isSlabsWithoutImagesOpen}
-        onOpenChange={setIsSlabsWithoutImagesOpen}
-      />
     </div>
   );
 };

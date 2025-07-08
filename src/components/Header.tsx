@@ -1,5 +1,5 @@
 
-import { Search, Plus, Upload, User, LogOut, Package, Truck } from "lucide-react";
+import { Search, Plus, Upload, User, LogOut, Truck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,7 +51,11 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link to="/" className="flex items-center space-x-2">
-              <Package className="h-8 w-8 text-blue-600" />
+              <img 
+                src="/lovable-uploads/fec473b2-b4d7-4f23-9b74-b56176be43af.png" 
+                alt="LE Surfaces" 
+                className="h-8 w-auto"
+              />
               <h1 className="text-xl font-bold text-slate-800">Slab Inventory</h1>
             </Link>
             
