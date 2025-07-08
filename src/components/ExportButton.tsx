@@ -6,7 +6,7 @@ import { exportSlabsToExcel } from "@/utils/exportUtils";
 import { useToast } from "@/hooks/use-toast";
 
 interface ExportButtonProps {
-  category?: 'current' | 'development' | 'all';
+  category?: 'current' | 'development' | 'outbound' | 'all';
   variant?: 'default' | 'outline';
   size?: 'default' | 'sm' | 'lg';
 }
@@ -18,7 +18,12 @@ const ExportButton = ({ category = 'all', variant = 'outline', size = 'default' 
   const handleExport = async (exportCategory: 'current' | 'development' | 'all') => {
     setIsExporting(true);
     try {
-      const result = await exportSlabsToExcel({ category: exportCategory });
+      let result;
+      if (exportCategory === 'outbound') {
+        result = await exportSlabsToExcel({ status: 'sent' });
+      } else {
+        result = await exportSlabsToExcel({ category: exportCategory });
+      }
       toast({
         title: "Export Successful",
         description: `Exported ${result.count} slabs to ${result.filename}`,
@@ -37,15 +42,18 @@ const ExportButton = ({ category = 'all', variant = 'outline', size = 'default' 
 
   if (category !== 'all') {
     // Single category export button
+    const buttonText = category === 'outbound' ? 'Export Outbound Slabs' : 
+                      `Export ${category === 'current' ? 'Current' : 'Development'} Slabs`;
+    
     return (
       <Button
         variant={variant}
         size={size}
-        onClick={() => handleExport(category)}
+        onClick={() => category === 'outbound' ? handleExport('outbound' as any) : handleExport(category)}
         disabled={isExporting}
       >
         <Download className="h-4 w-4 mr-2" />
-        {isExporting ? "Exporting..." : `Export ${category === 'current' ? 'Current' : 'Development'} Slabs`}
+        {isExporting ? "Exporting..." : buttonText}
       </Button>
     );
   }
@@ -71,6 +79,10 @@ const ExportButton = ({ category = 'all', variant = 'outline', size = 'default' 
         <DropdownMenuItem onClick={() => handleExport('development')}>
           <Download className="h-4 w-4 mr-2" />
           Export Development Slabs
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleExport('outbound' as any)}>
+          <Download className="h-4 w-4 mr-2" />
+          Export Outbound Slabs
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

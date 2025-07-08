@@ -4,6 +4,7 @@ import { Slab } from '@/types/slab';
 
 export interface ExportOptions {
   category?: 'current' | 'development' | 'all';
+  status?: string;
   filename?: string;
 }
 
@@ -30,6 +31,10 @@ export const exportSlabsToExcel = async (options: ExportOptions = {}) => {
       }
     }
 
+    // Apply status filter if specified (for outbound slabs)
+    if (options.status) {
+      query = query.eq('status', options.status);
+    }
     const { data: slabs, error } = await query;
 
     if (error) {
@@ -77,7 +82,8 @@ export const exportSlabsToExcel = async (options: ExportOptions = {}) => {
     ws['!cols'] = Object.values(colWidths).map(width => ({ width }));
 
     // Add worksheet to workbook
-    const sheetName = options.category === 'all' ? 'All Slabs' : 
+    const sheetName = options.status === 'sent' ? 'Outbound Slabs' :
+                     options.category === 'all' ? 'All Slabs' : 
                      options.category === 'current' ? 'Current Slabs' : 
                      'Development Slabs';
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
@@ -85,7 +91,8 @@ export const exportSlabsToExcel = async (options: ExportOptions = {}) => {
     // Generate filename with current date
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-    const categoryStr = options.category === 'all' ? 'All' : 
+    const categoryStr = options.status === 'sent' ? 'Outbound' :
+                       options.category === 'all' ? 'All' : 
                        options.category === 'current' ? 'Current' : 
                        'Development';
     const filename = options.filename || `${categoryStr}_Slabs_Export_${dateStr}.xlsx`;

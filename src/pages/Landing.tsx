@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Layers, ArrowRight, Package, Beaker, AlertTriangle, BarChart3, Search, Plus, Upload, User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,6 +14,7 @@ import { formatSlabDate } from "@/utils/dateUtils";
 import AddSlabDialog from "@/components/AddSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
 import { useToast } from "@/hooks/use-toast";
+import React from "react";
 
 const Landing = () => {
   const { user, signOut } = useAuth();
@@ -21,33 +23,91 @@ const Landing = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isCSVImportOpen, setIsCSVImportOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'slab_id' | 'family' | 'created_at'>('slab_id');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Search across all slabs
-  const { data: searchResults = [], isLoading: isSearching } = useQuery({
-    queryKey: ['search-all-slabs', searchTerm],
+  const { data: allSlabs = [], isLoading: isLoadingSlabs } = useQuery({
+    queryKey: ['all-slabs-landing'],
     queryFn: async () => {
-      if (!searchTerm.trim()) return [];
+      console.log('Fetching all slabs for landing page');
       
-      console.log('Searching all slabs with term:', searchTerm);
-      
-      const term = searchTerm.trim();
       const { data, error } = await supabase
         .from('slabs')
         .select('*')
-        .or(`slab_id.ilike.%${term}%,family.ilike.%${term}%,formulation.ilike.%${term}%,version.ilike.%${term}%,status.ilike.%${term}%,notes.ilike.%${term}%`)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error searching slabs:', error);
+        console.error('Error fetching slabs:', error);
         throw error;
       }
       
       return data as Slab[];
     },
-    enabled: searchTerm.trim().length > 0,
   });
 
+  // Sort and filter slabs based on search term and sort preferences
+  const processedSlabs = React.useMemo(() => {
+    let filtered = allSlabs;
+    
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      filtered = allSlabs.filter(slab => 
+        slab.slab_id.toLowerCase().includes(term) ||
+        slab.family.toLowerCase().includes(term) ||
+        slab.formulation.toLowerCase().includes(term) ||
+        (slab.version && slab.version.toLowerCase().includes(term)) ||
+        slab.status.toLowerCase().includes(term) ||
+        (slab.notes && slab.notes.toLowerCase().includes(term))
+      );
+    }
+    
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      let aValue: string | number;
+      let bValue: string | number;
+      
+      if (sortBy === 'slab_id') {
+        // Custom sorting for slab IDs (alphanumeric)
+        const parseSlabId = (id: string) => {
+          const match = id.match(/^(\d+)([A-Z])$/);
+          if (match) {
+            return { num: parseInt(match[1]), letter: match[2] };
+          }
+          return { num: 0, letter: id };
+        };
+        
+        const aParsed = parseSlabId(a.slab_id);
+        const bParsed = parseSlabId(b.slab_id);
+        
+        if (aParsed.num !== bParsed.num) {
+          return sortOrder === 'asc' ? aParsed.num - bParsed.num : bParsed.num - aParsed.num;
+        }
+        
+        aValue = aParsed.letter;
+        bValue = bParsed.letter;
+      } else if (sortBy === 'created_at') {
+        aValue = new Date(a.created_at).getTime();
+        bValue = new Date(b.created_at).getTime();
+      } else {
+        aValue = a[sortBy] || '';
+        bValue = b[sortBy] || '';
+      }
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+    
+    return sorted.slice(0, 10); // Limit to 10 results for display
+  }, [allSlabs, searchTerm, sortBy, sortOrder]);
   const checkAuthForAction = (action: string) => {
     if (!user) {
       toast({
@@ -170,20 +230,45 @@ const Landing = () => {
               />
             </div>
             
+            {/* Sort Controls */}
+            {searchTerm.trim() && (
+              <div className="flex items-center space-x-2 mt-2">
+                <Select value={sortBy} onValueChange={(value: 'slab_id' | 'family' | 'created_at') => setSortBy(value)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="slab_id">Slab ID</SelectItem>
+                    <SelectItem value="family">Family</SelectItem>
+                    <SelectItem value="created_at">Date Added</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sortOrder} onValueChange={(value: 'asc' | 'desc') => setSortOrder(value)}>
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asc">Asc</SelectItem>
+                    <SelectItem value="desc">Desc</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
             {/* Search Results */}
             {searchTerm.trim() && (
               <div className="mt-4 bg-white rounded-lg shadow-lg border max-h-96 overflow-y-auto">
-                {isSearching ? (
+                {isLoadingSlabs ? (
                   <div className="p-4 text-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
                     <p className="text-sm text-slate-500 mt-2">Searching...</p>
                   </div>
-                ) : searchResults.length > 0 ? (
+                ) : processedSlabs.length > 0 ? (
                   <div className="p-2">
                     <div className="text-sm text-slate-600 p-2 border-b">
-                      Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                      Found {processedSlabs.length} result{processedSlabs.length !== 1 ? 's' : ''} (showing top 10)
                     </div>
-                    {searchResults.map((slab) => (
+                    {processedSlabs.map((slab) => (
                       <div key={slab.id} className="p-3 hover:bg-slate-50 border-b last:border-b-0">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
