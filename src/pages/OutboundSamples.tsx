@@ -64,8 +64,8 @@ const OutboundSamples = () => {
         const totalSlabs = slabs.length;
         const inStock = 0; // No in-stock items in outbound
         const sent = slabs.length; // All are sent
-        const reserved = 0;
-        const sold = 0;
+        const notInYet = 0;
+        const discontinued = 0;
         
         const slabsWithoutPictures = slabs.filter(slab => {
           const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
@@ -77,8 +77,8 @@ const OutboundSamples = () => {
           totalSlabs,
           inStock,
           sent,
-          reserved,
-          sold,
+          notInYet,
+          discontinued,
           slabsWithoutPictures: slabsWithoutPictures.length
         };
       } catch (error) {

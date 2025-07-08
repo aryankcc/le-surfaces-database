@@ -26,8 +26,8 @@ const Reports = () => {
       const statusCounts = {
         in_stock: slabs.filter(s => s.status === 'in_stock').length,
         sent: slabs.filter(s => s.status === 'sent').length,
-        reserved: slabs.filter(s => s.status === 'reserved').length,
-        sold: slabs.filter(s => s.status === 'sold').length,
+        not_in_yet: slabs.filter(s => s.status === 'not_in_yet').length,
+        discontinued: slabs.filter(s => s.status === 'discontinued').length,
       };
 
       const familyCounts = slabs.reduce((acc, slab) => {
@@ -165,12 +165,12 @@ const Reports = () => {
                     <div className="text-sm text-blue-700">Sent</div>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
-                    <div className="text-2xl font-bold text-orange-600">{stats?.statusCounts.reserved || 0}</div>
-                    <div className="text-sm text-orange-700">Reserved</div>
+                    <div className="text-2xl font-bold text-orange-600">{stats?.statusCounts.not_in_yet || 0}</div>
+                    <div className="text-sm text-orange-700">Not In Yet</div>
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{stats?.statusCounts.sold || 0}</div>
-                    <div className="text-sm text-red-700">Sold</div>
+                    <div className="text-2xl font-bold text-red-600">{stats?.statusCounts.discontinued || 0}</div>
+                    <div className="text-sm text-red-700">Discontinued</div>
                   </div>
                 </div>
               </CardContent>

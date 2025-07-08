@@ -8,8 +8,8 @@ interface AnalyticsTabProps {
     totalSlabs: number;
     inStock: number;
     sent: number;
-    reserved: number;
-    sold: number;
+    notInYet: number;
+    discontinued: number;
     slabsWithoutPictures: number;
   };
   onViewSlabsWithoutImages?: () => void;

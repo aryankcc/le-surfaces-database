@@ -63,8 +63,8 @@ const DevelopmentSlabs = () => {
         const totalSlabs = slabs.length;
         const inStock = slabs.filter(s => s.status === 'in_stock').length;
         const sent = slabs.filter(s => s.status === 'sent').length;
-        const reserved = slabs.filter(s => s.status === 'reserved').length;
-        const sold = slabs.filter(s => s.status === 'sold').length;
+        const notInYet = slabs.filter(s => s.status === 'not_in_yet').length;
+        const discontinued = slabs.filter(s => s.status === 'discontinued').length;
         
         const slabsWithoutPictures = slabs.filter(slab => {
           const hasImageUrl = slab.image_url && slab.image_url.trim() !== '';
@@ -76,8 +76,8 @@ const DevelopmentSlabs = () => {
           totalSlabs,
           inStock,
           sent,
-          reserved,
-          sold,
+          notInYet,
+          discontinued,
           slabsWithoutPictures: slabsWithoutPictures.length
         };
       } catch (error) {

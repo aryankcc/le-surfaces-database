@@ -289,8 +289,8 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
                 <SelectContent>
                   <SelectItem value="in_stock">In Stock</SelectItem>
                   <SelectItem value="sent">Sent</SelectItem>
-                  <SelectItem value="reserved">Reserved</SelectItem>
-                  <SelectItem value="sold">Sold</SelectItem>
+                  <SelectItem value="not_in_yet">Not In Yet</SelectItem>
+                  <SelectItem value="discontinued">Discontinued</SelectItem>
                 </SelectContent>
               </Select>
             </div>
