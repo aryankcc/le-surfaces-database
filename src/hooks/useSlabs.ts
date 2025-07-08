@@ -19,7 +19,7 @@ export const useSlabs = (searchTerm?: string, category?: 'current' | 'developmen
         query = query.eq('category', category);
       }
 
-      // Filter by status if specified
+      // Filter by status if specified (for outbound samples)
       if (status) {
         query = query.eq('status', status);
       }

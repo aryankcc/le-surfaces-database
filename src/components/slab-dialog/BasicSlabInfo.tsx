@@ -1,6 +1,9 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 interface BasicSlabInfoProps {
   formData: {
@@ -19,6 +22,53 @@ interface BasicSlabInfoProps {
 }
 
 const BasicSlabInfo = ({ formData, onFormDataChange, duplicateSlabInfo }: BasicSlabInfoProps) => {
+  // Query to get slab info for autofill
+  const { data: existingSlabData } = useQuery({
+    queryKey: ['slab-autofill', formData.slab_id],
+    queryFn: async () => {
+      if (!formData.slab_id.trim()) return null;
+      
+      const { data, error } = await supabase
+        .from('slabs')
+        .select('family, formulation, version')
+        .eq('slab_id', formData.slab_id.trim())
+        .limit(1)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching slab for autofill:', error);
+        return null;
+      }
+      
+      return data;
+    },
+    enabled: !!formData.slab_id.trim(),
+  });
+
+  // Auto-fill family and formulation when slab data is found
+  useEffect(() => {
+    if (existingSlabData && formData.slab_id.trim()) {
+      // Only autofill if the fields are currently empty
+      const updates: Partial<BasicSlabInfoProps['formData']> = {};
+      
+      if (!formData.family && existingSlabData.family) {
+        updates.family = existingSlabData.family;
+      }
+      
+      if (!formData.formulation && existingSlabData.formulation) {
+        updates.formulation = existingSlabData.formulation;
+      }
+      
+      if (!formData.version && existingSlabData.version) {
+        updates.version = existingSlabData.version;
+      }
+      
+      if (Object.keys(updates).length > 0) {
+        onFormDataChange(updates);
+      }
+    }
+  }, [existingSlabData, formData.slab_id, formData.family, formData.formulation, formData.version, onFormDataChange]);
+
   return (
     <>
       {/* Basic Information */}
@@ -35,6 +85,11 @@ const BasicSlabInfo = ({ formData, onFormDataChange, duplicateSlabInfo }: BasicS
           {duplicateSlabInfo.exists && (
             <p className="text-sm text-orange-600">
               ⚠️ Slab ID exists in Current/Development inventory. Current quantity: {duplicateSlabInfo.currentQuantity}
+            </p>
+          )}
+          {existingSlabData && (
+            <p className="text-sm text-green-600">
+              ✓ Auto-filled from existing slab data
             </p>
           )}
         </div>

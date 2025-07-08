@@ -1,11 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
 import BasicSlabInfo from "./slab-dialog/BasicSlabInfo";
 import SlabStatusCategory from "./slab-dialog/SlabStatusCategory";
 import SlabImageUpload from "./slab-dialog/SlabImageUpload";
@@ -20,222 +19,263 @@ interface AddSlabDialogProps {
   defaultFamily?: string;
 }
 
-const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaultFamily }: AddSlabDialogProps) => {
+const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaultFamily = '' }: AddSlabDialogProps) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
+  
   const [formData, setFormData] = useState({
-    slab_id: "",
-    family: defaultFamily || "",
-    formulation: "",
-    version: "",
-    received_date: "",
-    notes: "",
-    sent_to_location: "",
-    sent_to_date: "",
-    status: "in_stock",
+    slab_id: '',
+    received_date: new Date().toISOString().split('T')[0],
+    family: defaultFamily,
+    formulation: '',
+    version: '',
+    quantity: '1',
+    image_url: '',
+    status: 'in_stock',
     category: defaultCategory,
-    image_url: "",
-    box_shared_link: "",
-    quantity: "1"
+    box_shared_link: '',
+    notes: '',
+    sent_to_location: '',
+    sent_to_date: '',
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
-
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
   const duplicateSlabInfo = useSlabDuplicateCheck(formData.slab_id);
 
-  // Effect to set defaultCategory and defaultFamily when dialog opens/props change
   useEffect(() => {
     if (open) {
       setFormData(prev => ({
         ...prev,
+        family: defaultFamily,
         category: defaultCategory,
-        family: defaultFamily || "",
-        status: 'in_stock',
-        formulation: "",
-        received_date: "",
-        version: "",
-        notes: "",
-        sent_to_location: "",
-        sent_to_date: "",
-        image_url: "",
-        box_shared_link: "",
-        quantity: "1"
       }));
-      resetForm();
     }
   }, [open, defaultCategory, defaultFamily]);
-
-  const resetForm = () => {
-    setFormData({
-      slab_id: "",
-      family: defaultFamily || "",
-      formulation: "",
-      version: "",
-      received_date: "",
-      notes: "",
-      sent_to_location: "",
-      sent_to_date: "",
-      status: 'in_stock',
-      category: defaultCategory,
-      image_url: "",
-      box_shared_link: "",
-      quantity: "1"
-    });
-    setShowDuplicateDialog(false);
-  };
-
-  const handleDuplicateAction = async () => {
-    if (!duplicateSlabInfo.slabData) return;
-
-    setIsSubmitting(true);
-    const quantityToAdd = parseInt(formData.quantity);
-    const newQuantity = duplicateSlabInfo.currentQuantity + quantityToAdd;
-
-    try {
-      const { error: updateError } = await supabase
-        .from('slabs')
-        .update({
-          quantity: newQuantity,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', duplicateSlabInfo.slabData.id);
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      toast({
-        title: "Success",
-        description: `Added ${quantityToAdd} to existing slab. New quantity: ${newQuantity}.`,
-      });
-
-      queryClient.invalidateQueries({ queryKey: ['slabs'] });
-      queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['current-slab-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['search-all-slabs'] });
-
-      resetForm();
-      onOpenChange(false);
-
-    } catch (error: any) {
-      console.error('Error during duplicate action:', error);
-      toast({
-        title: "Error",
-        description: `Failed to perform action: ${error.message || 'An unexpected error occurred.'}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-      setShowDuplicateDialog(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Basic client-side validation for required fields
-    if (!formData.slab_id.trim()) {
-      toast({ title: "Validation Error", description: "Slab ID is required.", variant: "destructive" });
-      return;
-    }
-    if (!formData.family.trim()) {
-      toast({ title: "Validation Error", description: "Family is required.", variant: "destructive" });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const isOutboundSample = formData.status === 'sent';
-
-      if (duplicateSlabInfo.exists) {
-        if (isOutboundSample) {
-          await handleDuplicateAction();
-        } else {
-          setShowDuplicateDialog(true);
-        }
-        setIsSubmitting(false);
-        return;
-      }
-
-      const slabDataToInsert = {
-        slab_id: formData.slab_id,
-        family: formData.family,
-        formulation: formData.formulation || null,
-        version: formData.version || null,
-        received_date: formData.received_date || null,
-        notes: formData.notes || null,
-        sent_to_location: formData.sent_to_location || null,
-        sent_to_date: formData.sent_to_date || null,
-        status: formData.status,
-        category: formData.category,
-        image_url: formData.image_url || null,
-        box_shared_link: formData.box_shared_link || null,
-        quantity: parseInt(formData.quantity) || 1,
-      };
-
-      console.log("Adding new slab (no duplicate):", slabDataToInsert);
-
-      const { data, error } = await supabase
-        .from('slabs')
-        .insert([slabDataToInsert])
-        .select();
-
-      if (error) {
-        console.error('Error adding slab:', error);
-        toast({
-          title: "Error",
-          description: `Failed to add slab: ${error.message}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('Slab added successfully:', data);
-
-      queryClient.invalidateQueries({ queryKey: ['slabs'] });
-      queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['current-slab-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['search-all-slabs'] });
-
-      toast({
-        title: "Success",
-        description: "Slab added successfully!",
-      });
-
-      resetForm();
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleFormDataChange = (updates: Partial<typeof formData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.slab_id.trim() || !formData.family.trim()) {
+      toast({
+        title: "Required fields missing",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check for duplicate if adding to current/development categories
+    if ((formData.category === 'current' || formData.category === 'development') && duplicateSlabInfo.exists) {
+      setShowDuplicateDialog(true);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // If status is 'sent', automatically subtract quantity from existing slabs
+      if (formData.status === 'sent') {
+        await handleQuantitySubtraction();
+      }
+
+      const slabData = {
+        slab_id: formData.slab_id.trim(),
+        received_date: formData.received_date || null,
+        family: formData.family.trim(),
+        formulation: formData.formulation.trim() || null,
+        version: formData.version.trim() || null,
+        quantity: parseInt(formData.quantity) || 1,
+        image_url: formData.image_url.trim() || null,
+        status: formData.status,
+        category: formData.category,
+        box_shared_link: formData.box_shared_link.trim() || null,
+        notes: formData.notes.trim() || null,
+        sent_to_location: formData.sent_to_location.trim() || null,
+        sent_to_date: formData.sent_to_date || null,
+      };
+
+      const { error } = await supabase
+        .from('slabs')
+        .insert([slabData]);
+
+      if (error) {
+        console.error('Error adding slab:', error);
+        throw error;
+      }
+
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['slabs'] });
+      queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['current-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['outbound-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['families'] });
+      queryClient.invalidateQueries({ queryKey: ['all-slabs-landing'] });
+
+      toast({
+        title: "Slab added successfully",
+        description: `${formData.slab_id} has been added to the inventory.`,
+      });
+
+      handleClose();
+    } catch (error) {
+      console.error('Failed to add slab:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add slab. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQuantitySubtraction = async () => {
+    try {
+      const quantityToSubtract = parseInt(formData.quantity) || 1;
+      
+      // Find slabs with the same slab_id in current or development categories that are in_stock
+      const { data: existingSlabs, error: fetchError } = await supabase
+        .from('slabs')
+        .select('*')
+        .eq('slab_id', formData.slab_id.trim())
+        .eq('status', 'in_stock')
+        .in('category', ['current', 'development'])
+        .order('quantity', { ascending: false }); // Start with highest quantity
+
+      if (fetchError) {
+        console.error('Error fetching existing slabs:', fetchError);
+        return;
+      }
+
+      if (!existingSlabs || existingSlabs.length === 0) {
+        return; // No existing slabs to subtract from
+      }
+
+      let remainingToSubtract = quantityToSubtract;
+
+      for (const slab of existingSlabs) {
+        if (remainingToSubtract <= 0) break;
+
+        const currentQuantity = slab.quantity || 0;
+        const subtractFromThis = Math.min(remainingToSubtract, currentQuantity);
+        const newQuantity = Math.max(0, currentQuantity - subtractFromThis);
+
+        const { error: updateError } = await supabase
+          .from('slabs')
+          .update({ quantity: newQuantity })
+          .eq('id', slab.id);
+
+        if (updateError) {
+          console.error('Error updating slab quantity:', updateError);
+          continue;
+        }
+
+        remainingToSubtract -= subtractFromThis;
+      }
+
+      if (remainingToSubtract > 0) {
+        toast({
+          title: "Partial quantity subtracted",
+          description: `Only ${quantityToSubtract - remainingToSubtract} units could be subtracted from existing inventory.`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error in quantity subtraction:', error);
+    }
+  };
+
+  const handleClose = () => {
+    setFormData({
+      slab_id: '',
+      received_date: new Date().toISOString().split('T')[0],
+      family: defaultFamily,
+      formulation: '',
+      version: '',
+      quantity: '1',
+      image_url: '',
+      status: 'in_stock',
+      category: defaultCategory,
+      box_shared_link: '',
+      notes: '',
+      sent_to_location: '',
+      sent_to_date: '',
+    });
+    setShowDuplicateDialog(false);
+    onOpenChange(false);
+  };
+
+  const handleDuplicateConfirm = async () => {
+    setShowDuplicateDialog(false);
+    setIsLoading(true);
+
+    try {
+      const slabData = {
+        slab_id: formData.slab_id.trim(),
+        received_date: formData.received_date || null,
+        family: formData.family.trim(),
+        formulation: formData.formulation.trim() || null,
+        version: formData.version.trim() || null,
+        quantity: parseInt(formData.quantity) || 1,
+        image_url: formData.image_url.trim() || null,
+        status: formData.status,
+        category: formData.category,
+        box_shared_link: formData.box_shared_link.trim() || null,
+        notes: formData.notes.trim() || null,
+        sent_to_location: formData.sent_to_location.trim() || null,
+        sent_to_date: formData.sent_to_date || null,
+      };
+
+      const { error } = await supabase
+        .from('slabs')
+        .insert([slabData]);
+
+      if (error) {
+        console.error('Error adding duplicate slab:', error);
+        throw error;
+      }
+
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['slabs'] });
+      queryClient.invalidateQueries({ queryKey: ['slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['current-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['families'] });
+      queryClient.invalidateQueries({ queryKey: ['all-slabs-landing'] });
+
+      toast({
+        title: "Slab added successfully",
+        description: `${formData.slab_id} has been added to the inventory.`,
+      });
+
+      handleClose();
+    } catch (error) {
+      console.error('Failed to add duplicate slab:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add slab. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Slab</DialogTitle>
-            <DialogDescription>
-              Enter the details for the new slab. Fields marked with * are required.
-            </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <BasicSlabInfo
               formData={formData}
               onFormDataChange={handleFormDataChange}
@@ -257,15 +297,14 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
               onFormDataChange={handleFormDataChange}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
-                <Save className="h-4 w-4 mr-2" />
-                {isSubmitting ? "Processing..." : "Add Slab"}
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Adding..." : "Add Slab"}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>
@@ -273,10 +312,9 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       <DuplicateSlabDialog
         open={showDuplicateDialog}
         onOpenChange={setShowDuplicateDialog}
-        formData={formData}
-        duplicateSlabInfo={duplicateSlabInfo}
-        onAddToExisting={handleDuplicateAction}
-        isSubmitting={isSubmitting}
+        onConfirm={handleDuplicateConfirm}
+        slabId={formData.slab_id}
+        currentQuantity={duplicateSlabInfo.currentQuantity}
       />
     </>
   );

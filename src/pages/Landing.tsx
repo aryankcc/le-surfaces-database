@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Layers, ArrowRight, Package, Beaker, AlertTriangle, BarChart3, Search, Plus, Upload, User, LogOut } from "lucide-react";
+import { Layers, ArrowRight, Package, Beaker, Send, BarChart3, Search, Upload, User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Slab } from "@/types/slab";
 import { formatSlabDate } from "@/utils/dateUtils";
-import AddSlabDialog from "@/components/AddSlabDialog";
 import CSVImportDialog from "@/components/CSVImportDialog";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
@@ -21,7 +20,6 @@ const Landing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isCSVImportOpen, setIsCSVImportOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'slab_id' | 'family' | 'created_at'>('slab_id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -108,6 +106,7 @@ const Landing = () => {
     
     return sorted.slice(0, 10); // Limit to 10 results for display
   }, [allSlabs, searchTerm, sortBy, sortOrder]);
+
   const checkAuthForAction = (action: string) => {
     if (!user) {
       toast({
@@ -118,11 +117,6 @@ const Landing = () => {
       return false;
     }
     return true;
-  };
-
-  const handleAddSlab = () => {
-    if (!checkAuthForAction("add slabs")) return;
-    setIsAddDialogOpen(true);
   };
 
   const handleCSVImport = () => {
@@ -175,11 +169,6 @@ const Landing = () => {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
-                  <Button onClick={handleAddSlab} className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Slab
-                  </Button>
-                  
                   <Button variant="outline" onClick={handleCSVImport}>
                     <Upload className="h-4 w-4 mr-2" />
                     Import CSV
@@ -321,7 +310,7 @@ const Landing = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Current Inventory */}
                 <Link to="/category/current">
                   <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
@@ -363,12 +352,33 @@ const Landing = () => {
                     </CardContent>
                   </Card>
                 </Link>
+
+                {/* Outbound Samples */}
+                <Link to="/outbound-samples">
+                  <Card className="border-2 border-purple-200 hover:border-purple-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-4 p-4 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors">
+                        <Send className="h-12 w-12 text-purple-600" />
+                      </div>
+                      <CardTitle className="text-2xl text-purple-700">Outbound Samples</CardTitle>
+                      <CardDescription className="text-base">
+                        Samples sent to customers and locations
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <Button className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6">
+                        View Outbound Samples
+                        <ArrowRight className="h-5 w-5 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
               </div>
             </CardContent>
           </Card>
 
           {/* Quick Access Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader className="text-center">
                 <CardTitle className="text-lg">Quick Access</CardTitle>
@@ -384,30 +394,11 @@ const Landing = () => {
                     Development Lab
                   </Button>
                 </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-lg">Management</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {user ? (
-                  <>
-                    <Button variant="outline" className="w-full" onClick={handleAddSlab}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add New Slab
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={handleCSVImport}>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Import CSV
-                    </Button>
-                  </>
-                ) : (
-                  <div className="text-center text-sm text-slate-500">
-                    Sign in to manage slabs
-                  </div>
-                )}
+                <Link to="/outbound-samples">
+                  <Button variant="outline" className="w-full">
+                    Outbound Samples
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -422,12 +413,12 @@ const Landing = () => {
                     View Reports
                   </Button>
                 </Link>
-                <Link to="/stock-alerts">
-                  <Button variant="outline" className="w-full">
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    Stock Alerts
+                {user && (
+                  <Button variant="outline" className="w-full" onClick={handleCSVImport}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Import CSV
                   </Button>
-                </Link>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -436,17 +427,10 @@ const Landing = () => {
 
       {/* Dialogs */}
       {user && (
-        <>
-          <AddSlabDialog 
-            open={isAddDialogOpen}
-            onOpenChange={setIsAddDialogOpen}
-          />
-
-          <CSVImportDialog 
-            open={isCSVImportOpen}
-            onOpenChange={setIsCSVImportOpen}
-          />
-        </>
+        <CSVImportDialog 
+          open={isCSVImportOpen}
+          onOpenChange={setIsCSVImportOpen}
+        />
       )}
     </div>
   );
