@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Beaker, Send, ArrowRight, Upload, User, LogOut } from "lucide-react";
+import { Package, Beaker, Send, ArrowRight, Upload, User, LogOut, BarChart3, AlertTriangle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
@@ -127,7 +127,7 @@ const Index = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Current Inventory */}
-                <Link to="/current">
+                <Link to="/category/current">
                   <Card className="border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
                     <CardHeader className="text-center pb-4">
                       <div className="mx-auto mb-4 p-4 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
@@ -153,7 +153,7 @@ const Index = () => {
                 </Link>
 
                 {/* Development Slabs */}
-                <Link to="/development">
+                <Link to="/category/development">
                   <Card className="border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 cursor-pointer group">
                     <CardHeader className="text-center pb-4">
                       <div className="mx-auto mb-4 p-4 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
@@ -214,12 +214,12 @@ const Index = () => {
                 <CardTitle className="text-lg">Quick Access</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link to="/current">
+                <Link to="/category/current">
                   <Button variant="outline" className="w-full">
                     Current Inventory
                   </Button>
                 </Link>
-                <Link to="/development">
+                <Link to="/category/development">
                   <Button variant="outline" className="w-full">
                     Development Lab
                   </Button>
@@ -237,6 +237,18 @@ const Index = () => {
                 <CardTitle className="text-lg">Management</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
+                <Link to="/reports">
+                  <Button variant="outline" className="w-full">
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Analytics & Reports
+                  </Button>
+                </Link>
+                <Link to="/stock-alerts">
+                  <Button variant="outline" className="w-full">
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    Stock Alerts
+                  </Button>
+                </Link>
                 {user && (
                   <Button variant="outline" className="w-full" onClick={handleCSVImport}>
                     <Upload className="h-4 w-4 mr-2" />

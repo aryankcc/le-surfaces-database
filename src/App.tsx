@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -43,7 +44,7 @@ const App = () => (
             {/* Slab category pages */}
             <Route path="/current" element={<CurrentSlabs />} />
             <Route path="/development" element={<DevelopmentSlabs />} />
-            <Route path="/outbound" element={<OutboundSamples />} />
+            <Route path="/outbound-samples" element={<OutboundSamples />} />
             
             {/* Category browsing */}
             <Route path="/category/:categoryName" element={<CategoryPage />} />
