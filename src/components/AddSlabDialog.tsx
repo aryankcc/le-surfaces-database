@@ -75,14 +75,21 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       return;
     }
 
+    // If status is 'sent', validate that sent_to_location and sent_to_date are provided
+    if (formData.status === 'sent') {
+      if (!formData.sent_to_location || !formData.sent_to_date) {
+        toast({
+          title: "Missing shipping information",
+          description: "When sending samples, please provide both location and date.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {
-      // If status is 'sent', automatically subtract quantity from existing slabs
-      if (formData.status === 'sent') {
-        await handleQuantitySubtraction();
-      }
-
       const slabData = {
         slab_id: formData.slab_id.trim(),
         received_date: formData.received_date || null,
@@ -98,6 +105,8 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
         sent_to_location: formData.sent_to_location.trim() || null,
         sent_to_date: formData.sent_to_date || null,
       };
+
+      console.log('Adding slab with data:', slabData);
 
       const { error } = await supabase
         .from('slabs')
@@ -119,7 +128,9 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
 
       toast({
         title: "Slab added successfully",
-        description: `${formData.slab_id} has been added to the inventory.`,
+        description: formData.status === 'sent' 
+          ? `${formData.slab_id} has been sent and quantities have been automatically adjusted.`
+          : `${formData.slab_id} has been added to the inventory.`,
       });
 
       handleClose();
@@ -132,62 +143,6 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleQuantitySubtraction = async () => {
-    try {
-      const quantityToSubtract = parseInt(formData.quantity) || 1;
-      
-      // Find slabs with the same slab_id in current or development categories that are in_stock
-      const { data: existingSlabs, error: fetchError } = await supabase
-        .from('slabs')
-        .select('*')
-        .eq('slab_id', formData.slab_id.trim())
-        .eq('status', 'in_stock')
-        .in('category', ['current', 'development'])
-        .order('quantity', { ascending: false }); // Start with highest quantity
-
-      if (fetchError) {
-        console.error('Error fetching existing slabs:', fetchError);
-        return;
-      }
-
-      if (!existingSlabs || existingSlabs.length === 0) {
-        return; // No existing slabs to subtract from
-      }
-
-      let remainingToSubtract = quantityToSubtract;
-
-      for (const slab of existingSlabs) {
-        if (remainingToSubtract <= 0) break;
-
-        const currentQuantity = slab.quantity || 0;
-        const subtractFromThis = Math.min(remainingToSubtract, currentQuantity);
-        const newQuantity = Math.max(0, currentQuantity - subtractFromThis);
-
-        const { error: updateError } = await supabase
-          .from('slabs')
-          .update({ quantity: newQuantity })
-          .eq('id', slab.id);
-
-        if (updateError) {
-          console.error('Error updating slab quantity:', updateError);
-          continue;
-        }
-
-        remainingToSubtract -= subtractFromThis;
-      }
-
-      if (remainingToSubtract > 0) {
-        toast({
-          title: "Partial quantity subtracted",
-          description: `Only ${quantityToSubtract - remainingToSubtract} units could be subtracted from existing inventory.`,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error in quantity subtraction:', error);
     }
   };
 
@@ -251,7 +206,9 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
 
       toast({
         title: "Slab added successfully",
-        description: `${formData.slab_id} has been added to the inventory.`,
+        description: formData.status === 'sent' 
+          ? `${formData.slab_id} has been sent and quantities have been automatically adjusted.`
+          : `${formData.slab_id} has been added to the inventory.`,
       });
 
       handleClose();

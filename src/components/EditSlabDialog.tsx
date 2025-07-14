@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -116,10 +117,23 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     e.preventDefault();
     if (!slab) return;
 
+    // Validate sent sample requirements
+    if (formData.status === 'sent') {
+      if (!formData.sent_to_location || !formData.sent_to_date) {
+        toast({
+          title: "Missing shipping information",
+          description: "When sending samples, please provide both location and date.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
       console.log("Updating slab:", formData);
+      console.log("Original slab status:", slab.status);
 
       const slabData = {
         slab_id: formData.slab_id,
@@ -130,7 +144,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         notes: formData.notes || null,
         sent_to_location: formData.sent_to_location || null,
         sent_to_date: formData.sent_to_date || null,
-        status: formData.sent_to_location ? 'sent' : formData.status,
+        status: formData.status,
         category: formData.category,
         image_url: formData.image_url || null,
         box_shared_link: formData.box_shared_link || null,
@@ -163,9 +177,14 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
       queryClient.invalidateQueries({ queryKey: ['development-slab-stats'] });
       queryClient.invalidateQueries({ queryKey: ['outbound-slab-stats'] });
       
+      const statusChanged = slab.status !== formData.status;
+      const wasSetToSent = formData.status === 'sent' && slab.status !== 'sent';
+      
       toast({
         title: "Success",
-        description: "Slab updated successfully!",
+        description: wasSetToSent 
+          ? `Slab ${formData.slab_id} has been sent and quantities have been automatically adjusted.`
+          : "Slab updated successfully!",
       });
       
       onOpenChange(false);

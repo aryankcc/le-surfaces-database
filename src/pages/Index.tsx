@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Beaker, Send, ArrowRight, Upload, User, LogOut, BarChart3, AlertTriangle } from "lucide-react";
+import { Package, Beaker, Send, ArrowRight, User, LogOut, BarChart3, AlertTriangle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
@@ -249,12 +248,6 @@ const Index = () => {
                     Stock Alerts
                   </Button>
                 </Link>
-                {user && (
-                  <Button variant="outline" className="w-full" onClick={handleCSVImport}>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Import CSV Data
-                  </Button>
-                )}
                 {!user ? (
                   <Link to="/auth">
                     <Button variant="outline" className="w-full">
