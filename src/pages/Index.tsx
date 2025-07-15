@@ -86,7 +86,7 @@ const Index = () => {
   };
 
   const handleAddSlab = () => {
-    // This would open an add slab dialog if implemented
+    if (!checkAuthForAction("add slabs")) return;
     toast({
       title: "Add Slab",
       description: "Navigate to a specific category to add slabs.",
