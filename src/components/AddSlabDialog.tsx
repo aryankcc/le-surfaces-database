@@ -69,9 +69,8 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       return;
     }
 
-    // Check for duplicate with same status - should only warn for 'sent' status duplicates
+    // Check for duplicate - show dialog for sent samples when existing slab has different status
     if (formData.status === 'sent' && duplicateSlabInfo.exists && !duplicateSlabInfo.sameStatus) {
-      // For sent samples, we need to check if a non-sent slab exists
       setShowDuplicateDialog(true);
       return;
     }
@@ -95,7 +94,37 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
     setIsLoading(true);
 
     try {
-      // Check if we need to combine quantities (same slab_id and status)
+      // Handle sent samples - reduce quantity from existing in_stock slab
+      if (formData.status === 'sent' && duplicateSlabInfo.exists) {
+        // Find existing in_stock slab to reduce quantity from
+        const { data: existingSlabs, error: fetchError } = await supabase
+          .from('slabs')
+          .select('*')
+          .ilike('slab_id', formData.slab_id.trim())
+          .eq('status', 'in_stock')
+          .in('category', ['current', 'development']);
+
+        if (fetchError) throw fetchError;
+
+        if (existingSlabs && existingSlabs.length > 0) {
+          const existingSlab = existingSlabs[0];
+          const sentQuantity = parseInt(formData.quantity) || 1;
+          const newQuantity = Math.max(0, (existingSlab.quantity || 0) - sentQuantity);
+
+          // Update existing slab quantity
+          const { error: updateError } = await supabase
+            .from('slabs')
+            .update({ 
+              quantity: newQuantity,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingSlab.id);
+
+          if (updateError) throw updateError;
+        }
+      }
+
+      // Check if we need to combine quantities (same slab_id and status, but not for sent)
       if (duplicateSlabInfo.exists && duplicateSlabInfo.sameStatus && formData.status !== 'sent') {
         // Update existing slab quantity instead of creating new one
         const { data: existingSlabs, error: fetchError } = await supabase
