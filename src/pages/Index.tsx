@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Slab } from "@/types/slab";
 import CSVImportDialog from "@/components/CSVImportDialog";
+import AddSlabDialog from "@/components/AddSlabDialog";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 
@@ -17,6 +19,7 @@ const Index = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCSVImportOpen, setIsCSVImportOpen] = useState(false);
+  const [isAddSlabOpen, setIsAddSlabOpen] = useState(false);
 
   // Fetch combined statistics
   const { data: stats } = useQuery({
@@ -87,10 +90,7 @@ const Index = () => {
 
   const handleAddSlab = () => {
     if (!checkAuthForAction("add slabs")) return;
-    toast({
-      title: "Add Slab",
-      description: "Navigate to a specific category to add slabs.",
-    });
+    setIsAddSlabOpen(true);
   };
 
   return (
@@ -269,10 +269,17 @@ const Index = () => {
 
       {/* Dialogs */}
       {user && (
-        <CSVImportDialog 
-          open={isCSVImportOpen}
-          onOpenChange={setIsCSVImportOpen}
-        />
+        <>
+          <CSVImportDialog 
+            open={isCSVImportOpen}
+            onOpenChange={setIsCSVImportOpen}
+          />
+          <AddSlabDialog
+            open={isAddSlabOpen}
+            onOpenChange={setIsAddSlabOpen}
+            defaultCategory="current"
+          />
+        </>
       )}
     </div>
   );

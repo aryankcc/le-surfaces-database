@@ -69,7 +69,23 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       return;
     }
 
-    // Check for duplicate - show dialog for sent samples when existing slab has different status
+    // Check for exact duplicate (same slab_id and same status)
+    if (duplicateSlabInfo.exists && duplicateSlabInfo.sameStatus) {
+      if (formData.status === 'sent') {
+        toast({
+          title: "Cannot create duplicate sent sample",
+          description: "A sent sample with this slab ID already exists. Each sent sample must have a unique identifier.",
+          variant: "destructive",
+        });
+        return;
+      } else {
+        // For non-sent statuses, combine quantities
+        await processSlab();
+        return;
+      }
+    }
+
+    // Check for different status - show confirmation dialog for sent samples
     if (formData.status === 'sent' && duplicateSlabInfo.exists && !duplicateSlabInfo.sameStatus) {
       setShowDuplicateDialog(true);
       return;
@@ -94,8 +110,12 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
     setIsLoading(true);
 
     try {
+      console.log('Processing slab with data:', formData);
+
       // Handle sent samples - reduce quantity from existing in_stock slab
       if (formData.status === 'sent' && duplicateSlabInfo.exists) {
+        console.log('Processing sent sample with existing slab');
+        
         // Find existing in_stock slab to reduce quantity from
         const { data: existingSlabs, error: fetchError } = await supabase
           .from('slabs')
@@ -104,12 +124,19 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
           .eq('status', 'in_stock')
           .in('category', ['current', 'development']);
 
-        if (fetchError) throw fetchError;
+        if (fetchError) {
+          console.error('Error fetching existing slabs:', fetchError);
+          throw fetchError;
+        }
+
+        console.log('Found existing slabs:', existingSlabs);
 
         if (existingSlabs && existingSlabs.length > 0) {
           const existingSlab = existingSlabs[0];
           const sentQuantity = parseInt(formData.quantity) || 1;
           const newQuantity = Math.max(0, (existingSlab.quantity || 0) - sentQuantity);
+
+          console.log(`Reducing quantity from ${existingSlab.quantity} to ${newQuantity}`);
 
           // Update existing slab quantity
           const { error: updateError } = await supabase
@@ -120,12 +147,17 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
             })
             .eq('id', existingSlab.id);
 
-          if (updateError) throw updateError;
+          if (updateError) {
+            console.error('Error updating existing slab quantity:', updateError);
+            throw updateError;
+          }
         }
       }
 
       // Check if we need to combine quantities (same slab_id and status, but not for sent)
       if (duplicateSlabInfo.exists && duplicateSlabInfo.sameStatus && formData.status !== 'sent') {
+        console.log('Combining quantities for existing slab');
+        
         // Update existing slab quantity instead of creating new one
         const { data: existingSlabs, error: fetchError } = await supabase
           .from('slabs')
