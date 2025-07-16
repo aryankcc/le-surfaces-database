@@ -24,19 +24,19 @@ const DuplicateSlabDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Plus className="h-5 w-5 text-orange-600" />
-            <span>Slab Already Exists</span>
+            <span>Send Sample from Existing Slab</span>
           </DialogTitle>
           <DialogDescription>
-            A slab with ID "{slabId}" already exists in your main inventory.
+            A slab with ID "{slabId}" already exists in your inventory.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
             <div className="text-sm">
-              <div className="font-medium text-orange-800 mb-2">Current quantity: {currentQuantity}</div>
-              <div className="text-orange-700">
-                Would you like to proceed and add this as a duplicate entry?
+              <div className="font-medium text-blue-800 mb-2">Current inventory quantity: {currentQuantity}</div>
+              <div className="text-blue-700">
+                Sending this sample will automatically reduce the inventory quantity accordingly.
               </div>
             </div>
           </div>
@@ -51,10 +51,10 @@ const DuplicateSlabDialog = ({
           </Button>
           <Button
             onClick={onConfirm}
-            className="bg-orange-600 hover:bg-orange-700"
+            className="bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Anyway
+            Send Sample
           </Button>
         </DialogFooter>
       </DialogContent>

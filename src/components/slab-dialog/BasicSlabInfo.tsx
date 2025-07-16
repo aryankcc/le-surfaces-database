@@ -13,25 +13,27 @@ interface BasicSlabInfoProps {
     formulation: string;
     version: string;
     quantity: string;
+    status: string;
   };
   onFormDataChange: (updates: Partial<BasicSlabInfoProps['formData']>) => void;
   duplicateSlabInfo: {
     exists: boolean;
     currentQuantity: number;
+    sameStatus: boolean;
   };
 }
 
 const BasicSlabInfo = ({ formData, onFormDataChange, duplicateSlabInfo }: BasicSlabInfoProps) => {
-  // Query to get slab info for autofill
+  // Query to get slab info for autofill (case-insensitive)
   const { data: existingSlabData } = useQuery({
-    queryKey: ['slab-autofill', formData.slab_id],
+    queryKey: ['slab-autofill', formData.slab_id.toLowerCase()],
     queryFn: async () => {
       if (!formData.slab_id.trim()) return null;
       
       const { data, error } = await supabase
         .from('slabs')
         .select('family, formulation, version')
-        .eq('slab_id', formData.slab_id.trim())
+        .ilike('slab_id', formData.slab_id.trim()) // Case-insensitive search
         .limit(1)
         .maybeSingle();
       
@@ -82,9 +84,14 @@ const BasicSlabInfo = ({ formData, onFormDataChange, duplicateSlabInfo }: BasicS
             onChange={(e) => onFormDataChange({ slab_id: e.target.value })}
             required
           />
-          {duplicateSlabInfo.exists && (
+          {duplicateSlabInfo.exists && duplicateSlabInfo.sameStatus && (
             <p className="text-sm text-orange-600">
-              ⚠️ Slab ID exists in Current/Development inventory. Current quantity: {duplicateSlabInfo.currentQuantity}
+              ⚠️ Slab ID exists with same status. Quantities will be combined. Current quantity: {duplicateSlabInfo.currentQuantity}
+            </p>
+          )}
+          {duplicateSlabInfo.exists && !duplicateSlabInfo.sameStatus && (
+            <p className="text-sm text-blue-600">
+              ℹ️ Slab ID exists with different status. Current total quantity: {duplicateSlabInfo.currentQuantity}
             </p>
           )}
           {existingSlabData && (
