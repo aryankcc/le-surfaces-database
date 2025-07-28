@@ -397,7 +397,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
                 <Label htmlFor="sent_to_location">Sent To Location</Label>
                 <Input
                   id="sent_to_location"
-                  placeholder="e.g., Spicewood Springs Office"
+                  placeholder="e.g., MSI, Stratus"
                   value={formData.sent_to_location}
                   onChange={(e) => setFormData({ ...formData, sent_to_location: e.target.value })}
                 />
