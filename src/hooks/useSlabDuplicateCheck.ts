@@ -9,7 +9,7 @@ interface DuplicateSlabInfo {
   sameStatus: boolean;
 }
 
-export const useSlabDuplicateCheck = (slabId: string, status?: string) => {
+export const useSlabDuplicateCheck = (slabId: string, status?: string, version?: string) => {
   const [duplicateSlabInfo, setDuplicateSlabInfo] = useState<DuplicateSlabInfo>({
     exists: false,
     currentQuantity: 0,
@@ -20,18 +20,18 @@ export const useSlabDuplicateCheck = (slabId: string, status?: string) => {
     const timeoutId = setTimeout(() => {
       const trimmedSlabId = slabId.trim();
       if (trimmedSlabId) {
-        checkForDuplicateSlab(trimmedSlabId, status);
+        checkForDuplicateSlab(trimmedSlabId, status, version);
       } else {
         setDuplicateSlabInfo({ exists: false, currentQuantity: 0, sameStatus: false });
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [slabId, status]);
+  }, [slabId, status, version]);
 
-  const checkForDuplicateSlab = async (slabId: string, status?: string) => {
+  const checkForDuplicateSlab = async (slabId: string, status?: string, version?: string) => {
     try {
-      // Case-insensitive search for existing slabs
+      // Case-insensitive search for existing slabs with same ID and version
       const { data: existingSlabs, error } = await supabase
         .from('slabs')
         .select('*')
@@ -44,15 +44,26 @@ export const useSlabDuplicateCheck = (slabId: string, status?: string) => {
       }
 
       if (existingSlabs && existingSlabs.length > 0) {
-        // Check if any existing slab has the same status
-        const sameStatusSlab = existingSlabs.find(slab => slab.status === status);
+        // Check if any existing slab has the same slab_id AND version (true duplicate)
+        const exactDuplicate = existingSlabs.find(slab => 
+          slab.slab_id?.toLowerCase() === slabId.toLowerCase() && 
+          slab.version === version
+        );
+        
+        // Check if any existing slab has the same status AND version
+        const sameStatusAndVersion = existingSlabs.find(slab => 
+          slab.status === status && 
+          slab.version === version &&
+          slab.slab_id?.toLowerCase() === slabId.toLowerCase()
+        );
+        
         const totalQuantity = existingSlabs.reduce((sum, slab) => sum + (slab.quantity || 0), 0);
         
         setDuplicateSlabInfo({
-          exists: true,
+          exists: !!exactDuplicate,
           currentQuantity: totalQuantity,
           slabData: existingSlabs[0],
-          sameStatus: !!sameStatusSlab
+          sameStatus: !!sameStatusAndVersion
         });
       } else {
         setDuplicateSlabInfo({ exists: false, currentQuantity: 0, sameStatus: false });

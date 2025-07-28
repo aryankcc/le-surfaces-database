@@ -48,7 +48,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
     price_2cm: '',
   });
 
-  const duplicateSlabInfo = useSlabDuplicateCheck(formData.slab_id, formData.status);
+  const duplicateSlabInfo = useSlabDuplicateCheck(formData.slab_id, formData.status, formData.version);
 
   useEffect(() => {
     if (open) {
