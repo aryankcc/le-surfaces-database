@@ -39,6 +39,13 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
     notes: '',
     sent_to_location: '',
     sent_to_date: '',
+    size: '',
+    mold: '',
+    buyer: '',
+    cost_3cm: '',
+    price_3cm: '',
+    cost_2cm: '',
+    price_2cm: '',
   });
 
   const duplicateSlabInfo = useSlabDuplicateCheck(formData.slab_id, formData.status);
@@ -60,10 +67,10 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.slab_id.trim() || !formData.family.trim()) {
+    if (!formData.family.trim()) {
       toast({
         title: "Required fields missing",
-        description: "Please fill in all required fields.",
+        description: "Please fill in the family field.",
         variant: "destructive",
       });
       return;
@@ -190,7 +197,7 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       } else {
         // Create new slab entry
         const slabData = {
-          slab_id: formData.slab_id.trim(),
+          slab_id: formData.slab_id.trim() || null,
           received_date: formData.received_date || null,
           family: formData.family.trim(),
           formulation: formData.formulation.trim() || null,
@@ -203,6 +210,13 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
           notes: formData.notes.trim() || null,
           sent_to_location: formData.sent_to_location.trim() || null,
           sent_to_date: formData.sent_to_date || null,
+          size: formData.size.trim() || null,
+          mold: formData.mold.trim() || null,
+          buyer: formData.buyer.trim() || null,
+          cost_3cm: formData.cost_3cm ? parseFloat(formData.cost_3cm) : null,
+          price_3cm: formData.price_3cm ? parseFloat(formData.price_3cm) : null,
+          cost_2cm: formData.cost_2cm ? parseFloat(formData.cost_2cm) : null,
+          price_2cm: formData.price_2cm ? parseFloat(formData.price_2cm) : null,
         };
 
         console.log('Adding slab with data:', slabData);
@@ -261,6 +275,13 @@ const AddSlabDialog = ({ open, onOpenChange, defaultCategory = 'current', defaul
       notes: '',
       sent_to_location: '',
       sent_to_date: '',
+      size: '',
+      mold: '',
+      buyer: '',
+      cost_3cm: '',
+      price_3cm: '',
+      cost_2cm: '',
+      price_2cm: '',
     });
     setShowDuplicateDialog(false);
     onOpenChange(false);

@@ -10,6 +10,13 @@ interface SlabAdditionalFieldsProps {
     notes: string;
     sent_to_location: string;
     sent_to_date: string;
+    size: string;
+    mold: string;
+    buyer: string;
+    cost_3cm: string;
+    price_3cm: string;
+    cost_2cm: string;
+    price_2cm: string;
   };
   onFormDataChange: (updates: Partial<SlabAdditionalFieldsProps['formData']>) => void;
 }
@@ -17,6 +24,90 @@ interface SlabAdditionalFieldsProps {
 const SlabAdditionalFields = ({ formData, onFormDataChange }: SlabAdditionalFieldsProps) => {
   return (
     <>
+      {/* Size and Mold */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="size">Size</Label>
+          <Input
+            id="size"
+            placeholder="e.g., 3200x1600mm"
+            value={formData.size}
+            onChange={(e) => onFormDataChange({ size: e.target.value })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="mold">Mold</Label>
+          <Input
+            id="mold"
+            placeholder="e.g., Standard, Custom"
+            value={formData.mold}
+            onChange={(e) => onFormDataChange({ mold: e.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* Buyer */}
+      <div className="space-y-2">
+        <Label htmlFor="buyer">Buyer</Label>
+        <Input
+          id="buyer"
+          placeholder="Buyer name or company"
+          value={formData.buyer}
+          onChange={(e) => onFormDataChange({ buyer: e.target.value })}
+        />
+      </div>
+
+      {/* Pricing Information */}
+      <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+        <h4 className="font-medium text-slate-800">Pricing Information</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="cost_3cm">3cm Cost</Label>
+            <Input
+              id="cost_3cm"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.cost_3cm}
+              onChange={(e) => onFormDataChange({ cost_3cm: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="price_3cm">3cm Price</Label>
+            <Input
+              id="price_3cm"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.price_3cm}
+              onChange={(e) => onFormDataChange({ price_3cm: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cost_2cm">2cm Cost</Label>
+            <Input
+              id="cost_2cm"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.cost_2cm}
+              onChange={(e) => onFormDataChange({ cost_2cm: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="price_2cm">2cm Price</Label>
+            <Input
+              id="price_2cm"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.price_2cm}
+              onChange={(e) => onFormDataChange({ price_2cm: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Box Shared Link */}
       <div className="space-y-2">
         <Label htmlFor="box_shared_link" className="flex items-center space-x-2">

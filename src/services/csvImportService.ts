@@ -32,14 +32,9 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
 
     console.log(`Row ${rowNumber} extracted values:`, { slabId, family, formulation });
 
-    // Validate required fields
-    if (!slabId || !family || !formulation) {
-      const missingFields = [];
-      if (!slabId) missingFields.push('Slab ID');
-      if (!family) missingFields.push('Family');
-      if (!formulation) missingFields.push('Formulation');
-      
-      errors.push(`Row ${rowNumber}: Missing required fields: ${missingFields.join(', ')} (Found: Slab ID="${slabId}", Family="${family}", Formulation="${formulation}")`);
+    // Validate required fields (only family is required now)
+    if (!family) {
+      errors.push(`Row ${rowNumber}: Missing required field: Family (Found: Family="${family}")`);
       continue;
     }
 
@@ -65,7 +60,6 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       const formulation = firstRow['Formulation'] || firstRow['formulation'] || '';
       const version = firstRow['Version'] || firstRow['version'] || '';
       const status = firstRow['Status'] || firstRow['status'] || 'in_stock';
-      const sku = firstRow['SKU'] || firstRow['sku'] || '';
       const receivedDate = firstRow['Received Date'] || firstRow['received_date'] || firstRow['ReceivedDate'] || '';
       const sentToLocation = firstRow['Sent To Location'] || firstRow['sent_to_location'] || firstRow['SentToLocation'] || '';
       const sentDate = firstRow['Sent Date'] || firstRow['sent_date'] || firstRow['SentDate'] || '';
@@ -112,12 +106,11 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       } else {
         // Create new slab
         const slabData = {
-          slab_id: slabId,
+          slab_id: slabId || null,
           family: family,
           formulation: formulation,
           version: version || null,
           status: normalizeStatus(status),
-          sku: sku || null,
           quantity: totalQuantity,
           received_date: receivedDate ? parseCSVDate(receivedDate) : new Date().toISOString().split('T')[0],
           sent_to_location: sentToLocation || null,

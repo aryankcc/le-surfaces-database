@@ -109,7 +109,7 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
                 <span className="text-slate-800">{slab.version}</span>
               </div>
             )}
-            {slab.sku && (
+            {slab.quantity && (
               <div className="flex items-center space-x-2 text-sm">
                 <Archive className="h-4 w-4 text-slate-500" />
                 <span className="font-medium text-slate-600">Quantity:</span>

@@ -150,11 +150,6 @@ const SlabsWithoutImagesDialog = ({ open, onOpenChange }: SlabsWithoutImagesDial
                                 <span className="font-medium">Version:</span> {slab.version}
                               </div>
                             )}
-                            {slab.sku && (
-                              <div>
-                                <span className="font-medium">SKU:</span> {slab.sku}
-                              </div>
-                            )}
                             {slab.quantity && (
                               <div className="flex items-center space-x-1">
                                 <Package className="h-3 w-3" />

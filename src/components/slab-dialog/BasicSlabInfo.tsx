@@ -76,13 +76,12 @@ const BasicSlabInfo = ({ formData, onFormDataChange, duplicateSlabInfo }: BasicS
       {/* Basic Information */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="slab_id">Slab ID *</Label>
+          <Label htmlFor="slab_id">Slab ID</Label>
           <Input
             id="slab_id"
-            placeholder="e.g., 1A or 9C"
+            placeholder="e.g., 1A or 9C (optional for current products)"
             value={formData.slab_id}
             onChange={(e) => onFormDataChange({ slab_id: e.target.value })}
-            required
           />
           {duplicateSlabInfo.exists && duplicateSlabInfo.sameStatus && (
             <p className="text-sm text-orange-600">

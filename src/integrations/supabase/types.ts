@@ -17,54 +17,75 @@ export type Database = {
       slabs: {
         Row: {
           box_shared_link: string | null
+          buyer: string | null
           category: string
+          cost_2cm: number | null
+          cost_3cm: number | null
           created_at: string
           family: string
           formulation: string | null
           id: string
           image_url: string | null
+          mold: string | null
           notes: string | null
+          price_2cm: number | null
+          price_3cm: number | null
           quantity: number | null
           received_date: string | null
           sent_to_date: string | null
           sent_to_location: string | null
-          slab_id: string
+          size: string | null
+          slab_id: string | null
           status: string
           updated_at: string
           version: string | null
         }
         Insert: {
           box_shared_link?: string | null
+          buyer?: string | null
           category?: string
+          cost_2cm?: number | null
+          cost_3cm?: number | null
           created_at?: string
           family: string
           formulation?: string | null
           id?: string
           image_url?: string | null
+          mold?: string | null
           notes?: string | null
+          price_2cm?: number | null
+          price_3cm?: number | null
           quantity?: number | null
           received_date?: string | null
           sent_to_date?: string | null
           sent_to_location?: string | null
-          slab_id: string
+          size?: string | null
+          slab_id?: string | null
           status?: string
           updated_at?: string
           version?: string | null
         }
         Update: {
           box_shared_link?: string | null
+          buyer?: string | null
           category?: string
+          cost_2cm?: number | null
+          cost_3cm?: number | null
           created_at?: string
           family?: string
           formulation?: string | null
           id?: string
           image_url?: string | null
+          mold?: string | null
           notes?: string | null
+          price_2cm?: number | null
+          price_3cm?: number | null
           quantity?: number | null
           received_date?: string | null
           sent_to_date?: string | null
           sent_to_location?: string | null
-          slab_id?: string
+          size?: string | null
+          slab_id?: string | null
           status?: string
           updated_at?: string
           version?: string | null
