@@ -8,7 +8,7 @@ import { ArrowLeft, Database, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Slab } from "@/types/slab";
 import SlabDetails from "@/components/SlabDetails";
-import LowStockAlerts from "@/components/LowStockAlerts";
+import StockAlertsDialog from "@/components/StockAlertsDialog";
 import ExportButton from "@/components/ExportButton";
 import AddSlabDialog from "@/components/AddSlabDialog";
 import EditSlabDialog from "@/components/EditSlabDialog";
@@ -196,7 +196,9 @@ const FamilySlabsPage = () => {
           </div>
 
           <div className="lg:col-span-1 space-y-6">
-            <LowStockAlerts category={categoryName as 'current' | 'development'} />
+            <div className="flex justify-end">
+              <StockAlertsDialog category={categoryName as 'current' | 'development'} />
+            </div>
             {selectedSlab ? (
               <SlabDetails 
                 slab={selectedSlab} 

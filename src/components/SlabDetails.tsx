@@ -116,12 +116,70 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
                 <span className="text-slate-800">{slab.quantity}</span>
               </div>
             )}
+            {slab.size && (
+              <div className="flex items-center space-x-2 text-sm">
+                <span className="font-medium text-slate-600">Size:</span>
+                <span className="text-slate-800">{slab.size}</span>
+              </div>
+            )}
+            {slab.mold && (
+              <div className="flex items-center space-x-2 text-sm">
+                <span className="font-medium text-slate-600">Mold:</span>
+                <span className="text-slate-800">{slab.mold}</span>
+              </div>
+            )}
+            {slab.buyer && (
+              <div className="flex items-center space-x-2 text-sm">
+                <span className="font-medium text-slate-600">Buyer:</span>
+                <span className="text-slate-800">{slab.buyer}</span>
+              </div>
+            )}
             <div className="flex items-center space-x-2 text-sm">
               <Calendar className="h-4 w-4 text-slate-500" />
               <span className="font-medium text-slate-600">Received:</span>
               <span className="text-slate-800">{formatSlabDate(slab.received_date)}</span>
             </div>
           </div>
+
+          {/* Pricing Information */}
+          {(slab.cost_3cm || slab.price_3cm || slab.cost_2cm || slab.price_2cm) && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <h4 className="font-medium text-slate-800 flex items-center space-x-2">
+                  <Hash className="h-4 w-4" />
+                  <span>Pricing Information</span>
+                </h4>
+                
+                <div className="grid grid-cols-2 gap-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                  {slab.cost_3cm && (
+                    <div className="text-sm">
+                      <span className="font-medium text-green-800">3cm Cost:</span>
+                      <span className="text-green-700 ml-2">${slab.cost_3cm}</span>
+                    </div>
+                  )}
+                  {slab.price_3cm && (
+                    <div className="text-sm">
+                      <span className="font-medium text-green-800">3cm Price:</span>
+                      <span className="text-green-700 ml-2">${slab.price_3cm}</span>
+                    </div>
+                  )}
+                  {slab.cost_2cm && (
+                    <div className="text-sm">
+                      <span className="font-medium text-green-800">2cm Cost:</span>
+                      <span className="text-green-700 ml-2">${slab.cost_2cm}</span>
+                    </div>
+                  )}
+                  {slab.price_2cm && (
+                    <div className="text-sm">
+                      <span className="font-medium text-green-800">2cm Price:</span>
+                      <span className="text-green-700 ml-2">${slab.price_2cm}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
 
           <Separator />
 

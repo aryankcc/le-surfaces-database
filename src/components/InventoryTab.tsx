@@ -5,7 +5,7 @@ import { AlertTriangle, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SlabInventory from "@/components/SlabInventory";
 import SlabDetails from "@/components/SlabDetails";
-import LowStockAlerts from "@/components/LowStockAlerts";
+import StockAlertsDialog from "@/components/StockAlertsDialog";
 import { Slab } from "@/types/slab";
 import { useSlabs } from "@/hooks/useSlabs";
 
@@ -62,7 +62,11 @@ const InventoryTab = ({
       </div>
 
       <div className="lg:col-span-1 space-y-6">
-        {!status && <LowStockAlerts category={category} />}
+        {!status && (
+          <div className="flex justify-end">
+            <StockAlertsDialog category={category} />
+          </div>
+        )}
         {selectedSlab ? (
           <SlabDetails 
             slab={selectedSlab} 

@@ -40,6 +40,8 @@ export const useSlabs = (searchTerm?: string, category?: 'current' | 'developmen
       console.log('Fetched slabs:', data?.length);
       return data as Slab[];
     },
-    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchInterval: false, // Disable auto-refetch to improve performance
   });
 };
