@@ -30,7 +30,7 @@ const SlabAdditionalFields = ({ formData, onFormDataChange }: SlabAdditionalFiel
           <Label htmlFor="size">Size</Label>
           <Input
             id="size"
-            placeholder="e.g., 3200x1600mm"
+            placeholder="e.g., Jumbo, Super Jumbo"
             value={formData.size}
             onChange={(e) => onFormDataChange({ size: e.target.value })}
           />
@@ -39,7 +39,7 @@ const SlabAdditionalFields = ({ formData, onFormDataChange }: SlabAdditionalFiel
           <Label htmlFor="mold">Mold</Label>
           <Input
             id="mold"
-            placeholder="e.g., Standard, Custom"
+            placeholder="e.g., x27, 9928, etc"
             value={formData.mold}
             onChange={(e) => onFormDataChange({ mold: e.target.value })}
           />
