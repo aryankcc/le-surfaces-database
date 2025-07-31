@@ -45,6 +45,8 @@ const SlabTableSorted = ({
   };
 
   const sortedSlabs = useMemo(() => {
+    if (!slabs || slabs.length === 0) return [];
+    
     return [...slabs].sort((a, b) => {
       let aValue: any = a[sortField];
       let bValue: any = b[sortField];

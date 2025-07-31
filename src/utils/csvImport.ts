@@ -12,10 +12,17 @@ export const normalizeStatus = (status: string): string => {
     'reserved': 'reserved',
     'Reserved': 'reserved',
     'sold': 'sold',
-    'Sold': 'sold'
+    'Sold': 'sold',
+    'not in yet': 'in_stock',
+    'not_in_yet': 'in_stock',
+    'discontinued': 'sold'
   };
   
-  return statusMap[status] || status.toLowerCase().replace(/[-\s]/g, '_');
+  const normalized = statusMap[status] || status.toLowerCase().replace(/[-\s]/g, '_');
+  
+  // Ensure only valid statuses are returned
+  const validStatuses = ['in_stock', 'sent', 'reserved', 'sold'];
+  return validStatuses.includes(normalized) ? normalized : 'in_stock';
 };
 
 export const extractBoxUrl = (boxData: string): string | null => {

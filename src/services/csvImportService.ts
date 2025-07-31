@@ -60,6 +60,7 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       const formulation = firstRow['Formulation'] || firstRow['formulation'] || '';
       const version = firstRow['Version'] || firstRow['version'] || '';
       const status = firstRow['Status'] || firstRow['status'] || 'in_stock';
+      const category = firstRow['Category'] || firstRow['category'] || 'current';
       const receivedDate = firstRow['Received Date'] || firstRow['received_date'] || firstRow['ReceivedDate'] || '';
       const sentToLocation = firstRow['Sent To Location'] || firstRow['sent_to_location'] || firstRow['SentToLocation'] || '';
       const sentDate = firstRow['Sent Date'] || firstRow['sent_date'] || firstRow['SentDate'] || '';
@@ -71,11 +72,12 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
 
       console.log(`Processing slab ${slabId} with total quantity:`, totalQuantity);
 
-      // Check if slab already exists
+      // Check if slab already exists with same slab_id AND version
       const { data: existingSlab, error: checkError } = await supabase
         .from('slabs')
         .select('id, quantity')
         .eq('slab_id', slabId)
+        .eq('version', version || null)
         .maybeSingle();
 
       if (checkError) {
@@ -108,9 +110,10 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
         const slabData = {
           slab_id: slabId || null,
           family: family,
-          formulation: formulation,
+          formulation: formulation && version ? `${formulation}_${version}` : formulation, // Make formulation unique
           version: version || null,
           status: normalizeStatus(status),
+          category: category === 'development' ? 'development' : 'current',
           quantity: totalQuantity,
           received_date: receivedDate ? parseCSVDate(receivedDate) : new Date().toISOString().split('T')[0],
           sent_to_location: sentToLocation || null,
