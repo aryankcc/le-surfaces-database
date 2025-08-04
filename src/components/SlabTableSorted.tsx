@@ -228,7 +228,7 @@ const SlabTableSorted = ({
                   </Button>
                 </TableHead>
                 <TableHead className="font-semibold">Image</TableHead>
-                <TableHead className="font-semibold">Actions</TableHead>
+                <TableHead className="font-semibold w-32">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -305,12 +305,12 @@ const SlabTableSorted = ({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-1">
+                  <TableCell className="w-32">
+                    <div className="flex space-x-1 min-w-[120px] justify-start">
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="h-7 w-7 p-0"
+                        className="h-7 w-7 p-0 shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           onSlabSelect(slab);
@@ -323,7 +323,7 @@ const SlabTableSorted = ({
                           <Button 
                             size="sm" 
                             variant="ghost" 
-                            className="h-7 w-7 p-0"
+                            className="h-7 w-7 p-0 shrink-0"
                             onClick={(e) => {
                               e.stopPropagation();
                               onEditSlab(slab);
@@ -334,7 +334,7 @@ const SlabTableSorted = ({
                           <Button 
                             size="sm" 
                             variant="ghost" 
-                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 shrink-0"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeleteSlab(slab);

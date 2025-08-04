@@ -63,7 +63,10 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       const formulation = firstRow['Formulation'] || firstRow['formulation'] || '';
       const version = firstRow['Version'] || firstRow['version'] || '';
       const status = firstRow['Status'] || firstRow['status'] || 'in_stock';
-      const category = (firstRow['Category'] || firstRow['category'] || 'current').toLowerCase().trim();
+      const categoryRaw = firstRow['Category'] || firstRow['category'] || 'current';
+      const category = categoryRaw.toLowerCase().trim();
+      
+      console.log(`Slab ${slabId} category processing:`, { raw: categoryRaw, processed: category });
       const receivedDate = firstRow['Received Date'] || firstRow['received_date'] || firstRow['ReceivedDate'] || '';
       const sentToLocation = firstRow['Sent To Location'] || firstRow['sent_to_location'] || firstRow['SentToLocation'] || '';
       const sentDate = firstRow['Sent Date'] || firstRow['sent_date'] || firstRow['SentDate'] || '';
