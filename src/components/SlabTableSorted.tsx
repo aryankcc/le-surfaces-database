@@ -228,7 +228,7 @@ const SlabTableSorted = ({
                   </Button>
                 </TableHead>
                 <TableHead className="font-semibold">Image</TableHead>
-                <TableHead className="font-semibold w-32">Actions</TableHead>
+                <TableHead className="font-semibold sticky right-0 bg-slate-50 z-10 border-l w-32">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -305,7 +305,7 @@ const SlabTableSorted = ({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="w-32">
+                  <TableCell className="sticky right-0 bg-background z-10 border-l w-32">
                     <div className="flex space-x-1 min-w-[120px] justify-start">
                       <Button 
                         size="sm" 
