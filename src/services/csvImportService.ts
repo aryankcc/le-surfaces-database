@@ -18,7 +18,7 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
 
   console.log('Total parsed rows:', rows.length);
 
-  // Group rows by slab_id to combine quantities
+  // Group rows by slab_id + version to combine quantities
   const slabGroups = new Map<string, CSVRow[]>();
   
   for (let i = 0; i < rows.length; i++) {
@@ -29,8 +29,9 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
     const slabId = row['Slab ID'] || row['slab_id'] || row['SlabID'] || row['ID'] || '';
     const family = row['Family'] || row['family'] || '';
     const formulation = row['Formulation'] || row['formulation'] || '';
+    const version = row['Version'] || row['version'] || '';
 
-    console.log(`Row ${rowNumber} extracted values:`, { slabId, family, formulation });
+    console.log(`Row ${rowNumber} extracted values:`, { slabId, family, formulation, version });
 
     // Validate required fields (only family is required now)
     if (!family) {
@@ -38,15 +39,17 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       continue;
     }
 
-    // Group by slab_id
-    if (!slabGroups.has(slabId)) {
-      slabGroups.set(slabId, []);
+    // Group by slab_id + version combination
+    const groupKey = `${slabId}_${version || 'null'}`;
+    if (!slabGroups.has(groupKey)) {
+      slabGroups.set(groupKey, []);
     }
-    slabGroups.get(slabId)!.push(row);
+    slabGroups.get(groupKey)!.push(row);
   }
 
   // Process each slab group
-  for (const [slabId, groupRows] of slabGroups) {
+  for (const [groupKey, groupRows] of slabGroups) {
+    const slabId = groupRows[0]['Slab ID'] || groupRows[0]['slab_id'] || groupRows[0]['SlabID'] || groupRows[0]['ID'] || '';
     try {
       // Use the first row for main data, sum quantities from all rows
       const firstRow = groupRows[0];
@@ -60,7 +63,7 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       const formulation = firstRow['Formulation'] || firstRow['formulation'] || '';
       const version = firstRow['Version'] || firstRow['version'] || '';
       const status = firstRow['Status'] || firstRow['status'] || 'in_stock';
-      const category = firstRow['Category'] || firstRow['category'] || 'current';
+      const category = (firstRow['Category'] || firstRow['category'] || 'current').toLowerCase().trim();
       const receivedDate = firstRow['Received Date'] || firstRow['received_date'] || firstRow['ReceivedDate'] || '';
       const sentToLocation = firstRow['Sent To Location'] || firstRow['sent_to_location'] || firstRow['SentToLocation'] || '';
       const sentDate = firstRow['Sent Date'] || firstRow['sent_date'] || firstRow['SentDate'] || '';
@@ -110,7 +113,7 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
         const slabData = {
           slab_id: slabId || null,
           family: family,
-          formulation: formulation && version ? `${formulation}_${version}` : formulation, // Make formulation unique
+          formulation: formulation || null,
           version: version || null,
           status: normalizeStatus(status),
           category: category === 'development' ? 'development' : 'current',

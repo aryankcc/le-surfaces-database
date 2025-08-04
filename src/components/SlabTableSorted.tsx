@@ -295,6 +295,10 @@ const SlabTableSorted = ({
                           src={slab.image_url} 
                           alt={slab.family}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
                         />
                       ) : (
                         <FileImage className="h-4 w-4 text-slate-400" />
