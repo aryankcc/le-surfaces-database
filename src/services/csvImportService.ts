@@ -155,3 +155,73 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
     errors
   };
 };
+
+export const previewCSVData = async (rows: CSVRow[]): Promise<{ willCreate: number; willUpdate: number; errors: string[] }> => {
+  const errors: string[] = [];
+  let willCreateCount = 0;
+  let willUpdateCount = 0;
+
+  console.log('Previewing CSV data with rows:', rows.length);
+
+  // Group rows by slab_id + version to combine quantities
+  const slabGroups = new Map<string, CSVRow[]>();
+  
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const rowNumber = i + 2;
+
+    // Get the actual field values using exact headers
+    const slabId = row['slab_id'] || '';
+    const family = row['family'] || '';
+    const formulation = row['formulation'] || '';
+    const version = row['version'] || '';
+
+    // Validate required fields (only family is required now)
+    if (!family) {
+      errors.push(`Row ${rowNumber}: Missing required field: Family`);
+      continue;
+    }
+
+    // Group by slab_id + version combination
+    const groupKey = `${slabId}_${version || 'null'}`;
+    if (!slabGroups.has(groupKey)) {
+      slabGroups.set(groupKey, []);
+    }
+    slabGroups.get(groupKey)!.push(row);
+  }
+
+  // Check each slab group to see if it will create or update
+  for (const [groupKey, groupRows] of slabGroups) {
+    const slabId = groupRows[0]['slab_id'] || '';
+    const version = groupRows[0]['version'] || '';
+    
+    try {
+      // Check if slab already exists with same slab_id AND version
+      const { data: existingSlab, error: checkError } = await supabase
+        .from('slabs')
+        .select('id, quantity')
+        .eq('slab_id', slabId)
+        .eq('version', version || null)
+        .maybeSingle();
+
+      if (checkError) {
+        errors.push(`Slab ${slabId}: Error checking existing record - ${checkError.message}`);
+        continue;
+      }
+
+      if (existingSlab) {
+        willUpdateCount++;
+      } else {
+        willCreateCount++;
+      }
+    } catch (error) {
+      errors.push(`Slab ${slabId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  return {
+    willCreate: willCreateCount,
+    willUpdate: willUpdateCount,
+    errors
+  };
+};
