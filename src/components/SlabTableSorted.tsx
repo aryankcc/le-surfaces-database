@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Trash2, FileImage, Calendar, Hash, Archive, Tag, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import OptimizedImage from "./OptimizedImage";
 import { Slab } from "@/types/slab";
 import { formatSlabDate } from "@/utils/dateUtils";
 
@@ -289,19 +290,18 @@ const SlabTableSorted = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="w-8 h-8 bg-slate-100 rounded border flex items-center justify-center overflow-hidden">
+                    <div className="w-8 h-8">
                       {slab.image_url ? (
-                        <img 
-                          src={slab.image_url} 
+                        <OptimizedImage
+                          src={slab.image_url}
                           alt={slab.family}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
+                          className="w-8 h-8 rounded border"
+                          sizes="32px"
                         />
                       ) : (
-                        <FileImage className="h-4 w-4 text-slate-400" />
+                        <div className="w-8 h-8 bg-slate-100 rounded border flex items-center justify-center">
+                          <FileImage className="h-4 w-4 text-slate-400" />
+                        </div>
                       )}
                     </div>
                   </TableCell>
