@@ -25,11 +25,11 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
     const row = rows[i];
     const rowNumber = i + 2;
 
-    // Get the actual field values using exact headers
-    const slabId = row['slab_id'] || '';
-    const family = row['family'] || '';
-    const formulation = row['formulation'] || '';
-    const version = row['version'] || '';
+    // Get the actual field values using exact headers - ensure proper trimming
+    const slabId = (row['slab_id'] || '').toString().trim();
+    const family = (row['family'] || '').toString().trim();
+    const formulation = (row['formulation'] || '').toString().trim();
+    const version = (row['version'] || '').toString().trim();
 
     console.log(`Row ${rowNumber} extracted values:`, { slabId, family, formulation, version });
 
@@ -59,11 +59,11 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       }, 0);
 
       // Extract data from first row using exact headers
-      const family = firstRow['family'] || '';
-      const formulation = firstRow['formulation'] || '';
-      const version = firstRow['version'] || '';
-      const status = firstRow['status'] || 'in_stock';
-      const categoryRaw = firstRow['category'] || 'current';
+      const family = (firstRow['family'] || '').toString().trim();
+      const formulation = (firstRow['formulation'] || '').toString().trim();
+      const version = (firstRow['version'] || '').toString().trim();
+      const status = (firstRow['status'] || 'in_stock').toString().trim();
+      const categoryRaw = (firstRow['category'] || 'current').toString();
       const category = categoryRaw.toLowerCase().trim();
       
       console.log(`Slab ${slabId} category processing:`, { raw: categoryRaw, processed: category });
@@ -170,11 +170,11 @@ export const previewCSVData = async (rows: CSVRow[]): Promise<{ willCreate: numb
     const row = rows[i];
     const rowNumber = i + 2;
 
-    // Get the actual field values using exact headers
-    const slabId = row['slab_id'] || '';
-    const family = row['family'] || '';
-    const formulation = row['formulation'] || '';
-    const version = row['version'] || '';
+    // Get the actual field values using exact headers - ensure proper trimming  
+    const slabId = (row['slab_id'] || '').toString().trim();
+    const family = (row['family'] || '').toString().trim();
+    const formulation = (row['formulation'] || '').toString().trim();
+    const version = (row['version'] || '').toString().trim();
 
     // Validate required fields (only family is required now)
     if (!family) {

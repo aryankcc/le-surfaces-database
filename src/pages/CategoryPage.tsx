@@ -134,28 +134,53 @@ const CategoryPage = () => {
 
           {!isLoading && !error && families.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {families.map((family) => (
-                <Link 
-                  key={family} 
-                  to={`/category/${categoryName}/family/${encodeURIComponent(family)}`}
-                >
-                  <Card className={`border-2 border-${colorScheme}-200 hover:border-${colorScheme}-400 hover:shadow-lg transition-all duration-300 cursor-pointer group`}>
-                    <CardHeader className="text-center">
-                      <CardTitle className={`text-xl text-${colorScheme}-700 group-hover:text-${colorScheme}-800`}>
-                        {family}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <Button 
-                        className={`w-full bg-${colorScheme}-600 hover:bg-${colorScheme}-700`}
-                        size="lg"
-                      >
-                        View Slabs
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+              {families.map((family) => {
+                const handleFamilyClick = async () => {
+                  // Preload images for this family
+                  try {
+                    const { data: familySlabs } = await supabase
+                      .from('slabs')
+                      .select('image_url')
+                      .eq('category', categoryName)
+                      .eq('family', family)
+                      .not('image_url', 'is', null);
+                    
+                    // Preload each image
+                    familySlabs?.forEach(slab => {
+                      if (slab.image_url) {
+                        const img = new Image();
+                        img.src = slab.image_url;
+                      }
+                    });
+                  } catch (error) {
+                    console.error('Error preloading images:', error);
+                  }
+                };
+                
+                return (
+                  <Link 
+                    key={family} 
+                    to={`/category/${categoryName}/family/${encodeURIComponent(family)}`}
+                    onClick={handleFamilyClick}
+                  >
+                    <Card className={`border-2 border-${colorScheme}-200 hover:border-${colorScheme}-400 hover:shadow-lg transition-all duration-300 cursor-pointer group`}>
+                      <CardHeader className="text-center">
+                        <CardTitle className={`text-xl text-${colorScheme}-700 group-hover:text-${colorScheme}-800`}>
+                          {family}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-center">
+                        <Button 
+                          className={`w-full bg-${colorScheme}-600 hover:bg-${colorScheme}-700`}
+                          size="lg"
+                        >
+                          View Slabs
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
