@@ -32,7 +32,14 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     category: "current" as 'current' | 'development',
     image_url: "",
     box_shared_link: "",
-    quantity: "0"
+    quantity: "0",
+    size: "",
+    mold: "",
+    buyer: "",
+    cost_3cm: "",
+    price_3cm: "",
+    cost_2cm: "",
+    price_2cm: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -56,7 +63,14 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         category: slab.category || 'current',
         image_url: slab.image_url || "",
         box_shared_link: slab.box_shared_link || "",
-        quantity: (slab.quantity || 0).toString()
+        quantity: (slab.quantity || 0).toString(),
+        size: slab.size || "",
+        mold: slab.mold || "",
+        buyer: slab.buyer || "",
+        cost_3cm: slab.cost_3cm?.toString() || "",
+        price_3cm: slab.price_3cm?.toString() || "",
+        cost_2cm: slab.cost_2cm?.toString() || "",
+        price_2cm: slab.price_2cm?.toString() || ""
       });
     }
   }, [slab]);
@@ -149,6 +163,13 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
         image_url: formData.image_url || null,
         box_shared_link: formData.box_shared_link || null,
         quantity: parseInt(formData.quantity) || 0,
+        size: formData.size || null,
+        mold: formData.mold || null,
+        buyer: formData.buyer || null,
+        cost_3cm: formData.cost_3cm ? parseFloat(formData.cost_3cm) : null,
+        price_3cm: formData.price_3cm ? parseFloat(formData.price_3cm) : null,
+        cost_2cm: formData.cost_2cm ? parseFloat(formData.cost_2cm) : null,
+        price_2cm: formData.price_2cm ? parseFloat(formData.price_2cm) : null,
         updated_at: new Date().toISOString()
       };
 
@@ -387,6 +408,85 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
             />
+          </div>
+
+          {/* Additional Fields */}
+          <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+            <h4 className="font-medium text-slate-800">Size and Mold</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="size">Size</Label>
+                <Input
+                  id="size"
+                  placeholder="e.g., 63x126, Custom"
+                  value={formData.size}
+                  onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="mold">Mold</Label>
+                <Input
+                  id="mold"
+                  placeholder="e.g., Standard, Custom"
+                  value={formData.mold}
+                  onChange={(e) => setFormData({ ...formData, mold: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Buyer */}
+          <div className="space-y-2">
+            <Label htmlFor="buyer">Buyer</Label>
+            <Input
+              id="buyer"
+              placeholder="Enter buyer name"
+              value={formData.buyer}
+              onChange={(e) => setFormData({ ...formData, buyer: e.target.value })}
+            />
+          </div>
+
+          {/* Pricing Information */}
+          <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+            <h4 className="font-medium text-slate-800">Pricing Information</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cost_3cm">3cm Cost</Label>
+                <Input
+                  id="cost_3cm"
+                  placeholder="0.00"
+                  value={formData.cost_3cm}
+                  onChange={(e) => setFormData({ ...formData, cost_3cm: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price_3cm">3cm Price</Label>
+                <Input
+                  id="price_3cm"
+                  placeholder="0.00"
+                  value={formData.price_3cm}
+                  onChange={(e) => setFormData({ ...formData, price_3cm: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cost_2cm">2cm Cost</Label>
+                <Input
+                  id="cost_2cm"
+                  placeholder="0.00"
+                  value={formData.cost_2cm}
+                  onChange={(e) => setFormData({ ...formData, cost_2cm: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price_2cm">2cm Price</Label>
+                <Input
+                  id="price_2cm"
+                  placeholder="0.00"
+                  value={formData.price_2cm}
+                  onChange={(e) => setFormData({ ...formData, price_2cm: e.target.value })}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Shipping Information */}

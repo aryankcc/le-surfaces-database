@@ -36,7 +36,7 @@ const SlabDetails = ({ slab, onEditSlab, isAuthenticated }: SlabDetailsProps) =>
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sticky top-4">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
