@@ -16,7 +16,7 @@ const CategoryPage = () => {
       
       const { data, error } = await supabase
         .from('slabs')
-        .select('family')
+        .select('family, slab_id')
         .eq('category', categoryName)
         .not('family', 'is', null)
         .order('family');
@@ -26,11 +26,35 @@ const CategoryPage = () => {
         throw error;
       }
       
-      // Get unique families
-      const uniqueFamilies = [...new Set(data.map(item => item.family))];
-      console.log('Found families:', uniqueFamilies);
+      // Group by family and extract series numbers
+      const familyGroups = data.reduce((acc, item) => {
+        if (!acc[item.family]) {
+          acc[item.family] = [];
+        }
+        acc[item.family].push(item.slab_id);
+        return acc;
+      }, {} as Record<string, string[]>);
       
-      return uniqueFamilies;
+      // Generate display names with series numbers
+      const familiesWithSeries = Object.entries(familyGroups).map(([family, slabIds]) => {
+        // Extract series numbers (e.g., "9A" -> "9", "4P" -> "4")
+        const seriesNumbers = slabIds
+          .map(id => id?.match(/^(\d+)/)?.[1])
+          .filter(Boolean);
+        
+        const uniqueSeries = [...new Set(seriesNumbers)];
+        
+        // If all slabs share the same series number, add it to the family name
+        if (uniqueSeries.length === 1 && uniqueSeries[0]) {
+          return `${uniqueSeries[0]}- ${family}`;
+        }
+        
+        return family;
+      });
+      
+      console.log('Found families with series:', familiesWithSeries);
+      
+      return familiesWithSeries.sort();
     },
     enabled: !!categoryName
   });
@@ -136,13 +160,16 @@ const CategoryPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {families.map((family) => {
                 const handleFamilyClick = async () => {
+                  // Extract original family name for preloading
+                  const originalFamily = family.includes('- ') ? family.split('- ').slice(1).join('- ') : family;
+                  
                   // Preload images for this family
                   try {
                     const { data: familySlabs } = await supabase
                       .from('slabs')
                       .select('image_url')
                       .eq('category', categoryName)
-                      .eq('family', family)
+                      .eq('family', originalFamily)
                       .not('image_url', 'is', null);
                     
                     // Preload each image
@@ -157,10 +184,13 @@ const CategoryPage = () => {
                   }
                 };
                 
+                // Extract original family name for navigation (remove series prefix if exists)
+                const originalFamily = family.includes('- ') ? family.split('- ').slice(1).join('- ') : family;
+                
                 return (
                   <Link 
                     key={family} 
-                    to={`/category/${categoryName}/family/${encodeURIComponent(family)}`}
+                    to={`/category/${categoryName}/family/${encodeURIComponent(originalFamily)}`}
                     onClick={handleFamilyClick}
                   >
                     <Card className={`border-2 border-${colorScheme}-200 hover:border-${colorScheme}-400 hover:shadow-lg transition-all duration-300 cursor-pointer group`}>

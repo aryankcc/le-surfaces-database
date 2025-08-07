@@ -228,7 +228,7 @@ const SlabTableSorted = ({
                     {getSortIcon('sent_to_location')}
                   </Button>
                 </TableHead>
-                <TableHead className="font-semibold">Image</TableHead>
+                
                 <TableHead className="font-semibold sticky right-0 bg-slate-50 z-10 border-l w-32">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -287,22 +287,6 @@ const SlabTableSorted = ({
                           )}
                         </div>
                       ) : '-'}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="w-8 h-8">
-                      {slab.image_url ? (
-                        <OptimizedImage
-                          src={slab.image_url}
-                          alt={slab.family}
-                          className="w-8 h-8 rounded border"
-                          sizes="32px"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-slate-100 rounded border flex items-center justify-center">
-                          <FileImage className="h-4 w-4 text-slate-400" />
-                        </div>
-                      )}
                     </div>
                   </TableCell>
                   <TableCell className="sticky right-0 bg-background z-10 border-l w-32">
