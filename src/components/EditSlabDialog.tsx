@@ -29,7 +29,7 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
     sent_to_location: "",
     sent_to_date: "",
     status: "in_stock",
-    category: "current" as 'current' | 'development',
+    category: "current" as 'current' | 'development' | 'outbound',
     image_url: "",
     box_shared_link: "",
     quantity: "0",
@@ -326,13 +326,14 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
                 <Tag className="h-4 w-4" />
                 <span>Category</span>
               </Label>
-              <Select value={formData.category} onValueChange={(value: 'current' | 'development') => setFormData({ ...formData, category: value })}>
+              <Select value={formData.category} onValueChange={(value: 'current' | 'development' | 'outbound') => setFormData({ ...formData, category: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="current">Current</SelectItem>
                   <SelectItem value="development">Development</SelectItem>
+                  <SelectItem value="outbound">Outbound</SelectItem>
                 </SelectContent>
               </Select>
             </div>

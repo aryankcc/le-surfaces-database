@@ -6,7 +6,7 @@ import { Tag } from "lucide-react";
 interface SlabStatusCategoryProps {
   formData: {
     status: string;
-    category: 'current' | 'development';
+    category: 'current' | 'development' | 'outbound';
   };
   onFormDataChange: (updates: Partial<SlabStatusCategoryProps['formData']>) => void;
 }
@@ -33,13 +33,14 @@ const SlabStatusCategory = ({ formData, onFormDataChange }: SlabStatusCategoryPr
           <Tag className="h-4 w-4" />
           <span>Category</span>
         </Label>
-        <Select value={formData.category} onValueChange={(value: 'current' | 'development') => onFormDataChange({ category: value })}>
+        <Select value={formData.category} onValueChange={(value: 'current' | 'development' | 'outbound') => onFormDataChange({ category: value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="current">Current</SelectItem>
             <SelectItem value="development">Development</SelectItem>
+            <SelectItem value="outbound">Outbound</SelectItem>
           </SelectContent>
         </Select>
       </div>

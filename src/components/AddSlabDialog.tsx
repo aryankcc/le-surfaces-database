@@ -15,7 +15,7 @@ import { useSlabDuplicateCheck } from "@/hooks/useSlabDuplicateCheck";
 interface AddSlabDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  defaultCategory?: 'current' | 'development';
+  defaultCategory?: 'current' | 'development' | 'outbound';
   defaultFamily?: string;
 }
 
