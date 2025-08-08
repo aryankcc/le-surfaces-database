@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Trash2, FileImage, Calendar, Hash, Archive, Tag, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Edit, Trash2, FileImage, Calendar, Hash, Archive, Tag, Eye, ArrowUpDown, ArrowUp, ArrowDown, ImageIcon } from "lucide-react";
 import OptimizedImage from "./OptimizedImage";
 import { Slab } from "@/types/slab";
 import { formatSlabDate } from "@/utils/dateUtils";
@@ -242,7 +242,15 @@ const SlabTableSorted = ({
                   onClick={() => onSlabSelect(slab)}
                 >
                   <TableCell>
-                    <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                    <div className="flex items-center justify-center">
+                      {slab.image_url ? (
+                        <ImageIcon className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <div className="w-4 h-4 border border-gray-300 border-dashed rounded flex items-center justify-center">
+                          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="font-medium">{slab.slab_id}</TableCell>
                   <TableCell>{slab.family}</TableCell>
