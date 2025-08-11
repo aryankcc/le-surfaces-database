@@ -39,8 +39,8 @@ export const importCSVData = async (rows: CSVRow[]): Promise<ImportResults> => {
       continue;
     }
 
-    // Group by slab_id + version combination
-    const groupKey = `${slabId}_${version || 'null'}`;
+    // Group by slab_id + version combination, but if no slab_id, treat each row as unique
+    const groupKey = slabId ? `${slabId}_${version || 'null'}` : `row_${i}_${family}_${formulation || 'null'}_${version || 'null'}`;
     if (!slabGroups.has(groupKey)) {
       slabGroups.set(groupKey, []);
     }
@@ -182,8 +182,8 @@ export const previewCSVData = async (rows: CSVRow[]): Promise<{ willCreate: numb
       continue;
     }
 
-    // Group by slab_id + version combination
-    const groupKey = `${slabId}_${version || 'null'}`;
+    // Group by slab_id + version combination, but if no slab_id, treat each row as unique
+    const groupKey = slabId ? `${slabId}_${version || 'null'}` : `row_${i}_${family}_${formulation || 'null'}_${version || 'null'}`;
     if (!slabGroups.has(groupKey)) {
       slabGroups.set(groupKey, []);
     }
