@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { SlabSearch } from "@/components/SlabSearch";
 
 interface HeaderProps {
   searchTerm: string;
@@ -73,16 +74,10 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search slabs..."
-                value={searchTerm}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
+            <SlabSearch 
+              searchTerm={searchTerm}
+              onSearchChange={onSearchChange}
+            />
 
             {isAuthenticated && (
               <div className="flex items-center space-x-2">

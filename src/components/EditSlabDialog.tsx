@@ -237,48 +237,44 @@ const EditSlabDialog = ({ open, onOpenChange, slab }: EditSlabDialogProps) => {
           {/* Basic Information */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="slab_id">Slab ID *</Label>
+              <Label htmlFor="slab_id">Slab ID</Label>
               <Input
                 id="slab_id"
                 placeholder="e.g., 1A, 9C"
                 value={formData.slab_id}
                 onChange={(e) => setFormData({ ...formData, slab_id: e.target.value })}
-                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="received_date">Received Date *</Label>
+              <Label htmlFor="received_date">Received Date</Label>
               <Input
                 id="received_date"
                 type="date"
                 value={formData.received_date}
                 onChange={(e) => setFormData({ ...formData, received_date: e.target.value })}
-                required
               />
             </div>
           </div>
 
           {/* Family & Formulation */}
           <div className="space-y-2">
-            <Label htmlFor="family">Family *</Label>
+            <Label htmlFor="family">Family</Label>
             <Input
               id="family"
               placeholder="e.g., Fundamental Calacatta, Carrara"
               value={formData.family}
               onChange={(e) => setFormData({ ...formData, family: e.target.value })}
-              required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="formulation">Formulation (Sub-family) *</Label>
+              <Label htmlFor="formulation">Formulation (Sub-family)</Label>
               <Input
                 id="formulation"
                 placeholder="e.g., Sereno Bianco, 9907, etc"
                 value={formData.formulation}
                 onChange={(e) => setFormData({ ...formData, formulation: e.target.value })}
-                required
               />
             </div>
             <div className="space-y-2">
