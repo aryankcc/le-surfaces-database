@@ -49,7 +49,7 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
   return (
     <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2">
             <img 
               src="/lovable-uploads/fec473b2-b4d7-4f23-9b74-b56176be43af.png" 
@@ -58,12 +58,14 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
             />
           </Link>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex-1 mx-6">
             <SlabSearch 
               searchTerm={searchTerm}
               onSearchChange={onSearchChange}
             />
+          </div>
 
+          <div className="flex items-center space-x-4">
             {isAuthenticated && (
               <div className="flex items-center space-x-2">
                 <Button onClick={onAddSlab} size="sm">
