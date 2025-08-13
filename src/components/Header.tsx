@@ -50,28 +50,13 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
     <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/fec473b2-b4d7-4f23-9b74-b56176be43af.png" 
-                alt="LE Surfaces" 
-                className="h-8 w-auto"
-              />
-            </Link>
-            
-            <nav className="hidden md:flex space-x-4">
-              <Link to="/current" className="text-slate-600 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium">
-                Current Slabs
-              </Link>
-              <Link to="/development" className="text-slate-600 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium">
-                Development
-              </Link>
-              <Link to="/outbound" className="text-slate-600 hover:text-slate-800 px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1">
-                <Truck className="h-4 w-4" />
-                <span>Outbound Samples</span>
-              </Link>
-            </nav>
-          </div>
+          <Link to="/" className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/fec473b2-b4d7-4f23-9b74-b56176be43af.png" 
+              alt="LE Surfaces" 
+              className="h-8 w-auto"
+            />
+          </Link>
 
           <div className="flex items-center space-x-4">
             <SlabSearch 
