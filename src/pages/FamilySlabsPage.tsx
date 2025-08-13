@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +23,7 @@ const FamilySlabsPage = () => {
     categoryName: string; 
     familyName: string; 
   }>();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -58,6 +59,17 @@ const FamilySlabsPage = () => {
     },
     enabled: !!categoryName && !!decodedFamilyName
   });
+
+  // Auto-select slab from URL parameter
+  useEffect(() => {
+    const selectedSlabId = searchParams.get('selectedSlab');
+    if (selectedSlabId && slabs.length > 0) {
+      const slabToSelect = slabs.find(slab => slab.id === selectedSlabId);
+      if (slabToSelect) {
+        setSelectedSlab(slabToSelect);
+      }
+    }
+  }, [slabs, searchParams]);
 
   const checkAuthForAction = (action: string) => {
     if (!user) {

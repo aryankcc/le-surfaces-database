@@ -26,11 +26,15 @@ export const SlabSearch = ({ searchTerm, onSearchChange }: SlabSearchProps) => {
     setShowResults(false);
     onSearchChange("");
     
-    // Navigate to the appropriate page based on slab category
-    if (slab.category === 'current') {
-      navigate('/category/current');
-    } else if (slab.category === 'development') {
-      navigate('/category/development');
+    // Navigate to the specific family page with the slab selected
+    if (slab.category === 'current' || slab.category === 'development') {
+      if (slab.family) {
+        // Navigate to the family page with the slab ID as a query parameter
+        navigate(`/category/${slab.category}/family/${encodeURIComponent(slab.family)}?selectedSlab=${slab.id}`);
+      } else {
+        // Fallback to category page if no family
+        navigate(`/category/${slab.category}`);
+      }
     } else if (slab.status === 'sent') {
       navigate('/outbound-samples');
     }
