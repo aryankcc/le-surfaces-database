@@ -74,11 +74,15 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
                   <Upload className="h-4 w-4 mr-2" />
         <div className="flex-1 mx-6">
           <SlabSearch 
+            )
+            }
             searchTerm={searchTerm}
             onSearchChange={onSearchChange}
           />
         </div>
             {user ? (
+          )
+          }
         <div className="flex items-center space-x-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
