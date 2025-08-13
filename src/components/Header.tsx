@@ -72,18 +72,12 @@ const Header = ({ searchTerm, onSearchChange, onAddSlab, onCSVImport, isAuthenti
                 </Button>
                 <Button onClick={onCSVImport} variant="outline" size="sm">
                   <Upload className="h-4 w-4 mr-2" />
-        <div className="flex-1 mx-6">
-          <SlabSearch 
-            )
-            }
-            searchTerm={searchTerm}
-            onSearchChange={onSearchChange}
-          />
-        </div>
+                  Import CSV
+                </Button>
+              </div>
+            )}
+
             {user ? (
-          )
-          }
-        <div className="flex items-center space-x-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
